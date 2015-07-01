@@ -67,7 +67,7 @@ class ProjectImportRowModel < ProjectRowModel
 
   # optional, overrides the default below
   def name
-    mapped_row[:name].upcase
+    mapped_row.name.upcase
   end
 
   # optional, default always true
