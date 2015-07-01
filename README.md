@@ -18,115 +18,107 @@ Or install it yourself as:
 
     $ gem install csv_row_model
 
-## Usage
-
-### Basic Usage
+## RowModel
 
 Define your `RowModel`.
 ```ruby
 class ProjectRowModel
-  include RowModel
+  include CsvRowModel::Base
 
   # column numbers are tracked
   column :id
-  column :name, heading: "Project Name" # heading defualt is `column_name.to_s.titlize`, can pass proc
+  column :name
+  column :email
 end
 ```
 
-#### Export
+### ImportRowModel
 
-Follow [`ActiveModel::Serializer`](https://github.com/rails-api/active_model_serializers) patterns.
-```ruby
-class ProjectExportRowModel < ProjectRowModel
-  include ExportRowModel
-
-  # optionally define columns as such, default implementation below.
-  def name
-    object.name
-  end
-end
-
-# export an instance
-row_model = ProjectExportRowModel.new(project)
-row_model.headings # => ["Id", "Project Name"]
-row_model.export(without_headings: true) # without_headings default default is false
-
-# export a colection
-ExportRowModelCollection.new(projects, row_model: ProjectExportRowModel).export
-```
-
-#### Import
-
-You can map each column to an attribute of a single instance of a model.
+Automagically maps each column of a CSV row to an attribute of the `RowModel`.
 ```ruby
 class ProjectImportRowModel < ProjectRowModel
-  include ImportRowModel
+  include CsvRowModel::Import
 
-  # optionally match columns via headings instead of column number, optional proc. default proc shown.
-  match_headings ->(column_heading, source_heading) { column_heading == read_csv_header }
-
-  # optional, overrides the default below
+  # optional override
   def name
     mapped_row.name.upcase
+
+    # default implementation
+    # self.class.format_cell mapped_row.name, :name, 1
   end
 
-  # optional, default always true
-  def matched_instance?(instance)
-    self.id == instance.id
+  class << self
+    # optional override
+    def format_cell(cell, column_name, column_index)
+      cell.to_i.to_s == cell ? cell.to_i : cell
+
+      # default implementation
+      # cell
+    end
   end
 end
-
-# Import an instance
-row_model = ProjectImportRowModel.new(file)
-row_model.source_row # => ["1", "Some Project Name"]
-row_model.name # => "SOME PROJECT NAME"
-row_model.import(project)
-project.name # => "SOME PROJECT NAME"
 ```
 
-__Thinking about how to do this. The difference between importing and exporting is that finding and modifying is harder---you have to match the record and modifying depends on order....__
+And to import:
 ```ruby
-class ProjectImportRowMapper < ImportRowMapper
+import_file = CsvRowModel::ImportFile.new(file_path, ProjectImportRowModel)
+row_model = import_file.next
+
+row_model.header # => ["id", "name", "email"]
+
+row_model.source_row # => ["1", "Some Project Name", "blotz@hotzmail.com"]
+row_model.mapped_row # => <OpenStruct id="1", name="Some Project Name" email="blotz@hotzmail.com">
+
+row_model.id # => 1
+row_model.name # => "SOME PROJECT NAME"
+```
+
+`ImportFile` also provides the `RowModel` with the previous `RowModel` instance:
+```
+import_file = CsvRowModel::ImportFile.new(file_path, ProjectImportRowModel)
+row_model = import_file.next
+row_model = import_file.next
+
+row_model.previous # => <ProjectImportRowModel instance>
+row_model.previous.previous # => nil, save memory by avoiding a linked list
+```
+
+## Mappers
+
+If the CSV row represents something complex, a `Mapper` can be used to hide CSV details.
+
+CSV Row --is represented by--> `RowModel` --is abstracted by--> `Mapper`
+
+### InputMapper
+```ruby
+class ProjectImportMapper
+  include CsvRowModel::ImportMapper
+
   def project
     project = Project.find(row_model.id)
-    row_model.import(project)
+    project.name = row_model.name
+    project
   end
 
-  def child_project
-    .child_project
+  def user
+    User.find_by_email(row_model.email)
   end
 
-  # define whatever methods you want
+  class << self
+    def row_model_class
+      ProjectImportRowModel
+    end
+  end
 end
-
-ProjectImportRowMapper.new(ProjectImportRowModel.new(file)).child_project # => `Project` object that's the `child_project`
 ```
-### Validations
 
-Use `ActiveModel::Validations` to validate the row, all of these can be implemented in `RowModel`, `ExportRowModel` or `ImportRowModel`
+Importing is the same:
 ```ruby
-# ActiveModel::Validations
-validates :name, presence: true
+import_file = CsvRowModel::ImportFile.new(file_path, ProjectImportMapper)
+import_mapper = import_file.next
 
-# to handle collections, define when to skip a row or abort the collection. default implementations below
-def skip?
-  errors?
-end
+import_mapper.row_model # gets the row model underneath
+import_mapper.context # :context, :previous, :free_previous are delegated to row_model for convenience
 
-def abort?
-  match_headings? ? !headings_matched? : false
-end
+import_mapper.project.name # => "SOME PROJECT NAME", the `RowModel` is still working underneath
 ```
-Then you can call.
-```ruby
-row_model.valid?
-row_model.errors
-```
-
-## Contributing
-
-1. Fork it ( https://github.com/[my-github-username]/csv_row_model/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
