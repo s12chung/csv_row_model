@@ -3,7 +3,7 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     included do
-      attr_reader :source_header, :soruce_row, :mapped_row, :context, :previous
+      attr_reader :source_header, :source_row, :mapped_row, :context, :previous
 
       self.column_names.each.with_index do |column_name, index|
         self.send(:define_method, column_name) do
