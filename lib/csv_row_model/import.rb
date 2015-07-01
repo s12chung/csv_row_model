@@ -5,9 +5,9 @@ module CsvRowModel
     included do
       attr_reader :source_header, :soruce_row, :mapped_row, :context, :previous
 
-      self.column_names.each do |column_name|
+      self.column_names.each.with_index do |column_name, index|
         self.send(:define_method, column_name) do
-          mapped_row.public_send(column_name)
+          self.class.format_cell mapped_row.public_send(column_name), column_name, index
         end
       end
     end
@@ -29,14 +29,20 @@ module CsvRowModel
     end
 
     module ClassMethods
-      # TODO: handle inheritance again
-      def has_many(relation_name, relation_class)
-        @relation_name, @relation_class = relation_name, relation_class
-      end
-
       # TODO: handle children
       def child?(row)
         false
+      end
+
+      # May be overridden
+      def format_cell(cell, column_name, index)
+        cell
+      end
+
+      private
+      # TODO: handle inheritance again
+      def has_many(relation_name, relation_class)
+        @relation_name, @relation_class = relation_name, relation_class
       end
     end
   end
