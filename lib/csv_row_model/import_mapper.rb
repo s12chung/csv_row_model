@@ -22,6 +22,15 @@ module CsvRowModel
     end
 
     module ClassMethods
+      def memoize(*method_names)
+        method_names.each do |method_name|
+          define_method(method_name) do
+            variable_name = "@#{method_name}"
+            instance_variable_get(variable_name) || instance_variable_set(variable_name, send("_#{method_name}"))
+          end
+        end
+      end
+
       def row_model_class
         raise NotImplementedError
       end
