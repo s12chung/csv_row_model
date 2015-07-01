@@ -94,7 +94,8 @@ CSV Row --is represented by--> `RowModel` --is abstracted by--> `Mapper`
 class ProjectImportMapper
   include CsvRowModel::ImportMapper
 
-  # shortcut to memoize operations, to minimize gem size [Memoist](https://github.com/matthewrudy/memoist) is not used,
+  # shortcut to memoize operations, to minimize gem size
+  # https://github.com/matthewrudy/memoist is not used,
   # but you may use it yourself
   memoize :project, :user
 
@@ -130,6 +131,7 @@ import_mapper = import_file.next
 import_mapper.row_model # gets the row model underneath
 import_mapper.context # :context, :previous, :free_previous are delegated to row_model for convenience
 
-import_mapper.project.name # => "SOME PROJECT NAME", the `RowModel` is still working underneath
+# the `RowModel` is still working underneath
+import_mapper.project.name # => "SOME PROJECT NAME"
 import_mapper.project.name == import_mapper.project_name # => true
 ```
