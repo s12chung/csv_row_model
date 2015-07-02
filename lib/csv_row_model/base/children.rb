@@ -18,12 +18,11 @@ module CsvRowModel
         nil
       end
 
-      def family_public_send(method)
+      def deep_public_send(method)
         result = [public_send(method)]
-        result << self.class.has_many_relationships.keys.map {|relation_name| public_send(relation_name).map(&method) }
-        result.flatten!
-        result.reject!(&:nil?)
-        result
+        result + self.class.has_many_relationships.keys.map do |relation_name|
+          public_send(relation_name).map(&method)
+        end.flatten(1)
       end
 
       module ClassMethods
