@@ -7,7 +7,7 @@ module CsvRowModel
 
       self.column_names.each.with_index do |column_name, column_index|
         self.send(:define_method, column_name) do
-          self.class.format_cell mapped_row.public_send(column_name), column_name, column_index
+          self.class.format_cell mapped_row[column_name], column_name, column_index
         end
       end
     end
@@ -17,9 +17,9 @@ module CsvRowModel
 
       previous.try(:free_previous)
 
-      @mapped_row = OpenStruct.new
+      @mapped_row = {}
       self.class.column_names.each.with_index do |column_name, column_index|
-        @mapped_row.public_send("#{column_name}=", source_row[column_index])
+        @mapped_row[column_name] = source_row[column_index]
       end
     end
 

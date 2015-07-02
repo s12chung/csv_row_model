@@ -41,19 +41,13 @@ class ProjectImportRowModel < ProjectRowModel
 
   # optional override
   def name
-    mapped_row.name.upcase
-
-    # default implementation
-    # self.class.format_cell mapped_row.name, :name, 1
+    mapped_row[:name].upcase
   end
 
   class << self
     # optional override
     def format_cell(cell, column_name, column_index)
       cell.to_i.to_s == cell ? cell.to_i : cell
-
-      # default implementation
-      # cell
     end
   end
 end
@@ -67,7 +61,7 @@ row_model = import_file.next
 row_model.header # => ["id", "name", "email"]
 
 row_model.source_row # => ["1", "Some Project Name", "blotz@hotzmail.com"]
-row_model.mapped_row # => <OpenStruct id="1", name="Some Project Name" email="blotz@hotzmail.com">
+row_model.mapped_row # => { id: "1", name: "Some Project Name", email: "blotz@hotzmail.com" }
 
 row_model.id # => 1
 row_model.name # => "SOME PROJECT NAME"
