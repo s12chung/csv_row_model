@@ -4,12 +4,23 @@ module CsvRowModel
 
     included do
       include Columns
+
       include Children
+      attr_reader :parent
+    end
+
+    def initialize(options={})
+      @parent = options[:parent]
     end
 
     # TODO: more validations
+    def valid?
+      return false if child? && !parent.valid?
+      true
+    end
+
     def skip?
-      false
+      !valid?
     end
 
     def abort?
@@ -17,10 +28,13 @@ module CsvRowModel
     end
 
     module ClassMethods
-      # the class that included this module, so we can store class instance variables there
-      def included_csv_model_class
-        @included_csv_model_class ||= begin
-          inherited_ancestors = ancestors[0..(ancestors.index(Base) - 1)]
+      private
+
+      # the class that included included_module, so we can store class instance variables there
+      def class_included(included_module=Base)
+        @class_included ||= {}
+        @class_included[included_module] ||= begin
+          inherited_ancestors = ancestors[0..(ancestors.index(included_module) - 1)]
           index = inherited_ancestors.rindex {|inherited_ancestor| inherited_ancestor.class == Class }
           inherited_ancestors[index]
         end

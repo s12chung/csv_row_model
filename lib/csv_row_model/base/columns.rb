@@ -5,7 +5,7 @@ module CsvRowModel
 
       module ClassMethods
         def column_names
-          self == included_csv_model_class ? (@column_names ||= []) : included_csv_model_class.column_names
+          self == class_included ? (@column_names ||= []) : class_included.column_names
         end
 
         private

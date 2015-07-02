@@ -5,7 +5,7 @@ module CsvRowModel
     included do
       attr_reader :row_model
 
-      delegate :context, :previous, :free_previous, to: :row_model
+      delegate :context, :previous, :free_previous, :append_child, to: :row_model
     end
 
     def initialize(*args)
@@ -25,6 +25,9 @@ module CsvRowModel
       def memoize(*method_names)
         method_names.each do |method_name|
           define_method(method_name) do
+            #
+            # equal to: @method_name ||= _method_name
+            #
             variable_name = "@#{method_name}"
             instance_variable_get(variable_name) || instance_variable_set(variable_name, send("_#{method_name}"))
           end

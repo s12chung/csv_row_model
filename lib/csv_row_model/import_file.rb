@@ -3,7 +3,8 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     attr_reader :file, :row_model_class,
-                :index, :current_row_model, :previous_row_model
+                :index, # = -1 = start of file, 0 to infinity = index of row_model, nil = end of file, no row_model
+                :current_row_model, :previous_row_model
 
     delegate :header, :size, to: :file
 
@@ -19,22 +20,24 @@ module CsvRowModel
     end
 
     def next(context={})
-      # skip header
-      file.readline if file.index == -1
+      file.skip_header
 
-      file.readline
+      next_line_is_parent_row = true
+      loop do
+        @previous_row_model = current_row_model if next_line_is_parent_row
 
-      if file.current_row.nil?
-        @previous_row_model = current_row_model
-        @current_row_model = nil
-        @index = nil
-      elsif current_row_model.try(:child?, file.current_row)
-        # TODO: handle children
-      else
-        @previous_row_model = current_row_model
-        @current_row_model = row_model_class.new(file.current_row, context: context, source_header: header, previous: previous_row_model)
-        @index += 1
+        file.readline
+        return set_end_of_file if file.end_of_file?
+
+        set_current_row_model(context) if next_line_is_parent_row
+
+        next_line_is_parent_row = !current_row_model.append_child(file.next_line)
+        return current_row_model if next_line_is_parent_row
       end
+    end
+
+    def end_of_file?
+      Import::StateHelpers.and index.nil?, current_row_model.nil? && file.end_of_file?
     end
 
     def each(context={})
@@ -45,13 +48,24 @@ module CsvRowModel
         return false if current_row_model.abort?
         next if current_row_model.skip?
 
-        yield current_row_model, index
+        yield current_row_model, file.index
       end
     end
 
     # TODO: check valid file or abort
     def valid?
       true
+    end
+
+    private
+    def set_current_row_model(context)
+      @current_row_model = row_model_class.new(file.current_row, context: context, source_header: header, previous: previous_row_model)
+      @index += 1
+    end
+
+    def set_end_of_file
+      # please return nil
+      @current_row_model = @index = nil
     end
   end
 end

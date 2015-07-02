@@ -3,8 +3,9 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     included do
-      attr_reader :source_header, :source_row, :mapped_row, :context, :previous
+      attr_reader :source_header, :source_row, :context, :previous
 
+      # default methods for each column
       self.column_names.each.with_index do |column_name, column_index|
         self.send(:define_method, column_name) do
           self.class.format_cell mapped_row[column_name], column_name, column_index
@@ -12,15 +13,18 @@ module CsvRowModel
       end
     end
 
-    def initialize(source_row, context: {}, source_header: nil, previous: nil)
-      @source_row, @context, @source_header, @previous = source_row, OpenStruct.new(context), source_header, previous.try(:dup)
+    def initialize(source_row, options={})
+      options = options.symbolize_keys.reverse_merge(context: {})
+      @source_row, @context = source_row, OpenStruct.new(options[:context])
+      @source_header, @previous = options[:source_header], options[:previous].try(:dup)
 
       previous.try(:free_previous)
+      super(options)
+    end
 
-      @mapped_row = {}
-      self.class.column_names.each.with_index do |column_name, column_index|
-        @mapped_row[column_name] = source_row[column_index]
-      end
+    def mapped_row
+      nil unless source_row
+      @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
     # free previous from memory to avoid making a linked list
@@ -28,21 +32,19 @@ module CsvRowModel
       @previous = nil
     end
 
+    def valid?
+      source_row && super
+    end
+
     module ClassMethods
-      # TODO: handle children
-      def child?(row)
-        false
+      def has_many_relationships
+        class_included = class_included(Import)
+        self == class_included ? (@has_many_relationships ||= {}) : class_included.has_many_relationships
       end
 
       # May be overridden
       def format_cell(cell, column_name, column_index)
         cell
-      end
-
-      private
-      # TODO: handle inheritance again
-      def has_many(relation_name, relation_class)
-        @relation_name, @relation_class = relation_name, relation_class
       end
     end
   end
