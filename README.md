@@ -77,13 +77,30 @@ row_model.previous # => <ProjectImportRowModel instance>
 row_model.previous.previous # => nil, save memory by avoiding a linked list
 ```
 
-## Mappers
+### Import Children
+
+Child `RowModel` relationships can also be defined:
+
+```ruby
+class UserImportRowModel
+  include CsvRowModel::Base
+  include CsvRowModel::Import
+
+  # override ProjectImportRowModel#valid? to help detect the child row
+  has_many :projects, ProjectImportRowModel
+end
+
+import_file = CsvRowModel::ImportFile.new(file_path, ProjectImportRowModel)
+row_model = import_file.next
+row_model.projects # => [<ProjectImportRowModel>, ...] if ProjectImportRowModel#valid? == true
+```
+
+### ImportMapper
 
 If the CSV row represents something complex, a `Mapper` can be used to hide CSV details.
 
 CSV Row --is represented by--> `RowModel` --is abstracted by--> `Mapper`
 
-### InputMapper
 ```ruby
 class ProjectImportMapper
   include CsvRowModel::ImportMapper
