@@ -2,6 +2,11 @@ module CsvRowModel
   module Base
     extend ActiveSupport::Concern
 
+    included do
+      include Columns
+      include Children
+    end
+
     # TODO: more validations
     def skip?
       false
@@ -12,21 +17,13 @@ module CsvRowModel
     end
 
     module ClassMethods
-      def included_csv_model_base_class
-        @included_csv_model_base_class ||= ancestors[ancestors.index(CsvRowModel::Base) - 1]
-      end
-
-      def column_names
-        if self == included_csv_model_base_class
-          @column_names ||= []
-        else
-          included_csv_model_base_class.column_names
+      # the class that included this module, so we can store class instance variables there
+      def included_csv_model_class
+        @included_csv_model_class ||= begin
+          inherited_ancestors = ancestors[0..(ancestors.index(Base) - 1)]
+          index = inherited_ancestors.rindex {|inherited_ancestor| inherited_ancestor.class == Class }
+          inherited_ancestors[index]
         end
-      end
-
-      private
-      def column(column_name)
-        column_names << column_name
       end
     end
   end

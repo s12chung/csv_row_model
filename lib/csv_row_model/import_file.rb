@@ -8,7 +8,7 @@ module CsvRowModel
     delegate :header, :size, to: :file
 
     def initialize(file_path, row_model_class)
-      @file, @row_model_class = CsvRowModel::CsvFile.new(file_path), row_model_class
+      @file, @row_model_class = CsvFile.new(file_path), row_model_class
       reset
     end
 
