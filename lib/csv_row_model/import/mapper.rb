@@ -5,6 +5,7 @@ module CsvRowModel
 
       included do
         include ActiveModel::Validations
+        include Base
 
         attr_reader :row_model
 
@@ -22,6 +23,10 @@ module CsvRowModel
 
       def abort?
         row_model.abort?
+      end
+
+      def attributes
+        row_model.attributes
       end
 
       module ClassMethods

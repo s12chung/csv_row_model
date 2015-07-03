@@ -35,8 +35,21 @@ module CsvRowModel
     module ClassMethods
       private
 
+      def memoized_class_included_var(variable_name, default_value, included_module)
+        class_included = class_included(included_module)
+        if self == class_included
+          #
+          # equal to: @variable_name ||= default_value
+          #
+          variable_name = "@#{variable_name}"
+          instance_variable_get(variable_name) || instance_variable_set(variable_name, default_value)
+        else
+          class_included.public_send(variable_name)
+        end
+      end
+
       # the class that included included_module, so we can store class instance variables there
-      def class_included(included_module=Model)
+      def class_included(included_module)
         @class_included ||= {}
         @class_included[included_module] ||= begin
           inherited_ancestors = ancestors[0..(ancestors.index(included_module) - 1)]

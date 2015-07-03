@@ -1,3 +1,5 @@
+require "csv_row_model/model"
+
 module CsvRowModel
   module Import
     extend ActiveSupport::Concern
@@ -38,8 +40,7 @@ module CsvRowModel
 
     module ClassMethods
       def has_many_relationships
-        class_included = class_included(Import)
-        self == class_included ? (@has_many_relationships ||= {}) : class_included.has_many_relationships
+        memoized_class_included_var :has_many_relationships, {}, Import
       end
 
       # May be overridden
