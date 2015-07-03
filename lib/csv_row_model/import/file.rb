@@ -56,7 +56,7 @@ module CsvRowModel
           next if _skip?
 
           run_callbacks :yield do
-            yield current_row_model, csv.index
+            yield current_row_model
           end
         end
       end
