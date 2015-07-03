@@ -55,7 +55,7 @@ end
 
 And to import:
 ```ruby
-import_file = CsvRowModel::ImportFile.new(file_path, ProjectImportRowModel)
+import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
 
 row_model.header # => ["id", "name", "email"]
@@ -67,9 +67,9 @@ row_model.id # => 1
 row_model.name # => "SOME PROJECT NAME"
 ```
 
-`ImportFile` also provides the `RowModel` with the previous `RowModel` instance:
+`Import::File` also provides the `RowModel` with the previous `RowModel` instance:
 ```
-import_file = CsvRowModel::ImportFile.new(file_path, ProjectImportRowModel)
+import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
 row_model = import_file.next
 
@@ -90,7 +90,7 @@ class UserImportRowModel
   has_many :projects, ProjectImportRowModel
 end
 
-import_file = CsvRowModel::ImportFile.new(file_path, ProjectImportRowModel)
+import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
 row_model.projects # => [<ProjectImportRowModel>, ...] if ProjectImportRowModel#valid? == true
 ```
@@ -103,7 +103,7 @@ CSV Row --is represented by--> `RowModel` --is abstracted by--> `Mapper`
 
 ```ruby
 class ProjectImportMapper
-  include CsvRowModel::ImportMapper
+  include CsvRowModel::Import::Mapper
 
   # shortcut to memoize operations, to minimize gem size
   # https://github.com/matthewrudy/memoist is not used,
@@ -136,7 +136,7 @@ end
 
 Importing is the same:
 ```ruby
-import_file = CsvRowModel::ImportFile.new(file_path, ProjectImportMapper)
+import_file = CsvRowModel::Import::File.new(file_path, ProjectImportMapper)
 import_mapper = import_file.next
 
 import_mapper.row_model # gets the row model underneath
