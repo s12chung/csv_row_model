@@ -23,7 +23,7 @@ Or install it yourself as:
 Define your `RowModel`.
 ```ruby
 class ProjectRowModel
-  include CsvRowModel::Base
+  include CsvRowModel::Model
 
   # column numbers are tracked
   column :id
@@ -83,7 +83,7 @@ Child `RowModel` relationships can also be defined:
 
 ```ruby
 class UserImportRowModel
-  include CsvRowModel::Base
+  include CsvRowModel::Model
   include CsvRowModel::Import
 
   # override ProjectImportRowModel#valid? to help detect the child row

@@ -1,5 +1,5 @@
 module CsvRowModel
-  module Base
+  module Model
     module Children
       extend ActiveSupport::Concern
 

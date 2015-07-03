@@ -1,5 +1,8 @@
+require 'csv_row_model/model/columns'
+require 'csv_row_model/model/children'
+
 module CsvRowModel
-  module Base
+  module Model
     extend ActiveSupport::Concern
 
     included do
@@ -33,7 +36,7 @@ module CsvRowModel
       private
 
       # the class that included included_module, so we can store class instance variables there
-      def class_included(included_module=Base)
+      def class_included(included_module=Model)
         @class_included ||= {}
         @class_included[included_module] ||= begin
           inherited_ancestors = ancestors[0..(ancestors.index(included_module) - 1)]

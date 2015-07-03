@@ -1,3 +1,7 @@
+require 'csv_row_model/import/file/callbacks'
+require 'csv_row_model/import/file/validations'
+require 'csv_row_model/state_helpers'
+
 module CsvRowModel
   module Import
     class File

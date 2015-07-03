@@ -1,3 +1,5 @@
+require 'csv_row_model/state_helpers'
+
 module CsvRowModel
   module Import
     class Csv

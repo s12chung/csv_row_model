@@ -1,5 +1,5 @@
 module CsvRowModel
-  module Base
+  module Model
     module Columns
       extend ActiveSupport::Concern
 
