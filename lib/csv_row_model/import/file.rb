@@ -1,7 +1,8 @@
 module CsvRowModel
   module Import
     class File
-      extend ActiveSupport::Concern
+      include Callbacks
+      include Validations
 
       attr_reader :csv, :row_model_class,
                   :index, # = -1 = start of file, 0 to infinity = index of row_model, nil = end of file, no row_model
@@ -42,20 +43,18 @@ module CsvRowModel
       end
 
       def each(context={})
-        return false unless valid?
+        return false if _abort?
 
         while self.next(context)
           # TODO: collect row_model errors
-          return false if current_row_model.abort?
-          next if current_row_model.skip?
 
-          yield current_row_model, csv.index
+          return false if _abort?
+          next if _skip?
+
+          run_callbacks :yield do
+            yield current_row_model, csv.index
+          end
         end
-      end
-
-      # TODO: check valid file or abort
-      def valid?
-        true
       end
 
       private

@@ -3,6 +3,8 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     included do
+      include ActiveModel::Validations
+
       include Columns
 
       include Children
@@ -16,7 +18,7 @@ module CsvRowModel
     # TODO: more validations
     def valid?
       return false if child? && !parent.valid?
-      true
+      super
     end
 
     def skip?

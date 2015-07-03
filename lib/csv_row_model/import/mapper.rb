@@ -4,6 +4,8 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       included do
+        include ActiveModel::Validations
+
         attr_reader :row_model
 
         delegate :context, :previous, :free_previous, :append_child, to: :row_model
