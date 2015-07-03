@@ -16,6 +16,10 @@ module CsvRowModel
         @row_model = self.class.row_model_class.new(*args)
       end
 
+      def valid?
+        super && row_model.valid?
+      end
+
       # TODO: validations...
       def skip?
         row_model.skip?

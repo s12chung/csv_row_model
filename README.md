@@ -28,7 +28,6 @@ class ProjectRowModel
   # column numbers are tracked
   column :id
   column :name
-  column :email
 end
 ```
 
@@ -58,10 +57,10 @@ And to import:
 import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
 
-row_model.header # => ["id", "name", "email"]
+row_model.header # => ["id", "name"]
 
-row_model.source_row # => ["1", "Some Project Name", "blotz@hotzmail.com"]
-row_model.mapped_row # => { id: "1", name: "Some Project Name", email: "blotz@hotzmail.com" }
+row_model.source_row # => ["1", "Some Project Name"]
+row_model.mapped_row # => { id: "1", name: "Some Project Name" }
 
 row_model.id # => 1
 row_model.name # => "SOME PROJECT NAME"
@@ -86,11 +85,16 @@ class UserImportRowModel
   include CsvRowModel::Model
   include CsvRowModel::Import
 
-  # override ProjectImportRowModel#valid? to help detect the child row
+  column :id
+  column :name
+  column :email
+
+  # uses ProjectImportRowModel#valid? to detect the child row
+  # use validations or overriding to do this
   has_many :projects, ProjectImportRowModel
 end
 
-import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
+import_file = CsvRowModel::Import::File.new(file_path, UserImportRowModel)
 row_model = import_file.next
 row_model.projects # => [<ProjectImportRowModel>, ...] if ProjectImportRowModel#valid? == true
 ```
@@ -145,4 +149,39 @@ import_mapper.context # :context, :previous, :free_previous are delegated to row
 # the `RowModel` is still working underneath
 import_mapper.project.name # => "SOME PROJECT NAME"
 import_mapper.project.name == import_mapper.project_name # => true
+```
+
+## Validations
+
+Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html)
+on your `RowModel` or `Mapper`.
+
+## Callbacks
+You can also iterate through a file with the `#each` method:
+```ruby
+CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project_import_model|
+  # the "given block"
+end
+```
+
+`CsvRowModel::Import::File` can be subclassed to access
+[`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html):
+
+* yield - before, around, or after yielding the `RowModel` to the "given block" (see Ruby code above)
+* skip - before
+* abort - before
+
+```ruby
+class ImportFile < CsvRowModel::Import::File
+    around_yield :logger_track
+    before_skip :track_skip
+
+    def logger_track(&block)
+      ...
+    end
+
+    def track_skip
+      ...
+    end
+end
 ```
