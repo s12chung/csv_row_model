@@ -1,5 +1,3 @@
-require 'csv_row_model/state_helpers'
-
 module CsvRowModel
   module Import
     class Csv
@@ -53,7 +51,7 @@ module CsvRowModel
       end
 
       def end_of_file?
-        StateHelpers.and index.nil?, current_row.nil?
+        index.nil?
       end
 
       def next_line

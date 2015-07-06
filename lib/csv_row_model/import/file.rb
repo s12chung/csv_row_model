@@ -1,6 +1,5 @@
 require 'csv_row_model/import/file/callbacks'
 require 'csv_row_model/import/file/validations'
-require 'csv_row_model/state_helpers'
 
 module CsvRowModel
   module Import
@@ -43,7 +42,7 @@ module CsvRowModel
       end
 
       def end_of_file?
-        StateHelpers.and index.nil?, current_row_model.nil? && csv.end_of_file?
+        csv.end_of_file?
       end
 
       def each(context={})
