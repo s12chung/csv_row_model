@@ -20,15 +20,21 @@ module CsvRowModel
       validate_variables :parent
     end
 
+    # @param [Hash] options
+    # @option options [String] :parent if the instance is a child, pass the parent
     def initialize(options={})
       @parent = options[:parent]
     end
 
+    # Safe to override.
+    #
     # @return [Boolean] returns true, if this instance should be skipped
     def skip?
       !valid?
     end
 
+    # Safe to override.
+    #
     # @return [Boolean] returns true, if the entire csv file should stop reading
     def abort?
       false
