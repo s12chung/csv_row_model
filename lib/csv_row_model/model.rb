@@ -8,7 +8,7 @@ module CsvRowModel
 
     included do
       include ActiveModel::Validations
-      include Validators::ValidateVariables
+      include Validators::ValidateAttributes
 
       include Columns
 
@@ -17,7 +17,7 @@ module CsvRowModel
       # @return [Model] return the parent, if this instance is a child
       attr_reader :parent
 
-      validate_variables :parent
+      validate_attributes :parent
     end
 
     # @param [Hash] options

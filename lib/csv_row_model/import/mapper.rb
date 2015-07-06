@@ -5,7 +5,7 @@ module CsvRowModel
 
       included do
         include ActiveModel::Validations
-        include Validators::ValidateVariables
+        include Validators::ValidateAttributes
 
         attr_reader :row_model
 
@@ -13,7 +13,7 @@ module CsvRowModel
                  :skip?, :abort?, :attributes, :to_json, to: :row_model
 
         validates :row_model, presence: true
-        validate_variables :row_model
+        validate_attributes :row_model
       end
 
       def initialize(*args)

@@ -6,9 +6,9 @@ module CsvRowModel
 
         included do
           include ActiveModel::Validations
-          include Validators::ValidateVariables
+          include Validators::ValidateAttributes
 
-          validate_variables :csv
+          validate_attributes :csv
         end
 
         def abort?
