@@ -6,7 +6,7 @@ module CsvRowModel
 
         included do
           include ActiveModel::Validations
-          include ValidateVariables
+          include Validators::ValidateVariables
 
           validate_variables :csv
         end

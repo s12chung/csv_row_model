@@ -7,7 +7,7 @@ module CsvRowModel
 
     included do
       include ActiveModel::Validations
-      include ValidateVariables
+      include Validators::ValidateVariables
 
       include Columns
 
