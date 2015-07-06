@@ -1,5 +1,3 @@
-require "csv_row_model/model"
-
 module CsvRowModel
   module Import
     extend ActiveSupport::Concern
