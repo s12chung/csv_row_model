@@ -3,10 +3,6 @@ module CsvRowModel
     module Columns
       extend ActiveSupport::Concern
 
-      included do
-        include Base
-      end
-
       def attributes
         attributes = self.class.column_names
           .zip(self.class.column_names.map { |column_name| public_send(column_name) })

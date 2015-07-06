@@ -5,32 +5,20 @@ module CsvRowModel
 
       included do
         include ActiveModel::Validations
+        include ValidateVariables
         include Base
 
         attr_reader :row_model
 
-        delegate :context, :previous, :free_previous, :append_child, to: :row_model
+        delegate :context, :previous, :free_previous, :append_child,
+                 :skip?, :abort?, :attributes, to: :row_model
+
+        validates :row_model, presence: true
+        validate_variables :row_model
       end
 
       def initialize(*args)
         @row_model = self.class.row_model_class.new(*args)
-      end
-
-      def valid?
-        super && row_model.valid?
-      end
-
-      # TODO: validations...
-      def skip?
-        row_model.skip?
-      end
-
-      def abort?
-        row_model.abort?
-      end
-
-      def attributes
-        row_model.attributes
       end
 
       module ClassMethods

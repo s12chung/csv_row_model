@@ -13,6 +13,8 @@ module CsvRowModel
           self.class.format_cell mapped_row[column_name], column_name, column_index
         end
       end
+
+      validates :source_row, presence: true
     end
 
     def initialize(source_row, options={})
@@ -25,17 +27,13 @@ module CsvRowModel
     end
 
     def mapped_row
-      nil unless source_row
+      return {} unless source_row
       @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
     # free previous from memory to avoid making a linked list
     def free_previous
       @previous = nil
-    end
-
-    def valid?
-      source_row && super
     end
 
     module ClassMethods

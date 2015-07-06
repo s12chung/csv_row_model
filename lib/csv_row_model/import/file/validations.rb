@@ -9,11 +9,11 @@ module CsvRowModel
         end
 
         def abort?
-          !valid? || current_row_model.try(:abort?)
+          !valid? || !!current_row_model.try(:abort?)
         end
 
         def skip?
-          current_row_model.try(:skip?)
+          !!current_row_model.try(:skip?)
         end
 
         # TODO: check valid file or abort

@@ -7,21 +7,19 @@ module CsvRowModel
 
     included do
       include ActiveModel::Validations
+      include ValidateVariables
 
+      include Base
       include Columns
 
       include Children
       attr_reader :parent
+
+      validate_variables :parent
     end
 
     def initialize(options={})
       @parent = options[:parent]
-    end
-
-    # TODO: more validations
-    def valid?
-      return false if child? && !parent.valid?
-      super
     end
 
     def skip?
