@@ -3,7 +3,7 @@ module CsvRowModel
     module ValidateAttributes
       extend ActiveSupport::Concern
 
-      class AttributeValidator < ActiveModel::EachValidator
+      class AttributeValidator < ActiveModel::EachValidator # :nodoc:
         def validate_each(record, attribute, value)
           return unless value && !value.valid?
           record.errors.add(attribute)
@@ -13,7 +13,10 @@ module CsvRowModel
       class_methods do
         protected
 
-        # inspiration: https://github.com/rails/rails/blob/2bb0abbec0e4abe843131f188129a1189b1bf714/activerecord/lib/active_record/validations/associated.rb#L46
+        # Adds validation check to add errors any attribute of `attributes` passed is truthy and invalid.
+        # Inspired by: https://github.com/rails/rails/blob/2bb0abbec0e4abe843131f188129a1189b1bf714/activerecord/lib/active_record/validations/associated.rb#L46
+        #
+        # @param [Array<Symbol>] attributes array of attributes to check
         def validate_attributes(*attributes)
           validates_with AttributeValidator, { attributes: attributes }
         end

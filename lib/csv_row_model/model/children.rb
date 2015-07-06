@@ -3,14 +3,14 @@ module CsvRowModel
     module Children
       extend ActiveSupport::Concern
 
-      # @returns [Boolean] returns true, if the instance is a child
+      # @return [Boolean] returns true, if the instance is a child
       def child?
         !!parent
       end
 
       # Appends child to the parent and returns it
       #
-      # @returns [Model] return the child if it is valid, otherwise returns nil
+      # @return [Model] return the child if it is valid, otherwise returns nil
       def append_child(source, options={})
         self.class.has_many_relationships.each do |relation_name, child_class|
           child_row_model = child_class.new(source, options.reverse_merge(parent: self))
@@ -24,7 +24,7 @@ module CsvRowModel
 
       # Convenience method to return an array of calling `public_send(method_name)` on itself and it's children
       #
-      # @returns [Array] results of `public_send(method_name)` in a flattened array
+      # @return [Array] results of `public_send(method_name)` in a flattened array
       def deep_public_send(method_name)
         result = [public_send(method_name)]
         result + self.class.has_many_relationships.keys.map do |relation_name|

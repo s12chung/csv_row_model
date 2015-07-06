@@ -11,10 +11,12 @@ module CsvRowModel
           validate_attributes :csv
         end
 
+        # @return [Boolean] returns true, if the file should abort reading
         def abort?
           !valid? || !!current_row_model.try(:abort?)
         end
 
+        # @return [Boolean] returns true, if the file should skip `current_row_model`
         def skip?
           !!current_row_model.try(:skip?)
         end

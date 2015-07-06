@@ -5,5 +5,7 @@
 --markup-provider redcarpet
 
 --plugin activesupport-concern
+--plugin yard-delegate
+
 --protected
 --private

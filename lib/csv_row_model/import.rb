@@ -1,4 +1,5 @@
 module CsvRowModel
+  # Include this to with {Model} to have a RowModel for importing csvs.
   module Import
     extend ActiveSupport::Concern
 

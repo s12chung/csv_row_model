@@ -1,5 +1,6 @@
 module CsvRowModel
   module Import
+    # Represents a mapping between a import row model and your own models
     module Mapper
       extend ActiveSupport::Concern
 
@@ -21,6 +22,15 @@ module CsvRowModel
       end
 
       class_methods do
+        protected
+
+        # For every method name define the following:
+        #
+        # ```ruby
+        # def method_name; @method_name ||= _method_name end
+        # ```
+        #
+        # @param [Array<Symbol>] method_names method names to memoize
         def memoize(*method_names)
           method_names.each do |method_name|
             define_method(method_name) do
