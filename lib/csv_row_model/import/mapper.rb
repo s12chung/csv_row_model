@@ -6,12 +6,11 @@ module CsvRowModel
       included do
         include ActiveModel::Validations
         include ValidateVariables
-        include Base
 
         attr_reader :row_model
 
         delegate :context, :previous, :free_previous, :append_child,
-                 :skip?, :abort?, :attributes, to: :row_model
+                 :skip?, :abort?, :attributes, :to_json, to: :row_model
 
         validates :row_model, presence: true
         validate_variables :row_model

@@ -1,4 +1,3 @@
-require 'csv_row_model/base'
 require 'csv_row_model/model/columns'
 require 'csv_row_model/model/children'
 
@@ -10,7 +9,6 @@ module CsvRowModel
       include ActiveModel::Validations
       include ValidateVariables
 
-      include Base
       include Columns
 
       include Children

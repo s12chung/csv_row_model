@@ -11,6 +11,10 @@ module CsvRowModel
         attributes
       end
 
+      def to_json
+        attributes.to_json
+      end
+
       module ClassMethods
         def column_names
           memoized_class_included_var :column_names, [], Model
