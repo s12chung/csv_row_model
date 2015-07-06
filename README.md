@@ -21,6 +21,7 @@ Or install it yourself as:
 ## RowModel
 
 Define your `RowModel`.
+
 ```ruby
 class ProjectRowModel
   include CsvRowModel::Model
@@ -34,6 +35,7 @@ end
 ### ImportRowModel
 
 Automagically maps each column of a CSV row to an attribute of the `RowModel`.
+
 ```ruby
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
@@ -53,6 +55,7 @@ end
 ```
 
 And to import:
+
 ```ruby
 import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
@@ -67,6 +70,7 @@ row_model.name # => "SOME PROJECT NAME"
 ```
 
 `Import::File` also provides the `RowModel` with the previous `RowModel` instance:
+
 ```
 import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
@@ -139,6 +143,7 @@ end
 ```
 
 Importing is the same:
+
 ```ruby
 import_file = CsvRowModel::Import::File.new(file_path, ProjectImportMapper)
 import_mapper = import_file.next
@@ -158,6 +163,7 @@ on your `RowModel` or `Mapper`.
 
 ## Callbacks
 You can also iterate through a file with the `#each` method:
+
 ```ruby
 CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project_import_model|
   # the "given block"
@@ -167,9 +173,9 @@ end
 `CsvRowModel::Import::File` can be subclassed to access
 [`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html):
 
-* yield - before, around, or after yielding the `RowModel` to the "given block" (see Ruby code above)
-* skip - before
-* abort - before
+* yield - `before`, `around`, or `after` yielding the `RowModel` to the "given block" (see Ruby code above)
+* skip - `before`
+* abort - `before`
 
 ```ruby
 class ImportFile < CsvRowModel::Import::File

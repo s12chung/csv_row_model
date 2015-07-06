@@ -25,7 +25,7 @@ module CsvRowModel
         end.flatten(1)
       end
 
-      module ClassMethods
+      class_methods do
         protected
         # ::has_many_relationships is based off ::class_included(Input or Output)
         def has_many(relation_name, row_model_class)

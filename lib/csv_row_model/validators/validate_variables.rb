@@ -10,7 +10,7 @@ module CsvRowModel
         end
       end
 
-      module ClassMethods
+      class_methods do
         protected
 
         # inspiration: https://github.com/rails/rails/blob/2bb0abbec0e4abe843131f188129a1189b1bf714/activerecord/lib/active_record/validations/associated.rb#L46

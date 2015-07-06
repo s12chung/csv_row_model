@@ -34,7 +34,7 @@ module CsvRowModel
       @previous = nil
     end
 
-    module ClassMethods
+    class_methods do
       def has_many_relationships
         memoized_class_included_var :has_many_relationships, {}, Import
       end

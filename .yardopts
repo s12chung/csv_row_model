@@ -1,0 +1,9 @@
+--no-cache
+--no-output
+--verbose
+--markup markdown
+--markup-provider redcarpet
+
+--plugin activesupport-concern
+--protected
+--private

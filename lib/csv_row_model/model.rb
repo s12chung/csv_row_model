@@ -2,6 +2,7 @@ require 'csv_row_model/model/columns'
 require 'csv_row_model/model/children'
 
 module CsvRowModel
+  # Base module for representing a RowModel---a model that represents row(s).
   module Model
     extend ActiveSupport::Concern
 
@@ -12,6 +13,8 @@ module CsvRowModel
       include Columns
 
       include Children
+
+      # @return [Model] return the parent, if this instance is a child
       attr_reader :parent
 
       validate_variables :parent
@@ -21,17 +24,26 @@ module CsvRowModel
       @parent = options[:parent]
     end
 
+    # @return [Boolean] returns true, if this instance should be skipped
     def skip?
       !valid?
     end
 
+    # @return [Boolean] returns true, if the entire csv file should stop reading
     def abort?
       false
     end
 
-    module ClassMethods
+    class_methods do
+
       protected
 
+      # Returns a memoized variable on the class that included `included_module`
+      #
+      # @param variable_name [Symbol] name of the variable name memoized
+      # @param default_value [Symbol] default value of the memoized variable
+      # @param included_module [Module] module to search for
+      # @return [Object] returns the value of the instance variable of the class that included `included_module`
       def memoized_class_included_var(variable_name, default_value, included_module)
         class_included = class_included(included_module)
         if self == class_included
@@ -45,7 +57,10 @@ module CsvRowModel
         end
       end
 
-      # the class that included included_module, so we can store class instance variables there
+      # Returns the class that included `included_module`, so class variables can be stored there without inheritance prpblems
+      #
+      # @param included_module [Module] module to search for
+      # @return [Class] the class that included `included_module`
       def class_included(included_module)
         @class_included ||= {}
         @class_included[included_module] ||= begin
