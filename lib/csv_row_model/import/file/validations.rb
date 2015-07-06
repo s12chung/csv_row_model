@@ -6,6 +6,9 @@ module CsvRowModel
 
         included do
           include ActiveModel::Validations
+          include ValidateVariables
+
+          validate_variables :csv
         end
 
         def abort?
@@ -14,11 +17,6 @@ module CsvRowModel
 
         def skip?
           !!current_row_model.try(:skip?)
-        end
-
-        # TODO: check valid file or abort
-        def valid?
-          super
         end
 
         protected

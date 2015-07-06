@@ -7,6 +7,10 @@ module CsvRowModel
                   :index, # = -1 = start of file, 0 to infinity = index of row_model, nil = end of file, no row_model
                   :current_row
 
+      include ActiveModel::Validations
+
+      validate :_file
+
       def initialize(path)
         @path = path
         reset
@@ -59,6 +63,14 @@ module CsvRowModel
       protected
       def _file
         CSV.open(path)
+      rescue e
+        errors.add(:file, e.message)
+      end
+
+      def _readline
+        file.readline
+      rescue e
+        errors.add(:file, e.message)
       end
 
       def file
