@@ -118,7 +118,7 @@ class ProjectImportMapper
     row_model.name
   end
 
-  private
+  protected
 
   def _project
     project = Project.find(row_model.id)

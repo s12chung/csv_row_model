@@ -56,7 +56,7 @@ module CsvRowModel
         @next_line ||= file.readline
       end
 
-      private
+      protected
       def _file
         CSV.open(path)
       end

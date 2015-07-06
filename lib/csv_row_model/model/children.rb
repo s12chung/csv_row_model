@@ -26,7 +26,7 @@ module CsvRowModel
       end
 
       module ClassMethods
-        private
+        protected
         # ::has_many_relationships is based off ::class_included(Input or Output)
         def has_many(relation_name, row_model_class)
           raise "for now, CsvRowModel's has_many may only be called once" if has_many_relationships.keys.present?

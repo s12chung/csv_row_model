@@ -33,7 +33,7 @@ module CsvRowModel
     end
 
     module ClassMethods
-      private
+      protected
 
       def memoized_class_included_var(variable_name, default_value, included_module)
         class_included = class_included(included_module)

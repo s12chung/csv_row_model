@@ -21,7 +21,7 @@ module CsvRowModel
           super
         end
 
-        private
+        protected
         def _abort?
           abort = abort?
           run_callbacks(:abort) if abort

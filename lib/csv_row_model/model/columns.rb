@@ -20,7 +20,7 @@ module CsvRowModel
           memoized_class_included_var :column_names, [], Model
         end
 
-        private
+        protected
         def column(column_name)
           column_names << column_name
         end

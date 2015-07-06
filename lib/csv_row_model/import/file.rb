@@ -61,7 +61,7 @@ module CsvRowModel
         end
       end
 
-      private
+      protected
       def set_current_row_model(context)
         @current_row_model = row_model_class.new(csv.current_row, context: context, source_header: header, previous: previous_row_model)
         @index += 1
