@@ -11,7 +11,7 @@ module CsvRowModel
         attr_reader :row_model
 
         delegate :context, :previous, :free_previous, :append_child,
-                 :skip?, :abort?, :attributes, :to_json, to: :row_model
+                 :attributes, :to_json, to: :row_model
 
         validates :row_model, presence: true
         validate_attributes :row_model
@@ -19,6 +19,20 @@ module CsvRowModel
 
       def initialize(*args)
         @row_model = self.class.row_model_class.new(*args)
+      end
+
+      # Safe to override.
+      #
+      # @return [Boolean] returns true, if this instance should be skipped
+      def skip?
+        !valid? || row_model.skip?
+      end
+
+      # Safe to override.
+      #
+      # @return [Boolean] returns true, if the entire csv file should stop reading
+      def abort?
+        row_model.abort?
       end
 
       class_methods do
