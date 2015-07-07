@@ -10,12 +10,15 @@ module CsvRowModel
 
       # @return [Csv]
       attr_reader :csv
+      # @return [Input,Mapper] model class returned for importing
       attr_reader :row_model_class
 
       # Current index of the row model
       # @return [Integer] returns -1 = start of file, 0 to infinity = index of row_model, nil = end of file, no row_model
       attr_reader :index
+      # @return [Input, Mapper] the current row model set by {#next}
       attr_reader :current_row_model
+      # @return [Input, Mapper] the previous row model set by {#next}
       attr_reader :previous_row_model
 
       delegate :header, :size, to: :csv
