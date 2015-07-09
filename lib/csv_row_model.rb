@@ -1,7 +1,12 @@
-if defined?(Rails)
+autoload = false
+# autoload = true #uncomment for testing purposes only, not covered by rspec
+
+if autoload
   require 'csv_row_model/engine'
 else
   require 'active_model'
+
+  require 'csv_row_model/validators/validate_attributes'
 
   require 'csv_row_model/version'
 
