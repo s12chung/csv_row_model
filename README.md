@@ -1,4 +1,4 @@
-# CsvRowModel
+# CsvRowModel [![Build Status](https://travis-ci.org/s12chung/csv_row_model.svg?branch=master)](https://travis-ci.org/s12chung/csv_row_model)
 
 Import and export your custom CSVs with a intuitive shared Ruby interface.
 
