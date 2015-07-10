@@ -8,3 +8,5 @@ rvm:
 matrix:
   allow_failures:
     - rvm: ruby-head
+env:
+  - CODECLIMATE_REPO_TOKEN=6b3e0fb12a56a7aba4b43ca8662d8a5383c831d98b92fc818ea731f4e70e73cd bundle exec rake
