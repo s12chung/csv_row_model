@@ -8,7 +8,6 @@ module CsvRowModel
         attributes = self.class.column_names
           .zip(self.class.column_names.map { |column_name| public_send(column_name) })
           .to_h
-        attributes.merge!(class: self.class.to_s)
         attributes
       end
 

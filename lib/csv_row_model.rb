@@ -5,6 +5,7 @@ if autoload
   require 'csv_row_model/engine'
 else
   require 'active_model'
+  require 'active_support/all'
 
   require 'csv_row_model/validators/validate_attributes'
 

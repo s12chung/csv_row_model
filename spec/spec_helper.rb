@@ -3,3 +3,5 @@ CodeClimate::TestReporter.start
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'csv_row_model'
+
+require "fixtures/models"

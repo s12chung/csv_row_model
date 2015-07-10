@@ -20,9 +20,10 @@ module CsvRowModel
       validate_attributes :parent
     end
 
+    # @param [NilClass] source not used here, see {Input}
     # @param [Hash] options
     # @option options [String] :parent if the instance is a child, pass the parent
-    def initialize(options={})
+    def initialize(source=nil, options={})
       @parent = options[:parent]
     end
 
