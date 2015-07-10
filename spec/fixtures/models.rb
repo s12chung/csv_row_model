@@ -9,7 +9,7 @@ class BasicImportModel < BasicModel
   include CsvRowModel::Import
 end
 
-class ParentImportModel < BasicImportModel
+class ParentImportModel < BasicModel # BasicImportModel
   include CsvRowModel::Import
 
   has_many :children, BasicImportModel
