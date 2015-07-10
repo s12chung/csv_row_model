@@ -1,6 +1,8 @@
 module CsvRowModel
   module Import
-    # Represents a mapping between a import row model and your own models
+    # Represents a mapping between a {Import} {row_model} and your own models
+    #
+    # __Should implement the class method {row_model_class}__
     module Mapper
       extend ActiveSupport::Concern
 
@@ -57,6 +59,9 @@ module CsvRowModel
           end
         end
 
+        # Safe to override.
+        #
+        # @return [Class] returns the {Import} class used for {row_model} that this class wraps around
         def row_model_class
           raise NotImplementedError
         end

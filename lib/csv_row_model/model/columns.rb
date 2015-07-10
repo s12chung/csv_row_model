@@ -5,10 +5,9 @@ module CsvRowModel
 
       # @return [Hash] a map of `column_name => public_send(column_name)`
       def attributes
-        attributes = self.class.column_names
+        self.class.column_names
           .zip(self.class.column_names.map { |column_name| public_send(column_name) })
           .to_h
-        attributes
       end
 
       def to_json

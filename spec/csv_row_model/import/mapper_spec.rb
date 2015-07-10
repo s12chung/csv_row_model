@@ -49,4 +49,17 @@ describe CsvRowModel::Import::Mapper do
       end
     end
   end
+
+  describe "class" do
+    describe "::row_model_class" do
+      let(:klass) do
+        Class.new { include CsvRowModel::Import::Mapper }
+      end
+      subject { klass.send(:row_model_class) }
+
+      it "raises an exception" do
+        expect { subject }.to raise_error(NotImplementedError)
+      end
+    end
+  end
 end
