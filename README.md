@@ -26,7 +26,7 @@ Define your `RowModel`.
 class ProjectRowModel
   include CsvRowModel::Model
 
-  # column numbers are tracked
+  # tracked columns
   column :id
   column :name
 end
@@ -179,15 +179,15 @@ end
 
 ```ruby
 class ImportFile < CsvRowModel::Import::File
-    around_yield :logger_track
-    before_skip :track_skip
+  around_yield :logger_track
+  before_skip :track_skip
 
-    def logger_track(&block)
-      ...
-    end
+  def logger_track(&block)
+    ...
+  end
 
-    def track_skip
-      ...
-    end
+  def track_skip
+    ...
+  end
 end
 ```
