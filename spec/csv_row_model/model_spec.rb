@@ -42,8 +42,8 @@ describe CsvRowModel::Model do
 
       it "memoizes the default value" do
         expect(class_with_family.instance_variable_get(at_var_name)).to eql nil
-        expect(subject.call).to eql subject.call
-        expect(class_with_family.instance_variable_get(at_var_name)).to eql subject.call
+        expect(subject.call).to eql subject.call # Value shouldn't change
+        expect(class_with_family.instance_variable_get(at_var_name)).to eql subject.call # Variable should be set
       end
     end
 
