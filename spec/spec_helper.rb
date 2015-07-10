@@ -11,6 +11,8 @@ begin
 rescue LoadError
 end
 
+Dir[Dir.pwd + '/spec/csv_row_model/support/**/*.rb'].each { |f| require f }
+
 RSpec.configure do |c|
   c.run_all_when_everything_filtered = true
 end

@@ -67,6 +67,7 @@ module CsvRowModel
       #
       # @param context [Hash] context passed to the {Import}
       def each(context={})
+        return to_enum(__callee__, context) unless block_given?
         return false if _abort?
 
         while self.next(context)

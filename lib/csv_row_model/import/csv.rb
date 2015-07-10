@@ -38,13 +38,22 @@ module CsvRowModel
       end
 
       def readline
-        @current_row = _readline
+        if @next_line
+          @current_row = @next_line
+          @next_line = nil
+        else
+          @current_row = _readline
+        end
         current_row.nil? ? set_end_of_file : @index += 1
         current_row
       end
 
       def end_of_file?
         index.nil?
+      end
+
+      def next_line
+        @next_line ||= file.readline
       end
 
       protected
