@@ -15,19 +15,51 @@ describe CsvRowModel::Import do
         expect(subject).to eql "waka"
       end
 
+      context "when included after #column call" do
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+
+            column :string1
+
+            include CsvRowModel::Import
+          end
+        end
+
+        it "works" do
+          expect(subject).to eql "1.01"
+        end
+      end
+
+
+      context "when included before #column call" do
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+            include CsvRowModel::Import
+
+            column :string1
+          end
+        end
+
+        it "works" do
+          expect(subject).to eql "1.01"
+        end
+      end
+
       {
         nil => "1.01",
         String => "1.01",
         Integer => 1,
         Float => 1.01
       }.each do |type, expected_result|
-        context "with #{type} type" do
+        context "with #{type.nil? ? "nil" : type} type" do
           let(:import_model_klass) do
             Class.new do
               include CsvRowModel::Model
-              column :string1, type: type
-
               include CsvRowModel::Import
+
+              column :string1, type: type
             end
           end
 
@@ -43,9 +75,9 @@ describe CsvRowModel::Import do
         let(:import_model_klass) do
           Class.new do
             include CsvRowModel::Model
-            column :string1, type: Date
-
             include CsvRowModel::Import
+
+            column :string1, type: Date
           end
         end
 

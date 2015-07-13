@@ -3,7 +3,7 @@ module CsvRowModel
   module Import
     extend ActiveSupport::Concern
 
-    # Mapping of column type classes to a parsing lambda.
+    # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
     CLASS_TO_PARSE_LAMBDA = {
       nil => ->(s) { s },
       String => ->(s) { s },
@@ -15,16 +15,8 @@ module CsvRowModel
     included do
       attr_reader :source_header, :source_row, :context, :previous
 
-      # default methods for each column
       self.columns.each.with_index do |column_info, column_index|
-        column_name, options = column_info
-
-        parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]]
-        raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}") unless parse_lambda
-
-        self.send(:define_method, column_name) do
-          parse_lambda.call self.class.format_cell(mapped_row[column_name], column_name, column_index)
-        end
+        define_attribute_method(*(column_info + [column_index]))
       end
 
       validates :source_row, presence: true
@@ -63,6 +55,12 @@ module CsvRowModel
         Import
       end
 
+      # See {Model#column}
+      def column(column_name, options={})
+        super
+        define_attribute_method(column_name, options, columns.size - 1)
+      end
+
       # Safe to override. Method applied to each cell by default
       #
       # @param cell [String] the cell's string
@@ -70,6 +68,20 @@ module CsvRowModel
       # @param column_index [Integer] the column_name's index
       def format_cell(cell, column_name, column_index)
         cell
+      end
+
+      protected
+      # Define default attribute method for a column
+      # @param column_name [Symbol] the cell's column_name
+      # @param options [Integer] options provided in {Model#column}
+      # @param column_index [Integer] the column_name's index
+      def define_attribute_method(column_name, options, column_index)
+        parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]]
+        raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}") unless parse_lambda
+
+        define_method(column_name) do
+          parse_lambda.call self.class.format_cell(mapped_row[column_name], column_name, column_index)
+        end
       end
     end
   end
