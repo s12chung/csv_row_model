@@ -27,7 +27,7 @@ class ProjectRowModel
   include CsvRowModel::Model
 
   # column numbers are tracked
-  column :id, type: Integer # optional type parsing
+  column :id, type: Integer # optional type parsing, or use the :parse option with a Proc
   column :name
 end
 ```

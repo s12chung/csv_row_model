@@ -35,6 +35,7 @@ module CsvRowModel
         # @param [Symbol] column_name name of column to add
         # @param options [Hash]
         # @option options [Hash] :type class you want to automatically parse to (by default does nothing, equivalent to String)
+        # @option options [Hash] :parse a Proc for parsing the cell
         def column(column_name, options={})
           _columns.merge!(column_name => options)
         end

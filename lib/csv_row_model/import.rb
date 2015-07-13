@@ -4,6 +4,7 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
+    # Can pass custom Proc with :parse option.
     CLASS_TO_PARSE_LAMBDA = {
       nil => ->(s) { s },
       String => ->(s) { s },
@@ -76,11 +77,14 @@ module CsvRowModel
       # @param options [Integer] options provided in {Model#column}
       # @param column_index [Integer] the column_name's index
       def define_attribute_method(column_name, options, column_index)
-        parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]]
+        parse_lambda = options[:parse]
+        parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]] unless parse_lambda
         raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}") unless parse_lambda
 
         define_method(column_name) do
-          parse_lambda.call self.class.format_cell(mapped_row[column_name], column_name, column_index)
+          result = self.class.format_cell(mapped_row[column_name], column_name, column_index)
+          result = parse_lambda.call result if result
+          result
         end
       end
     end

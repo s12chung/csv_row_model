@@ -85,6 +85,38 @@ describe CsvRowModel::Import do
           expect(subject).to eql Date.new(2015,12,30)
         end
       end
+
+      context "with invalid type" do
+        let(:source_row) { %w[15/12/30 b] }
+
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+            include CsvRowModel::Import
+
+            column :string1, type: Object
+          end
+        end
+
+        it "raises exception" do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+
+      context "with parse option" do
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+            include CsvRowModel::Import
+
+            column :string1, parse: ->(s) { "haha" }
+          end
+        end
+
+        it "returns what the parse returns" do
+          expect(subject).to eql "haha"
+        end
+      end
     end
 
     describe "#mapped_row" do
