@@ -3,13 +3,27 @@ module CsvRowModel
   module Import
     extend ActiveSupport::Concern
 
+    # Mapping of column type classes to a parsing lambda.
+    CLASS_TO_PARSE_LAMBDA = {
+      nil => ->(s) { s },
+      String => ->(s) { s },
+      Integer => ->(s) { s.to_i },
+      Float => ->(s) { s.to_f },
+      Date => ->(s) { Date.parse s }
+    }
+
     included do
       attr_reader :source_header, :source_row, :context, :previous
 
       # default methods for each column
-      self.column_names.each.with_index do |column_name, column_index|
+      self.columns.each.with_index do |column_info, column_index|
+        column_name, options = column_info
+
+        parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]]
+        raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}") unless parse_lambda
+
         self.send(:define_method, column_name) do
-          self.class.format_cell mapped_row[column_name], column_name, column_index
+          parse_lambda.call self.class.format_cell(mapped_row[column_name], column_name, column_index)
         end
       end
 

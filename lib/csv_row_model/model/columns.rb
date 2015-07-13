@@ -17,19 +17,26 @@ module CsvRowModel
       class_methods do
         # @return [Array] column names for the row model
         def column_names
-          deep_class_var :@_column_names, [], :+, Model
+          columns.keys
+        end
+
+        # @return [Hash] column names mapped to their options
+        def columns
+          deep_class_var(:@_columns, {}, :merge, Model)
         end
 
         protected
-        def _column_names
-          @_column_names ||= []
+        def _columns
+          @_columns ||= {}
         end
 
         # Adds column to the row model
         #
         # @param [Symbol] column_name name of column to add
-        def column(column_name)
-          _column_names << column_name
+        # @param options [Hash]
+        # @option options [Hash] :type class you want to automatically parse to (by default does nothing, equivalent to String)
+        def column(column_name, options={})
+          _columns.merge!(column_name => options)
         end
       end
     end
