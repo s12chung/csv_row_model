@@ -1,6 +1,8 @@
 autoload = false
 # autoload = true #uncomment for testing purposes only, not covered by rspec
 
+class Boolean; end unless defined? Boolean
+
 if autoload
   require 'csv_row_model/engine'
 else
