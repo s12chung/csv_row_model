@@ -21,6 +21,10 @@ else
   require 'csv_row_model/import/csv'
   require 'csv_row_model/import/file'
   require 'csv_row_model/import/mapper'
+
+
+  require 'csv_row_model/export'
+  require 'csv_row_model/export_collection/csv'
 end
 
 module CsvRowModel
