@@ -38,6 +38,13 @@ module CsvRowModel
       end
 
       class_methods do
+        # Safe to override.
+        #
+        # @return [Class] returns the {Import} class used for {row_model} that this class wraps around
+        def row_model_class
+          raise NotImplementedError
+        end
+
         protected
 
         # For every method name define the following:
@@ -57,13 +64,6 @@ module CsvRowModel
               instance_variable_get(variable_name) || instance_variable_set(variable_name, send("_#{method_name}"))
             end
           end
-        end
-
-        # Safe to override.
-        #
-        # @return [Class] returns the {Import} class used for {row_model} that this class wraps around
-        def row_model_class
-          raise NotImplementedError
         end
       end
     end
