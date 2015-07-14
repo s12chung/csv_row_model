@@ -15,7 +15,7 @@ describe CsvRowModel::Import do
         expect(subject).to eql "waka"
       end
 
-      context "when included after #column call" do
+      context "when included before and after #column call" do
         let(:import_model_klass) do
           Class.new do
             include CsvRowModel::Model
@@ -23,27 +23,14 @@ describe CsvRowModel::Import do
             column :string1
 
             include CsvRowModel::Import
+
+            column :string2
           end
         end
 
         it "works" do
-          expect(subject).to eql "1.01"
-        end
-      end
-
-
-      context "when included before #column call" do
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-
-            column :string1
-          end
-        end
-
-        it "works" do
-          expect(subject).to eql "1.01"
+          expect(instance.string1).to eql "1.01"
+          expect(instance.string2).to eql "b"
         end
       end
 
