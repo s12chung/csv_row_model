@@ -28,7 +28,7 @@ module CsvRowModel
       @source_header, @previous = options[:source_header], options[:previous].try(:dup)
 
       previous.try(:free_previous)
-      super(options)
+      super(source_row, options)
     end
 
     # @return [Hash] a map of `column_name => source_row[index_of_column_name]`
