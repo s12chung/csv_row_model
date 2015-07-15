@@ -1,7 +1,9 @@
 autoload = false
 # autoload = true #uncomment for testing purposes only, not covered by rspec
 
-if autoload
+class Boolean; end unless defined? Boolean
+
+if autoload && defined?(Rails)
   require 'csv_row_model/engine'
 else
   require 'active_model'

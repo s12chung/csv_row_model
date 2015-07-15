@@ -51,14 +51,50 @@ describe CsvRowModel::Import::Mapper do
   end
 
   describe "class" do
-    describe "::row_model_class" do
-      let(:klass) do
-        Class.new { include CsvRowModel::Import::Mapper }
+    describe "::maps_to" do
+      context "when called twice" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Import::Mapper
+            maps_to Class
+            maps_to Class
+          end
+        end
+        subject { klass }
+
+        it "raises an exception" do
+          expect { subject }.to raise_error(CsvRowModel::Import::Mapper::AlreadyInitializedMap)
+        end
       end
+    end
+
+    describe "::row_model_class" do
+      class FooRowModel; end
+
       subject { klass.send(:row_model_class) }
 
-      it "raises an exception" do
-        expect { subject }.to raise_error(NotImplementedError)
+      context "when not defined" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Import::Mapper
+            def self.name() 'Foo' ; end
+          end
+        end
+        it "set's the row_model_class" do
+          expect(subject).to eql(FooRowModel)
+        end
+      end
+
+      context "when not defined and Mapper class contain 'Mapper'" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Import::Mapper
+            def self.name() 'FooMapper' ; end
+          end
+        end
+        it "set's the row_model_class" do
+          expect(subject).to eql(FooRowModel)
+        end
       end
     end
   end
