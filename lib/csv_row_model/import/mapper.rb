@@ -38,14 +38,32 @@ module CsvRowModel
       end
 
       class_methods do
-        # Safe to override.
-        #
-        # @return [Class] returns the {Import} class used for {row_model} that this class wraps around
+        # @return [Class] returns the class that includes {Model} that the {Mapper} class maps to
+        # defaults based on self.class: `FooMapper` or `Foo` => `FooRowModel` or the one set by {Mapper.maps_to}
         def row_model_class
-          raise NotImplementedError
+          return @row_model_class if @row_model_class
+
+          @row_model_class = begin
+            case self.name
+            when /Mapper/
+              self.name.gsub(/Mapper/, 'RowModel')
+            else
+              "#{self.name}RowModel"
+            end.constantize
+          end
         end
 
         protected
+
+        class AlreadyInitializedMap < StandardError;end
+
+        # Sets the row model class that that the {Mapper} class maps to
+        # @param [Class] row_model_class the class that includes {Model} that the {Mapper} class maps to
+        def maps_to(row_model_class)
+          raise AlreadyInitializedMap.new('should only be called once') if @row_model_class_setted
+          @row_model_class_setted = true
+          @row_model_class = row_model_class
+        end
 
         # For every method name define the following:
         #

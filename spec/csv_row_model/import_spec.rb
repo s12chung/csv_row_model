@@ -7,6 +7,16 @@ describe CsvRowModel::Import do
     let(:import_model_klass) { BasicImportModel }
     let(:instance) { import_model_klass.new(source_row, options) }
 
+    describe "#initialize" do
+      subject { instance }
+
+      context "should set the child" do
+        let(:parent_instance) { BasicModel.new }
+        let(:options) { { parent:  parent_instance } }
+        specify { expect(subject.child?).to eql true }
+      end
+    end
+
     describe "attribute methods" do
       subject { instance.string1 }
 
