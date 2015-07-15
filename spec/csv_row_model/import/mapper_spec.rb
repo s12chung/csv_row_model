@@ -70,12 +70,9 @@ describe CsvRowModel::Import::Mapper do
 
     describe "::row_model_class" do
       class FooRowModel; end
-      shared_context 'set model' do
-        it "set model" do
-          expect(subject).to eql(FooRowModel)
-        end
-      end
+
       subject { klass.send(:row_model_class) }
+
       context "when not defined" do
         let(:klass) do
           Class.new do
@@ -83,7 +80,9 @@ describe CsvRowModel::Import::Mapper do
             def self.name() 'Foo' ; end
           end
         end
-        it_behaves_like 'set model'
+        it "set's the row_model_class" do
+          expect(subject).to eql(FooRowModel)
+        end
       end
 
       context "when not defined and Mapper class contain 'Mapper'" do
@@ -93,7 +92,9 @@ describe CsvRowModel::Import::Mapper do
             def self.name() 'FooMapper' ; end
           end
         end
-        it_behaves_like 'set model'
+        it "set's the row_model_class" do
+          expect(subject).to eql(FooRowModel)
+        end
       end
     end
   end
