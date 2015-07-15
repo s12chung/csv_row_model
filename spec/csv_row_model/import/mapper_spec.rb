@@ -63,21 +63,37 @@ describe CsvRowModel::Import::Mapper do
         subject { klass }
 
         it "raises an exception" do
-          expect { subject }.to raise_error
+          expect { subject }.to raise_error(CsvRowModel::Import::Mapper::AlreadyInitializedMap)
         end
       end
     end
 
     describe "::row_model_class" do
+      class FooRowModel; end
+      shared_context 'set model' do
+        it "set model" do
+          expect(subject).to eql(FooRowModel)
+        end
+      end
+      subject { klass.send(:row_model_class) }
       context "when not defined" do
         let(:klass) do
-          Class.new { include CsvRowModel::Import::Mapper }
+          Class.new do
+            include CsvRowModel::Import::Mapper
+            def self.name() 'Foo' ; end
+          end
         end
-        subject { klass.send(:row_model_class) }
+        it_behaves_like 'set model'
+      end
 
-        it "raises an exception" do
-          expect { subject }.to raise_error
+      context "when not defined and Mapper class contain 'Mapper'" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Import::Mapper
+            def self.name() 'FooMapper' ; end
+          end
         end
+        it_behaves_like 'set model'
       end
     end
   end

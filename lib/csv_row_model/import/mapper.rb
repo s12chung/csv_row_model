@@ -4,6 +4,7 @@ module CsvRowModel
     #
     # __Should implement the class method {row_model_class}__
     module Mapper
+      class AlreadyInitializedMap < StandardError;end
       extend ActiveSupport::Concern
 
       included do
@@ -40,16 +41,27 @@ module CsvRowModel
       class_methods do
         # @return [Class] returns the class that includes {Model} that the {Mapper} class maps to
         def row_model_class
-          raise "call ::maps_to on #{self} to define row_model_class" unless @row_model_class
-          @row_model_class
+          return @row_model_class.call if @row_model_class
+
+          case self.name
+          when /Mapper/
+            @row_model_class = ->{
+              "#{self.name.demodulize.gsub(/Mapper/, 'RowModel')}".constantize
+            }.call
+          else
+            @row_model_class = ->{
+              "#{self.name}RowModel".constantize
+            }.call
+          end
         end
 
         protected
         # Sets the row model class that that the {Mapper} class maps to
         # @param [Class] row_model_class the class that includes {Model} that the {Mapper} class maps to
         def maps_to(row_model_class)
-          raise "should only be called once" if @row_model_class
-          @row_model_class = row_model_class
+          raise AlreadyInitializedMap.new('should only be called once') if @row_model_class_setted
+          @row_model_class_setted = true
+          @row_model_class = ->{ row_model_class }
         end
 
         # For every method name define the following:
