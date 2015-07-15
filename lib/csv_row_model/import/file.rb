@@ -70,8 +70,6 @@ module CsvRowModel
         return false if _abort?
 
         while self.next(context)
-          # TODO: collect row_model errors
-
           return false if _abort?
           next if _skip?
 

@@ -27,7 +27,7 @@ class ProjectRowModel
   include CsvRowModel::Model
 
   # column numbers are tracked
-  column :id
+  column :id, type: Integer # optional type parsing, or use the :parse option with a Proc
   column :name
 end
 ```
@@ -113,6 +113,8 @@ CSV Row --is represented by--> `RowModel` --is abstracted by--> `Mapper`
 class ProjectImportMapper
   include CsvRowModel::Import::Mapper
 
+  maps_to ProjectImportRowModel
+
   # shortcut to memoize operations, to minimize gem size
   # https://github.com/matthewrudy/memoist is not used,
   # but you may use it yourself
@@ -132,12 +134,6 @@ class ProjectImportMapper
 
   def _user
     User.find_by_email(row_model.email)
-  end
-
-  class << self
-    def row_model_class
-      ProjectImportRowModel
-    end
   end
 end
 ```
