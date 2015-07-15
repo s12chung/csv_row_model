@@ -84,23 +84,25 @@ describe CsvRowModel::Import do
         end
       end
 
-      context "with nil formatted cell and any type" do
+      context "with nil formatted cell" do
         before do
           expect(import_model_klass).to receive(:format_cell).and_return nil
         end
 
         described_class::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
-          let(:import_model_klass) do
-            Class.new do
-              include CsvRowModel::Model
-              include CsvRowModel::Import
+          context "with #{type.nil? ? "nil" : type} type" do
+            let(:import_model_klass) do
+              Class.new do
+                include CsvRowModel::Model
+                include CsvRowModel::Import
 
-              column :string1, type: type
+                column :string1, type: type
+              end
             end
-          end
 
-          it "doesn't return an exception" do
-            expect { subject }.to_not raise_error
+            it "doesn't return an exception" do
+              expect { subject }.to_not raise_error
+            end
           end
         end
       end
