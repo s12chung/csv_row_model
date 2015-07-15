@@ -43,16 +43,14 @@ module CsvRowModel
         def row_model_class
           return @row_model_class.call if @row_model_class
 
-          case self.name
-          when /Mapper/
-            @row_model_class = ->{
-              "#{self.name.demodulize.gsub(/Mapper/, 'RowModel')}".constantize
-            }.call
-          else
-            @row_model_class = ->{
-              "#{self.name}RowModel".constantize
-            }.call
-          end
+          @row_model_class = ->{
+            case self.name
+            when /Mapper/
+              "#{self.name.demodulize.gsub(/Mapper/, 'RowModel')}"
+            else
+              "#{self.name}RowModel"
+            end.constantize
+          }.call
         end
 
         protected
