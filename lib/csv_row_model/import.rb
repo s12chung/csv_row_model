@@ -44,9 +44,9 @@ module CsvRowModel
 
     class_methods do
 
-      # @return [Hash] map of `relation_name => CsvRowModel::Import class`
-      def has_many_relationships
-        memoized_class_included_var :has_many_relationships, {}, Import
+      # @return [Class] used for {Model::Children.has_many_relationships}
+      def has_many_relationships_module
+        Import
       end
 
       # Safe to override. Method applied to each cell by default
