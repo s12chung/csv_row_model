@@ -169,6 +169,7 @@ end
 `CsvRowModel::Import::File` can be subclassed to access
 [`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html):
 
+* each - `before`, `around`, or `after` the `each` method
 * yield - `before`, `around`, or `after` yielding the `RowModel` to the "given block" (see Ruby code above)
 * skip - `before`
 * abort - `before`

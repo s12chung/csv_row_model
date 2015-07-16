@@ -67,14 +67,16 @@ module CsvRowModel
       #
       # @param context [Hash] context passed to the {Import}
       def each(context={})
-        return false if _abort?
-
-        while self.next(context)
+        run_callbacks :each do
           return false if _abort?
-          next if _skip?
 
-          run_callbacks :yield do
-            yield current_row_model
+          while self.next(context)
+            return false if _abort?
+            next if _skip?
+
+            run_callbacks :yield do
+              yield current_row_model
+            end
           end
         end
       end

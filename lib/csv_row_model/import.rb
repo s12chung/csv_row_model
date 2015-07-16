@@ -51,6 +51,11 @@ module CsvRowModel
       @previous = nil
     end
 
+    # @return [Import] self, the row_model, as compared to {Mapper}
+    def row_model
+      self
+    end
+
     class_methods do
 
       # @return [Class] used for {Model::Children.has_many_relationships}
