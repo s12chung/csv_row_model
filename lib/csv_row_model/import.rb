@@ -3,14 +3,23 @@ module CsvRowModel
   module Import
     extend ActiveSupport::Concern
 
+    # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
+    # Can pass custom Proc with :parse option.
+    CLASS_TO_PARSE_LAMBDA = {
+      nil => ->(s) { s },
+      # inspired by https://github.com/MrJoy/to_bool/blob/5c9ed38e47c638725e33530ea1a8aec96281af20/lib/to_bool.rb#L23
+      Boolean => ->(s) { s =~ /^(false|f|no|n|0|)$/i ? false : true },
+      String => ->(s) { s },
+      Integer => ->(s) { s.to_i },
+      Float => ->(s) { s.to_f },
+      Date => ->(s) { s.present? ? Date.parse(s) : s }
+    }
+
     included do
       attr_reader :source_header, :source_row, :context, :previous
 
-      # default methods for each column
-      self.column_names.each.with_index do |column_name, column_index|
-        self.send(:define_method, column_name) do
-          self.class.format_cell mapped_row[column_name], column_name, column_index
-        end
+      self.columns.each.with_index do |column_info, column_index|
+        define_attribute_method(*(column_info + [column_index]))
       end
 
       validates :source_row, presence: true
@@ -28,7 +37,7 @@ module CsvRowModel
       @source_header, @previous = options[:source_header], options[:previous].try(:dup)
 
       previous.try(:free_previous)
-      super(options)
+      super(source_row, options)
     end
 
     # @return [Hash] a map of `column_name => source_row[index_of_column_name]`
@@ -44,9 +53,15 @@ module CsvRowModel
 
     class_methods do
 
-      # @return [Hash] map of `relation_name => CsvRowModel::Import class`
-      def has_many_relationships
-        memoized_class_included_var :has_many_relationships, {}, Import
+      # @return [Class] used for {Model::Children.has_many_relationships}
+      def has_many_relationships_module
+        Import
+      end
+
+      # See {Model#column}
+      def column(column_name, options={})
+        super
+        define_attribute_method(column_name, options, columns.size - 1)
       end
 
       # Safe to override. Method applied to each cell by default
@@ -56,6 +71,21 @@ module CsvRowModel
       # @param column_index [Integer] the column_name's index
       def format_cell(cell, column_name, column_index)
         cell
+      end
+
+      protected
+      # Define default attribute method for a column
+      # @param column_name [Symbol] the cell's column_name
+      # @param options [Integer] options provided in {Model#column}
+      # @param column_index [Integer] the column_name's index
+      def define_attribute_method(column_name, options, column_index)
+        parse_lambda = options[:parse]
+        parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]] unless parse_lambda
+        raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}") unless parse_lambda
+
+        define_method(column_name) do
+          parse_lambda.call self.class.format_cell(mapped_row[column_name], column_name, column_index)
+        end
       end
     end
   end

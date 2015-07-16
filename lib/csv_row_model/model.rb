@@ -1,3 +1,4 @@
+require 'csv_row_model/model/deep_class_var'
 require 'csv_row_model/model/columns'
 require 'csv_row_model/model/children'
 
@@ -11,8 +12,8 @@ module CsvRowModel
       include ActiveModel::Validations
       include Validators::ValidateAttributes
 
+      include DeepClassVar
       include Columns
-
       include Children
 
       # @return [Model] return the parent, if this instance is a child
@@ -41,6 +42,5 @@ module CsvRowModel
     def abort?
       false
     end
-
   end
 end

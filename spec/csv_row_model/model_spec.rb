@@ -23,5 +23,4 @@ describe CsvRowModel::Model do
       it "never aborts" do expect(subject).to eql false end
     end
   end
-
 end

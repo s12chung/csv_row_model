@@ -18,11 +18,7 @@ end
 class ImportMapper
   include CsvRowModel::Import::Mapper
 
-  memoize :memoized_method
+  maps_to BasicImportModel
 
-  class << self
-    def row_model_class
-      BasicImportModel
-    end
-  end
+  memoize :memoized_method
 end

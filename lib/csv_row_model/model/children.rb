@@ -33,16 +33,25 @@ module CsvRowModel
       end
 
       class_methods do
+        # @return [Hash] map of `relation_name => CsvRowModel::Import or CsvRowModel::Export class`
+        def has_many_relationships
+          deep_class_var :@_has_many_relationships, {}, :merge, has_many_relationships_module
+        end
+
         protected
+        def _has_many_relationships
+          @_has_many_relationships ||= {}
+        end
+
         # Defines a relationship between a row model (only one relation per model for now).
         #
         # @param [Symbol] relation_name the name of the relation
         # @param [CsvRowModel::Import] row_model_class class of the relation
         def has_many(relation_name, row_model_class)
-          raise "for now, CsvRowModel's has_many may only be called once" if has_many_relationships.keys.present?
+          raise "for now, CsvRowModel's has_many may only be called once" if _has_many_relationships.keys.present?
 
           relation_name = relation_name.to_sym
-          has_many_relationships.merge!(relation_name => row_model_class)
+          _has_many_relationships.merge!(relation_name => row_model_class)
 
           define_method(relation_name) do
             #
