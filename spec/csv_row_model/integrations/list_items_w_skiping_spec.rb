@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'List Items simple Scenario' do
+describe 'List Items with skip Scenario', skip: true do
   include_context 'csv file'
   let(:csv_source) do
     [
@@ -15,6 +15,10 @@ describe 'List Items simple Scenario' do
     include CsvRowModel::Model
     column :list_name
     column :item
+    def skip?
+      binding.pry
+      !valid? or attributes[:item] == 'item 1'
+    end
   end
   class ItemImportRowModel < BaseModel
     include CsvRowModel::Import
@@ -23,7 +27,6 @@ describe 'List Items simple Scenario' do
   class ListImportRowModel < BaseModel
     include CsvRowModel::Import
     has_many :items, ItemImportRowModel
-
     def all_items
       deep_public_send(:item)
     end
@@ -37,10 +40,10 @@ describe 'List Items simple Scenario' do
 
     expect(mapper.source_header).to eql(['list_name', 'item'])
     expect(mapper.list_name).to eql('list a')
-    expect(mapper.all_items).to eql(['item 1', 'item 2', 'item 3'])
+    expect(mapper.all_items).to eql(['item 1', 'item 3'])
 
-    mapper = subject.next
-    expect(mapper.list_name).to eql('list b')
-    expect(mapper.all_items).to eql(['item 1'])
+    # mapper = subject.next
+    # expect(mapper.list_name).to eql('list b')
+    # expect(mapper.all_items).to eql(['item 1'])
   end
 end
