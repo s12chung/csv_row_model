@@ -22,7 +22,7 @@ module CsvRowModel
         return @header if @header
 
         file = _file
-        @header = file.readline
+        @header = _readline
         file.close
         @header
       end
@@ -42,11 +42,9 @@ module CsvRowModel
           @current_row = @next_line
           @next_line = nil
         else
-          @current_row = file.readline
+          @current_row = _readline
         end
-
         current_row.nil? ? set_end_of_file : @index += 1
-
         current_row
       end
 
@@ -59,15 +57,16 @@ module CsvRowModel
       end
 
       protected
+
       def _file
         CSV.open(path)
-      rescue e
+      rescue => e
         errors.add(:file, e.message)
       end
 
       def _readline
         file.readline
-      rescue e
+      rescue => e
         errors.add(:file, e.message)
       end
 

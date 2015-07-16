@@ -1,7 +1,4 @@
-# coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'csv_row_model/version'
+require_relative 'lib/csv_row_model/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "csv_row_model"
