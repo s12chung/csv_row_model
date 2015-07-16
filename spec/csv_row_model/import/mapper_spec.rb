@@ -69,7 +69,7 @@ describe CsvRowModel::Import::Mapper do
     end
 
     describe "::row_model_class" do
-      class FooRowModel; end
+      class FooModel; end
 
       subject { klass.send(:row_model_class) }
 
@@ -81,7 +81,7 @@ describe CsvRowModel::Import::Mapper do
           end
         end
         it "set's the row_model_class" do
-          expect(subject).to eql(FooRowModel)
+          expect(subject).to eql(FooModel)
         end
       end
 
@@ -93,7 +93,7 @@ describe CsvRowModel::Import::Mapper do
           end
         end
         it "set's the row_model_class" do
-          expect(subject).to eql(FooRowModel)
+          expect(subject).to eql(FooModel)
         end
       end
     end
