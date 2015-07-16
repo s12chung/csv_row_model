@@ -46,9 +46,9 @@ module CsvRowModel
           @row_model_class = begin
             case self.name
             when /Mapper/
-              self.name.gsub(/Mapper/, 'Model')
+              self.name.gsub(/Mapper/, 'RowModel')
             else
-              "#{self.name}Model"
+              "#{self.name}RowModel"
             end.constantize
           end
         end
