@@ -28,7 +28,11 @@ class ProjectRowModel
 
   # column numbers are tracked
   column :id, type: Integer # optional type parsing, or use the :parse option with a Proc
-  column :name
+  column :name, default: -> { default_name } # optional default (value or Proc), when the column is `#blank?`
+
+  def default_name
+    "John Smith"
+  end
 end
 ```
 

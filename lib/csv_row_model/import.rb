@@ -89,8 +89,13 @@ module CsvRowModel
         parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]] unless parse_lambda
         raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}") unless parse_lambda
 
+        _default = options[:default] # weird closure if this variable is `default`
+        default = _default.is_a?(Proc) ? ->(s) { instance_exec(&_default) } : ->(s) { _default.nil? ? s : _default }
+
         define_method(column_name) do
-          parse_lambda.call self.class.format_cell(mapped_row[column_name], column_name, column_index)
+          value = self.class.format_cell(mapped_row[column_name], column_name, column_index)
+          value = instance_exec(value, &default) if value.blank?
+          parse_lambda.call value
         end
       end
     end

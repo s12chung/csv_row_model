@@ -138,6 +138,46 @@ describe CsvRowModel::Import do
           expect(subject).to eql "haha"
         end
       end
+
+      context "with default option" do
+        let(:source_row) { [""] }
+
+        context "of 1" do
+          let(:import_model_klass) do
+            Class.new do
+              include CsvRowModel::Model
+              include CsvRowModel::Import
+
+              column :string1, default: 1
+            end
+          end
+
+          it "returns the default" do
+            expect(subject).to eql 1
+          end
+        end
+
+        context "of Proc that accesses self" do
+          let(:import_model_klass) do
+            Class.new do
+              include CsvRowModel::Model
+              include CsvRowModel::Import
+
+              column :string1, default: -> { something }
+
+              def something
+                Random.rand
+              end
+            end
+          end
+          let(:random) { Random.rand }
+
+          it "returns the default" do
+            expect(Random).to receive(:rand).and_return(random)
+            expect(subject).to eql random
+          end
+        end
+      end
     end
 
     describe "#initialized_at" do
