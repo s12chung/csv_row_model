@@ -6,7 +6,6 @@ module CsvRowModel
   # Base module for representing a RowModel---a model that represents row(s).
   module Model
     extend ActiveSupport::Concern
-    include CsvRowModel::Memoize
 
     included do
       include ActiveModel::Validations
