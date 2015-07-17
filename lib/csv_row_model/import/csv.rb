@@ -15,14 +15,14 @@ module CsvRowModel
       end
 
       def skip_header
-        index == -1 ? (@header ||= readline) : false
+        start_of_file? ? (@header = readline) : false
       end
 
       def header
         return @header if @header
 
         file = _file
-        @header = _readline
+        @header = file.readline
         file.close
         @header
       end
@@ -48,6 +48,10 @@ module CsvRowModel
         current_row
       end
 
+      def start_of_file?
+        index == -1
+      end
+
       def end_of_file?
         index.nil?
       end
@@ -71,7 +75,7 @@ module CsvRowModel
       end
 
       def file
-        return @file unless index == -1
+        return @file unless start_of_file?
         @file = _file
       end
 
