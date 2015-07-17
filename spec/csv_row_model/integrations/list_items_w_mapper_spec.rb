@@ -11,20 +11,20 @@ describe 'List Items Scenario with Mapper' do
       [ 'list b',    'item 1' ],
     ]
   end
-  class BaseModel
+  class BaseWModel
     include CsvRowModel::Model
     column :list_name
     column :item
   end
-  class ItemImportRowModel < BaseModel
+  class ItemImportWRowModel < BaseWModel
     include CsvRowModel::Import
     validates :list_name, absence: true
   end
-  class ListImportRowModel < BaseModel
+  class ListImportWRowModel < BaseWModel
     include CsvRowModel::Import
     has_many :items, ItemImportRowModel
   end
-  class ListImportMapper
+  class ListImportWMapper
     include CsvRowModel::Import::Mapper
     memoize :list_name, :items
     private
@@ -36,7 +36,7 @@ describe 'List Items Scenario with Mapper' do
     end
   end
   subject do
-    CsvRowModel::Import::File.new(file_path, ListImportMapper)
+    CsvRowModel::Import::File.new(file_path, ListImportWMapper)
   end
   it '' do
     enum = subject.each

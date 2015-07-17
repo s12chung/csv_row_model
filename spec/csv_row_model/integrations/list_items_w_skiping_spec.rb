@@ -11,20 +11,20 @@ describe 'List Items with skip Scenario', skip: true do
       [ 'list b',    'item 1' ],
     ]
   end
-  class BaseModel
+  class BaseSModel
     include CsvRowModel::Model
     column :list_name
     column :item
-    def skip?
-      binding.pry
-      !valid? or attributes[:item] == 'item 1'
-    end
+    # def skip?
+    #   # binding.pry
+    #   !valid? or attributes[:item] == 'item 1'
+    # end
   end
-  class ItemImportRowModel < BaseModel
+  class ItemImportSRowModel < BaseSModel
     include CsvRowModel::Import
     validates :list_name, absence: true
   end
-  class ListImportRowModel < BaseModel
+  class ListImportSRowModel < BaseSModel
     include CsvRowModel::Import
     has_many :items, ItemImportRowModel
     def all_items
@@ -32,7 +32,7 @@ describe 'List Items with skip Scenario', skip: true do
     end
   end
   subject do
-    CsvRowModel::Import::File.new(file_path, ListImportRowModel)
+    CsvRowModel::Import::File.new(file_path, ListImportSRowModel)
   end
   it '' do
     enum = subject.each
