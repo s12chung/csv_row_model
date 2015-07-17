@@ -57,13 +57,14 @@ describe CsvRowModel::Import::Mapper do
           Class.new do
             include CsvRowModel::Import::Mapper
             maps_to Class
-            maps_to Class
+            maps_to Random
           end
         end
         subject { klass }
 
-        it "raises an exception" do
-          expect { subject }.to raise_error(CsvRowModel::Import::Mapper::AlreadyInitializedMap)
+        it "sends a warning" do
+          expect(Kernel).to receive(:warn)
+          subject
         end
       end
     end
@@ -71,29 +72,32 @@ describe CsvRowModel::Import::Mapper do
     describe "::row_model_class" do
       class FooRowModel; end
 
+      let(:klass) do
+        Class.new do
+          include CsvRowModel::Import::Mapper
+        end
+      end
       subject { klass.send(:row_model_class) }
 
-      context "when not defined" do
-        let(:klass) do
-          Class.new do
-            include CsvRowModel::Import::Mapper
-            def self.name() 'Foo' ; end
+      ["Foo", "FooMapper"].each do |row_model_class|
+        context "with class name #{row_model_class}" do
+          before do
+            klass.define_singleton_method(:name) { row_model_class }
           end
-        end
-        it "set's the row_model_class" do
-          expect(subject).to eql(FooRowModel)
+
+          it "set's the row_model_class" do
+            expect(subject).to eql(FooRowModel)
+          end
         end
       end
 
-      context "when not defined and Mapper class contain 'Mapper'" do
-        let(:klass) do
-          Class.new do
-            include CsvRowModel::Import::Mapper
-            def self.name() 'FooMapper' ; end
-          end
+      context "with default not existing" do
+        before do
+          klass.define_singleton_method(:name) { "Blah" }
         end
+
         it "set's the row_model_class" do
-          expect(subject).to eql(FooRowModel)
+          expect { subject }.to raise_error(described_class::RowModelClassNotDefined)
         end
       end
     end
