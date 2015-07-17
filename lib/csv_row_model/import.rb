@@ -16,7 +16,7 @@ module CsvRowModel
     }
 
     included do
-      attr_reader :attr_reader, :initialized_at, :source_header, :source_row, :context, :previous
+      attr_reader :attr_reader, :source_header, :source_row, :context, :previous
 
       self.columns.each.with_index do |column_info, column_index|
         define_attribute_method(*(column_info + [column_index]))
@@ -32,7 +32,6 @@ module CsvRowModel
     # @option options [CsvRowModel::Import] :previous the previous row model
     # @option options [CsvRowModel::Import] :parent if the instance is a child, pass the parent
     def initialize(source_row, options={})
-      @initialized_at = DateTime.now
       options = options.symbolize_keys.reverse_merge(context: {})
       @source_row, @context = source_row, OpenStruct.new(options[:context])
       @source_header, @previous = options[:source_header], options[:previous].try(:dup)
