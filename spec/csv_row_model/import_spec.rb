@@ -140,6 +140,16 @@ describe CsvRowModel::Import do
       end
     end
 
+    describe "#initialized_at" do
+      subject { instance.initialized_at }
+      let(:date_time) { DateTime.now }
+
+      it "gives the time" do
+        expect(DateTime).to receive(:now).and_return(date_time)
+        expect(subject).to eql date_time
+      end
+    end
+
     describe "#mapped_row" do
       subject { instance.mapped_row }
       it "returns a map of `column_name => source_row[index_of_column_name]" do
