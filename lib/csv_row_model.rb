@@ -8,9 +8,12 @@ if autoload && defined?(Rails)
 else
   require 'active_model'
   require 'active_support/all'
-  require 'csv_row_model/validators/validate_attributes'
+
   require 'csv_row_model/version'
+  require 'csv_row_model/validators/validate_attributes'
+
   require 'csv_row_model/model'
+
   require 'csv_row_model/import'
   require 'csv_row_model/import/csv'
   require 'csv_row_model/import/file'
