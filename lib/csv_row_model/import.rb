@@ -18,7 +18,7 @@ module CsvRowModel
     included do
       attr_reader :attr_reader, :source_header, :source_row, :context, :previous
 
-      self.column_names.each.with_index { |*args| define_attribute_method(*args) }
+      self.column_names.each { |*args| define_attribute_method(*args) }
 
       validates :source_row, presence: true
     end
@@ -44,6 +44,32 @@ module CsvRowModel
       @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
+    # @return [Hash] a map of `column_name => attribute_before_override`
+    def original_attributes
+      @original_attributes ||= begin
+        @default_changes = {}
+
+        values = self.class.column_names.map.with_index do |column_name, column_index|
+          value = self.class.format_cell(mapped_row[column_name], column_name, column_index)
+
+          if value.blank?
+            original_value = value
+            value = instance_exec(value, &self.class.default_lambda(column_name))
+            @default_changes[column_name] = [original_value, value]
+          end
+
+          instance_exec(value, &self.class.parse_lambda(column_name))
+        end
+        self.class.column_names.zip(values).to_h
+      end
+    end
+
+    # return [Hash] a map changes from {.column}'s default option': `column_name -> [value_before_default, default_set]`
+    def default_changes
+      original_attributes
+      @default_changes
+    end
+
     # Free `previous` from memory to avoid making a linked list
     def free_previous
       @previous = nil
@@ -64,7 +90,7 @@ module CsvRowModel
       # See {Model#column}
       def column(column_name, options={})
         super
-        define_attribute_method(column_name, columns.size - 1)
+        define_attribute_method(column_name)
       end
 
       # Safe to override. Method applied to each cell by default
@@ -94,14 +120,8 @@ module CsvRowModel
       protected
       # Define default attribute method for a column
       # @param column_name [Symbol] the cell's column_name
-      # @param options [Integer] options provided in {Model#column}
-      # @param column_index [Integer] the column_name's index
-      def define_attribute_method(column_name, column_index)
-        define_method(column_name) do
-          value = self.class.format_cell(mapped_row[column_name], column_name, column_index)
-          value = instance_exec(value, &self.class.default_lambda(column_name)) if value.blank?
-          instance_exec(value, &self.class.parse_lambda(column_name))
-        end
+      def define_attribute_method(column_name)
+        define_method(column_name) { original_attributes[column_name] }
       end
     end
   end

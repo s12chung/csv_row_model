@@ -25,9 +25,16 @@ module CsvRowModel
           deep_class_var(:@_columns, {}, :merge, Model)
         end
 
+        # @param [Symbol] column_name name of column to find option
         # @return [Hash] options for the column_name
         def options(column_name)
           columns[column_name]
+        end
+
+        # @param [Symbol] column_name name of column to find index
+        # @return [Integer] index of the column_name
+        def index(column_name)
+          column_names.index column_name
         end
 
         protected

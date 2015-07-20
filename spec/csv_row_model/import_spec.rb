@@ -17,13 +17,58 @@ describe CsvRowModel::Import do
       end
     end
 
-    describe "attribute methods" do
-      subject { instance.string1 }
+    describe "#original_attributes" do
+      subject { instance.original_attributes }
+
+      context "with all the most complex options" do
+        let(:source_row) { ["abc", "efg"] }
+
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+            include CsvRowModel::Import
+
+            column :string1, default: -> { default }, parse: ->(s) { parse(s) }
+
+            def default; "123" end
+            def parse(s); s.to_f end
+            def self.format_cell(*args); nil end
+          end
+        end
+
+        it "works" do
+          expect(subject).to eql(string1: "123".to_f)
+        end
+      end
 
       it "calls format_cell and returns the result" do
         expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return "waka"
-        expect(subject).to eql "waka"
+        expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return "baka"
+        expect(subject).to eql(string1: "waka", string2: "baka")
       end
+    end
+
+    describe "#default_changes" do
+      subject { instance.default_changes }
+
+      let(:import_model_klass) do
+        Class.new do
+          include CsvRowModel::Model
+          include CsvRowModel::Import
+
+          column :string1, default: 123
+
+          def self.format_cell(*args); nil end
+        end
+      end
+
+      it "sets the default" do
+        expect(subject).to eql(string1: [nil, 123])
+      end
+    end
+
+    describe "attribute methods" do
+      subject { instance.string1 }
 
       context "when included before and after #column call" do
         let(:import_model_klass) do
@@ -41,31 +86,6 @@ describe CsvRowModel::Import do
         it "works" do
           expect(instance.string1).to eql "1.01"
           expect(instance.string2).to eql "b"
-        end
-      end
-
-      context "with all the most complex options" do
-        let(:source_row) { ["", ""] }
-
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-
-            column :string1, default: -> { default }, parse: ->(s) { parse(s) }
-
-            def default
-              "123"
-            end
-
-            def parse(s)
-              s.to_f
-            end
-          end
-        end
-
-        it "works" do
-          expect(instance.string1).to eql "123".to_f
         end
       end
     end
@@ -169,9 +189,7 @@ describe CsvRowModel::Import do
 
               column :string1, parse: ->(s) { something }
 
-              def something
-                Random.rand
-              end
+              def something; Random.rand end
             end
           end
           let(:random) { Random.rand }
@@ -251,9 +269,7 @@ describe CsvRowModel::Import do
 
             column :string1, default: -> { something }
 
-            def something
-              Random.rand
-            end
+            def something; Random.rand end
           end
         end
         let(:random) { Random.rand }
