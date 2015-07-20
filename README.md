@@ -28,11 +28,6 @@ class ProjectRowModel
 
   # column numbers are tracked
   column :id, type: Integer # optional type parsing, or use the :parse option with a Proc
-  column :name, default: -> { default_name } # optional default (value or Proc), when the column is `#blank?`
-
-  def default_name
-    "John Smith"
-  end
 end
 ```
 
@@ -44,20 +39,8 @@ Automagically maps each column of a CSV row to an attribute of the `RowModel`.
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
 
-  # optional override
-  # default implementation:
-  # - format_cell
-  # - default_lambda.call if value.blank?
-  # - parse_lambda.call
   def name
-    mapped_row[:name].upcase
-  end
-
-  class << self
-    # optional override
-    def format_cell(cell, column_name, column_index)
-      cell.to_i.to_s == cell ? cell.to_i : cell
-    end
+    mapped_row[:name].upcase # original_attribute[:name] is accessible as well
   end
 end
 ```
@@ -128,9 +111,7 @@ class ProjectImportMapper
   # but you may use it yourself
   memoize :project, :user
 
-  def project_name
-    row_model.name
-  end
+  def project_name; row_model.name end
 
   protected
 
@@ -140,9 +121,7 @@ class ProjectImportMapper
     project
   end
 
-  def _user
-    User.find_by_email(row_model.email)
-  end
+  def _user; User.find_by_email(row_model.email) end
 end
 ```
 
@@ -160,17 +139,97 @@ import_mapper.project.name # => "SOME PROJECT NAME"
 import_mapper.project.name == import_mapper.project_name # => true
 ```
 
+## Column Options
+### Default Attributes
+For `Import`, `default_attributes` are calculated as thus:
+- `format_cell`
+- `default_lambda.call` if `value.blank?``
+- `parse_lambda.call`
+
+#### Format Cell
+Override the `format_cell` method to clean/format every cell:
+```ruby
+class ProjectImportRowModel < ProjectRowModel
+  include CsvRowModel::Import
+  class << self
+    def format_cell(cell, column_name, column_index)
+      cell = cell.strip
+      cell.to_i.to_s == cell ? cell.to_i : cell
+    end
+  end
+end
+```
+
+#### Default
+Called when `format_cell` is `blank?`, it sets the default value of the cell:
+```ruby
+class ProjectImportRowModel < ProjectRowModel
+  include CsvRowModel::Import
+
+  column :id, default: 1
+  column :name, default: -> { get_name }
+
+  def get_name; "John Doe" end
+end
+row_model = ProjectImportRowModel.new(["", ""])
+row_model.id # => 1
+row_model.name # => "John Doe"
+row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
+
+```
+
+`DefaultChangeValidator` is provided to allows to add warnings when defaults or set:
+
+```ruby
+class ProjectImportRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Input
+
+  column :id, default: 1
+
+  warnings do
+    validates :id, default_change: true
+    # validates :id, presence: true, works too. See ActiveWarnings gem for more.
+  end
+end
+
+row_model = ProjectImportRowModel.new([""])
+
+row_model.warnings.has_warnings? # => true
+row_model.new([""]).warnings.full_messages # => ["Id changed by default"]
+```
+
+See [Validations](#validations) for more.
+
+#### Type
+Automatic type parsing.
+
+```ruby
+class ProjectImportRowModel < ProjectRowModel
+  include CsvRowModel::Import
+
+  column :id, type: Integer
+  column :name, parse: ->(original_string) { parse(original_string) }
+
+  def parse(original_string)
+    "#{id} - #{original_string}"
+  end
+end
+```
+
 ## Validations
 
 Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html)
 on your `RowModel` or `Mapper`.
+
+Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings).
 
 ## Callbacks
 You can also iterate through a file with the `#each` method:
 
 ```ruby
 CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project_import_model|
-  # the "given block"
+  # the "given block, see yield below"
 end
 ```
 
