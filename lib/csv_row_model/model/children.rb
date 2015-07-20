@@ -22,14 +22,21 @@ module CsvRowModel
         nil
       end
 
+      # Convenience method to return an array of calling `public_send(method_name)` on it's children
+      #
+      # @return [Array] results of `public_send(method_name)` in a flattened array
+      def children_public_send(method_name)
+        self.class.has_many_relationships.keys.map do |relation_name|
+          public_send(relation_name).map(&method_name)
+        end.flatten(1)
+      end
+
       # Convenience method to return an array of calling `public_send(method_name)` on itself and it's children
       #
       # @return [Array] results of `public_send(method_name)` in a flattened array
       def deep_public_send(method_name)
         result = [public_send(method_name)]
-        result + self.class.has_many_relationships.keys.map do |relation_name|
-          public_send(relation_name).map(&method_name)
-        end.flatten(1)
+        result + children_public_send(method_name)
       end
 
       class_methods do
