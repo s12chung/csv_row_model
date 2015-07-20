@@ -41,21 +41,19 @@ module CsvRowModel
       #
       # @param context [Hash] context passed to the {Import}
       def next(context={})
-        run_callbacks :next do
-          csv.skip_header
+        csv.skip_header
 
-          next_line_is_parent_row = true
-          loop do
-            @previous_row_model = current_row_model if next_line_is_parent_row
+        next_line_is_parent_row = true
+        loop do
+          @previous_row_model = current_row_model if next_line_is_parent_row
 
-            csv.readline
-            return set_end_of_file if csv.end_of_file?
+          csv.readline
+          return set_end_of_file if csv.end_of_file?
 
-            set_current_row_model(context) if next_line_is_parent_row
+          set_current_row_model(context) if next_line_is_parent_row
 
-            next_line_is_parent_row = !current_row_model.append_child(csv.next_line)
-            return current_row_model if next_line_is_parent_row
-          end
+          next_line_is_parent_row = !current_row_model.append_child(csv.next_line)
+          return current_row_model if next_line_is_parent_row
         end
       end
 
@@ -70,16 +68,14 @@ module CsvRowModel
       # @param context [Hash] context passed to the {Import}
       def each(context={})
         return to_enum(__callee__, context) unless block_given?
-        run_callbacks :each do
+        return false if _abort?
+
+        while self.next(context)
           return false if _abort?
+          next if _skip?
 
-          while self.next(context)
-            return false if _abort?
-            next if _skip?
-
-            run_callbacks :yield do
-              yield current_row_model
-            end
+          run_callbacks :yield do
+            yield current_row_model
           end
         end
       end
