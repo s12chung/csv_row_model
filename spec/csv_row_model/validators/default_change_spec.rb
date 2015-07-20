@@ -15,7 +15,7 @@ describe DefaultChangeValidator do
   end
 
   let(:instance) { klass.new }
-  subject { instance.has_warnings? }
+  subject { instance.safe? }
 
   context "with no default_changes" do
     before do
