@@ -45,6 +45,10 @@ class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
 
   # optional override
+  # default implementation:
+  # - format_cell
+  # - default_lambda.call if value.blank?
+  # - parse_lambda.call
   def name
     mapped_row[:name].upcase
   end

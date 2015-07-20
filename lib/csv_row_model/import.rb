@@ -18,9 +18,7 @@ module CsvRowModel
     included do
       attr_reader :attr_reader, :source_header, :source_row, :context, :previous
 
-      self.columns.each.with_index do |column_info, column_index|
-        define_attribute_method(*(column_info + [column_index]))
-      end
+      self.column_names.each.with_index { |*args| define_attribute_method(*args) }
 
       validates :source_row, presence: true
     end
@@ -66,7 +64,7 @@ module CsvRowModel
       # See {Model#column}
       def column(column_name, options={})
         super
-        define_attribute_method(column_name, options, columns.size - 1)
+        define_attribute_method(column_name, columns.size - 1)
       end
 
       # Safe to override. Method applied to each cell by default
@@ -78,23 +76,31 @@ module CsvRowModel
         cell
       end
 
+      # @return [Lambda] returns a Lambda: ->(original_value) { default_exists? ? default : original_value }
+      def default_lambda(column_name)
+        default = options(column_name)[:default]
+        default.is_a?(Proc) ? ->(s) { instance_exec(&default) } : ->(s) { default.nil? ? s : default }
+      end
+
+      # @return [Lambda, Proc] returns the Lambda/Proc given in the parse option or:
+      # ->(original_value) { parse_proc_exists? ? parsed_value : original_value  }
+      def parse_lambda(column_name)
+        options = options(column_name)
+        parse_lambda = options[:parse] || CLASS_TO_PARSE_LAMBDA[options[:type]]
+        return parse_lambda if parse_lambda
+        raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}")
+      end
+
       protected
       # Define default attribute method for a column
       # @param column_name [Symbol] the cell's column_name
       # @param options [Integer] options provided in {Model#column}
       # @param column_index [Integer] the column_name's index
-      def define_attribute_method(column_name, options, column_index)
-        parse_lambda = options[:parse]
-        parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]] unless parse_lambda
-        raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}") unless parse_lambda
-
-        _default = options[:default] # weird closure if this variable is `default`
-        default = _default.is_a?(Proc) ? ->(s) { instance_exec(&_default) } : ->(s) { _default.nil? ? s : _default }
-
+      def define_attribute_method(column_name, column_index)
         define_method(column_name) do
           value = self.class.format_cell(mapped_row[column_name], column_name, column_index)
-          value = instance_exec(value, &default) if value.blank?
-          parse_lambda.call value
+          value = instance_exec(value, &self.class.default_lambda(column_name)) if value.blank?
+          instance_exec(value, &self.class.parse_lambda(column_name))
         end
       end
     end

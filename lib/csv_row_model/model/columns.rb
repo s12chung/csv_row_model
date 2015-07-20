@@ -25,6 +25,11 @@ module CsvRowModel
           deep_class_var(:@_columns, {}, :merge, Model)
         end
 
+        # @return [Hash] options for the column_name
+        def options(column_name)
+          columns[column_name]
+        end
+
         protected
         def _columns
           @_columns ||= {}
