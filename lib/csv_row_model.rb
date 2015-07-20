@@ -8,6 +8,8 @@ if autoload && defined?(Rails)
 else
   require 'active_model'
   require 'active_support/all'
+  require 'active_warnings'
+
   require 'csv_row_model/validators/validate_attributes'
   require 'csv_row_model/validators/default_change'
   require 'csv_row_model/version'

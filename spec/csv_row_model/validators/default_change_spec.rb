@@ -3,17 +3,19 @@ require 'spec_helper'
 describe DefaultChangeValidator do
   let(:klass) do
     Class.new do
-      include ActiveModel::Validations
+      include ActiveWarnings
       attr_accessor :string1
       attr_accessor :string2
-      validates :string1, default_change: true
+      warnings do
+        validates :string1, default_change: true
+      end
 
       def self.name; "TestClass" end
     end
   end
 
   let(:instance) { klass.new }
-  subject { instance.valid? }
+  subject { instance.has_warnings? }
 
   context "with no default_changes" do
     before do
@@ -42,7 +44,7 @@ describe DefaultChangeValidator do
 
     it "is invalid" do
       expect(subject).to eql false
-      expect(instance.errors.full_messages).to eql ["String1 changed by default"]
+      expect(instance.warnings.full_messages).to eql ["String1 changed by default"]
     end
   end
 end

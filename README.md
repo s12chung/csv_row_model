@@ -222,7 +222,8 @@ end
 Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html)
 on your `RowModel` or `Mapper`.
 
-Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings).
+Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Mapper` for warnings
+(such as setting defaults), but not errors (which by default results in a skip).
 
 ## Callbacks
 You can also iterate through a file with the `#each` method:

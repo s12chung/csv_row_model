@@ -7,7 +7,7 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       included do
-        include ActiveModel::Validations
+        include ActiveWarnings
         include Validators::ValidateAttributes
 
         attr_reader :row_model
