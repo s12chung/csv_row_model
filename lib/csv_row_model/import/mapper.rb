@@ -17,6 +17,10 @@ module CsvRowModel
 
         validates :row_model, presence: true
         validate_attributes :row_model
+
+        warnings do
+          validate_attributes :row_model
+        end
       end
 
       def initialize(*args)
