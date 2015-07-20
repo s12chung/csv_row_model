@@ -225,22 +225,9 @@ on your `RowModel` or `Mapper`.
 Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Mapper` for warnings
 (such as setting defaults), but not errors (which by default results in a skip).
 
-## Callbacks
-You can also iterate through a file with the `#each` method:
-
-```ruby
-CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project_import_model|
-  # the "given block, see yield below"
-end
-```
-
+## Callbacks and RowModels
 `CsvRowModel::Import::File` can be subclassed to access
-[`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html):
-
-* each - `before`, `around`, or `after` the `each` method
-* yield - `before`, `around`, or `after` yielding the `RowModel` to the "given block" (see Ruby code above)
-* skip - `before`
-* abort - `before`
+[`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
 
 ```ruby
 class ImportFile < CsvRowModel::Import::File
@@ -256,3 +243,24 @@ class ImportFile < CsvRowModel::Import::File
   end
 end
 ```
+
+Get the `next` row model:
+`CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).next`
+
+which has a callback:
+* next - `before`, `around`, or `after` the `next` method
+
+You can also iterate through a file with the `#each` method, which calls `next` internally:
+
+```ruby
+CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project_import_model|
+  # the "given block, see yield below"
+end
+```
+
+**Skips** and **Aborts** will be done via the `skip?` or `abort?` method on the row model, allowing the following callbacks:
+
+* each - `before`, `around`, or `after` the `each` method
+* yield - `before`, `around`, or `after` yielding the `RowModel` to the "given block" (see Ruby code above)
+* skip - `before`
+* abort - `before`

@@ -41,19 +41,21 @@ module CsvRowModel
       #
       # @param context [Hash] context passed to the {Import}
       def next(context={})
-        csv.skip_header
+        run_callbacks :next do
+          csv.skip_header
 
-        next_line_is_parent_row = true
-        loop do
-          @previous_row_model = current_row_model if next_line_is_parent_row
+          next_line_is_parent_row = true
+          loop do
+            @previous_row_model = current_row_model if next_line_is_parent_row
 
-          csv.readline
-          return set_end_of_file if csv.end_of_file?
+            csv.readline
+            return set_end_of_file if csv.end_of_file?
 
-          set_current_row_model(context) if next_line_is_parent_row
+            set_current_row_model(context) if next_line_is_parent_row
 
-          next_line_is_parent_row = !current_row_model.append_child(csv.next_line)
-          return current_row_model if next_line_is_parent_row
+            next_line_is_parent_row = !current_row_model.append_child(csv.next_line)
+            return current_row_model if next_line_is_parent_row
+          end
         end
       end
 
