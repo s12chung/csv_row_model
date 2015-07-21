@@ -28,6 +28,7 @@ class ProjectRowModel
 
   # column numbers are tracked
   column :id, type: Integer # optional type parsing, or use the :parse option with a Proc
+  column :name
 end
 ```
 
@@ -143,7 +144,7 @@ import_mapper.project.name == import_mapper.project_name # => true
 ### Default Attributes
 For `Import`, `default_attributes` are calculated as thus:
 - `format_cell`
-- `default_lambda.call` if `value.blank?``
+- `default_lambda.call` if `value.blank?`
 - `parse_lambda.call`
 
 #### Format Cell
@@ -195,8 +196,9 @@ end
 
 row_model = ProjectImportRowModel.new([""])
 
-row_model.warnings.has_warnings? # => true
-row_model.new([""]).warnings.full_messages # => ["Id changed by default"]
+row_model.unsafe? # => true
+row_model.has_warnings? # => true, same as `#unsafe?`
+row_model.warnings.full_messages # => ["Id changed by default"]
 ```
 
 See [Validations](#validations) for more.
@@ -229,17 +231,17 @@ Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `
 `CsvRowModel::Import::File` can be subclassed to access
 [`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
 
-You can iterate through a file with the `#each` method, which calls `next` internally:
+You can iterate through a file with the `#each` method, which calls `#next` internally:
 
 ```ruby
 CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project_import_model|
-  # the "given block, see yield below"
 end
 ```
 
-**Skips** and **Aborts** will be done via the `skip?` or `abort?` method on the row model, allowing the following callbacks:
+Within `#each`, **Skips** and **Aborts** will be done via the `skip?` or `abort?` method on the row model,
+allowing the following callbacks:
 
-* yield - `before`, `around`, or `after` the iteratation
+* yield - `before`, `around`, or `after` the iteration yield
 * skip - `before`
 * abort - `before`
 
