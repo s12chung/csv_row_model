@@ -7,7 +7,6 @@ module CsvRowModel
         included do
           extend ActiveModel::Callbacks
 
-          define_model_callbacks :each
           define_model_callbacks :yield
           define_model_callbacks :abort, :skip, only: :before
         end

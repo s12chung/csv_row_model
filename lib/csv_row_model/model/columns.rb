@@ -25,6 +25,18 @@ module CsvRowModel
           deep_class_var(:@_columns, {}, :merge, Model)
         end
 
+        # @param [Symbol] column_name name of column to find option
+        # @return [Hash] options for the column_name
+        def options(column_name)
+          columns[column_name]
+        end
+
+        # @param [Symbol] column_name name of column to find index
+        # @return [Integer] index of the column_name
+        def index(column_name)
+          column_names.index column_name
+        end
+
         protected
         def _columns
           @_columns ||= {}
@@ -36,6 +48,7 @@ module CsvRowModel
         # @param options [Hash]
         # @option options [Hash] :type class you want to automatically parse to (by default does nothing, equivalent to String)
         # @option options [Hash] :parse a Proc for parsing the cell
+        # @option options [Hash] :default default value of the column if it is blank?, can pass Proc
         def column(column_name, options={})
           _columns.merge!(column_name => options)
         end

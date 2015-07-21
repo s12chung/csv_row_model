@@ -54,17 +54,25 @@ describe CsvRowModel::Model::Children do
         end
       end
 
-      describe "#deep_public_send" do
-        context "with a parent" do
-          before do
-            parent_instance.define_singleton_method(:meth) { "haha" }
-            instance.define_singleton_method(:meth) { "baka" }
-          end
+      context "with a parent" do
+        before do
+          parent_instance.define_singleton_method(:meth) { "haha" }
+          instance.define_singleton_method(:meth) { "baka" }
+        end
 
+        describe "#deep_public_send" do
           subject { parent_instance.deep_public_send(:meth) }
 
           it "returns the results of calling public_send on itself and children" do
             expect(subject).to eql %w[haha baka]
+          end
+        end
+
+        describe "#deep_public_send" do
+          subject { parent_instance.children_public_send(:meth) }
+
+          it "returns the results of calling public_send on it's children" do
+            expect(subject).to eql %w[baka]
           end
         end
       end

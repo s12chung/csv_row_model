@@ -28,8 +28,29 @@ describe CsvRowModel::Model::Columns do
   end
 
   describe "class" do
+    let(:klass) { BasicModel }
+
     describe "::column_names" do
-      specify { expect(BasicModel.column_names).to eql %i[string1 string2] }
+      subject { klass.column_names }
+      specify { expect(subject).to eql %i[string1 string2] }
+    end
+
+    describe "::options" do
+      let(:options) { { haha: "haha", waka: "waka" } }
+      let(:klass) do
+        o = options
+        Class.new do
+          include CsvRowModel::Model
+
+          column :blah, o
+        end
+      end
+
+      subject { klass.options(:blah) }
+
+      it "returns the options for the column" do
+        expect(subject).to eql options
+      end
     end
   end
 end

@@ -5,7 +5,8 @@ module CsvRowModel
 
       class AttributeValidator < ActiveModel::EachValidator # :nodoc:
         def validate_each(record, attribute, value)
-          return unless value && !value.valid?
+          warnings = record.instance_variable_get(:@run_warning_validations)
+          return unless value && (warnings ? value.unsafe? : value.invalid?)
           record.errors.add(attribute)
         end
       end

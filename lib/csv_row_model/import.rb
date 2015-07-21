@@ -16,11 +16,9 @@ module CsvRowModel
     }
 
     included do
-      attr_reader :source_header, :source_row, :context, :previous
+      attr_reader :attr_reader, :source_header, :source_row, :context, :previous
 
-      self.columns.each.with_index do |column_info, column_index|
-        define_attribute_method(*(column_info + [column_index]))
-      end
+      self.column_names.each { |*args| define_attribute_method(*args) }
 
       validates :source_row, presence: true
     end
@@ -46,6 +44,32 @@ module CsvRowModel
       @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
+    # @return [Hash] a map of `column_name => attribute_before_override`
+    def original_attributes
+      @original_attributes ||= begin
+        @default_changes = {}
+
+        values = self.class.column_names.map.with_index do |column_name, column_index|
+          value = self.class.format_cell(mapped_row[column_name], column_name, column_index)
+
+          if value.blank?
+            original_value = value
+            value = instance_exec(value, &self.class.default_lambda(column_name))
+            @default_changes[column_name] = [original_value, value]
+          end
+
+          instance_exec(value, &self.class.parse_lambda(column_name))
+        end
+        self.class.column_names.zip(values).to_h
+      end
+    end
+
+    # return [Hash] a map changes from {.column}'s default option': `column_name -> [value_before_default, default_set]`
+    def default_changes
+      original_attributes
+      @default_changes
+    end
+
     # Free `previous` from memory to avoid making a linked list
     def free_previous
       @previous = nil
@@ -66,7 +90,7 @@ module CsvRowModel
       # See {Model#column}
       def column(column_name, options={})
         super
-        define_attribute_method(column_name, options, columns.size - 1)
+        define_attribute_method(column_name)
       end
 
       # Safe to override. Method applied to each cell by default
@@ -78,19 +102,26 @@ module CsvRowModel
         cell
       end
 
+      # @return [Lambda] returns a Lambda: ->(original_value) { default_exists? ? default : original_value }
+      def default_lambda(column_name)
+        default = options(column_name)[:default]
+        default.is_a?(Proc) ? ->(s) { instance_exec(&default) } : ->(s) { default.nil? ? s : default }
+      end
+
+      # @return [Lambda, Proc] returns the Lambda/Proc given in the parse option or:
+      # ->(original_value) { parse_proc_exists? ? parsed_value : original_value  }
+      def parse_lambda(column_name)
+        options = options(column_name)
+        parse_lambda = options[:parse] || CLASS_TO_PARSE_LAMBDA[options[:type]]
+        return parse_lambda if parse_lambda
+        raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}")
+      end
+
       protected
       # Define default attribute method for a column
       # @param column_name [Symbol] the cell's column_name
-      # @param options [Integer] options provided in {Model#column}
-      # @param column_index [Integer] the column_name's index
-      def define_attribute_method(column_name, options, column_index)
-        parse_lambda = options[:parse]
-        parse_lambda = CLASS_TO_PARSE_LAMBDA[options[:type]] unless parse_lambda
-        raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}") unless parse_lambda
-
-        define_method(column_name) do
-          parse_lambda.call self.class.format_cell(mapped_row[column_name], column_name, column_index)
-        end
+      def define_attribute_method(column_name)
+        define_method(column_name) { original_attributes[column_name] }
       end
     end
   end
