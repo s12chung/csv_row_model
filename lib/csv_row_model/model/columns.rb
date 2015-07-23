@@ -38,6 +38,7 @@ module CsvRowModel
         end
 
         protected
+
         def _columns
           @_columns ||= {}
         end
@@ -49,6 +50,7 @@ module CsvRowModel
         # @option options [Hash] :type class you want to automatically parse to (by default does nothing, equivalent to String)
         # @option options [Hash] :parse a Proc for parsing the cell
         # @option options [Hash] :default default value of the column if it is blank?, can pass Proc
+        # @option options [Hash] :header human friendly string of the column name, by default header_format(column_name)
         def column(column_name, options={})
           _columns.merge!(column_name => options)
         end
