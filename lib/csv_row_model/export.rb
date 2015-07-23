@@ -31,9 +31,16 @@ module CsvRowModel
       def column_headers
         @column_headers ||= begin
           columns.map do |name, options|
-            options[:header] || header_format(name)
+            options[:header] || format_header(name)
           end
         end
+      end
+
+      # Safe to override
+      #
+      # @return [String] formatted header
+      def format_header(column_name)
+        column_name
       end
 
       # @param [Symbol] column_name name of column to find option
