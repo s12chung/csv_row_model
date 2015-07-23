@@ -144,8 +144,8 @@ import_mapper.project.name == import_mapper.project_name # => true
 ### Default Attributes
 For `Import`, `default_attributes` are calculated as thus:
 - `format_cell`
-- `default_lambda.call` if `value.blank?`
-- `parse_lambda.call`
+- if `value_form_format_cell.blank?`, `default_lambda.call`
+- otherwise, `parse_lambda.call`
 
 #### Format Cell
 Override the `format_cell` method to clean/format every cell:

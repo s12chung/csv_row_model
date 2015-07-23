@@ -20,9 +20,7 @@ describe CsvRowModel::Import do
     describe "#original_attributes" do
       subject { instance.original_attributes }
 
-      context "with all the most complex options" do
-        let(:source_row) { ["abc", "efg"] }
-
+      context "with all options" do
         let(:import_model_klass) do
           Class.new do
             include CsvRowModel::Model
@@ -32,12 +30,23 @@ describe CsvRowModel::Import do
 
             def default; "123" end
             def parse(s); s.to_f end
-            def self.format_cell(*args); nil end
+            def self.format_cell(*args); args.first end
           end
         end
 
-        it "works" do
-          expect(subject).to eql(string1: "123".to_f)
+        context "format_cell returns empty string" do
+          let(:source_row) { [""] }
+
+          it "returns the default" do
+            expect(subject).to eql(string1: "123")
+          end
+        end
+
+        context "when returns a parsable string" do
+          let(:source_row) { ["123"] }
+          it "returns the default" do
+            expect(subject).to eql(string1: "123".to_f)
+          end
         end
       end
 

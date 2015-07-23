@@ -52,13 +52,14 @@ module CsvRowModel
         values = self.class.column_names.map.with_index do |column_name, column_index|
           value = self.class.format_cell(mapped_row[column_name], column_name, column_index)
 
-          if value.blank?
+          if value.present?
+            instance_exec(value, &self.class.parse_lambda(column_name))
+          else
             original_value = value
             value = instance_exec(value, &self.class.default_lambda(column_name))
             @default_changes[column_name] = [original_value, value]
+            value
           end
-
-          instance_exec(value, &self.class.parse_lambda(column_name))
         end
         self.class.column_names.zip(values).to_h
       end
