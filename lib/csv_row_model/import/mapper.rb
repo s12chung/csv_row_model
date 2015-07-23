@@ -1,25 +1,22 @@
+require 'csv_row_model/import/mapper/dependent_attributes'
+
 module CsvRowModel
   module Import
     # Represents a mapping between a {Import} {row_model} and your own models
-    #
-    # __Should implement the class method {row_model_class}__
     module Mapper
       extend ActiveSupport::Concern
 
       included do
         include ActiveWarnings
         include Validators::ValidateAttributes
+        include DependentAttributes
 
         attr_reader :row_model
 
-        delegate :context, :previous, :free_previous, :append_child,
-                 :attributes, :to_json, to: :row_model
-
-        validates :row_model, presence: true
-        validate_attributes :row_model
-
-        warnings do
-          validate_attributes :row_model
+        def valid?(*args)
+          super
+          filter_errors
+          errors.empty?
         end
       end
 
@@ -41,10 +38,26 @@ module CsvRowModel
         row_model.abort?
       end
 
+      protected
+
+      # allow Mapper to delegate missing methods to the row_model, EXCEPT column_name methods to keep separation
+      def method_missing(name, *args, &block)
+        super
+      rescue NoMethodError, NameError => original_error
+        raise original_error if row_model.class.column_names.include? name
+
+        begin
+          row_model.public_send name, *args, &block
+        rescue NoMethodError, NameError => new_error
+          if new_error.name == name && new_error.args == args
+            raise original_error
+          else
+            raise new_error
+          end
+        end
+      end
+
       class_methods do
-        class RowModelClassNotDefined < StandardError;end
-
-
         # @return [Class] returns the class that includes {Model} that the {Mapper} class maps to
         # defaults based on self.class: `FooMapper` or `Foo` => `FooRowModel` or the one set by {Mapper.maps_to}
         def row_model_class
@@ -66,25 +79,6 @@ module CsvRowModel
                       " from #{@row_model_class} to #{row_model_class}"
           end
           @row_model_class = row_model_class
-        end
-
-        # For every method name define the following:
-        #
-        # ```ruby
-        # def method_name; @method_name ||= _method_name end
-        # ```
-        #
-        # @param [Array<Symbol>] method_names method names to memoize
-        def memoize(*method_names)
-          method_names.each do |method_name|
-            define_method(method_name) do
-              #
-              # equal to: @method_name ||= _method_name
-              #
-              variable_name = "@#{method_name}"
-              instance_variable_get(variable_name) || instance_variable_set(variable_name, send("_#{method_name}"))
-            end
-          end
         end
       end
     end

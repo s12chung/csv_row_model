@@ -12,6 +12,20 @@ describe CsvRowModel::Import::Mapper do
       end
     end
 
+    describe "#valid?" do
+      subject { instance.valid? }
+
+      it "calls #filter_errors" do
+        expect(instance).to receive(:filter_errors)
+        subject
+      end
+
+      it "calls #filter_errors when calling #safe?" do
+        expect(instance.row_model).to receive(:with_warnings).and_call_original
+        instance.safe?
+      end
+    end
+
     describe "#skip?" do
       subject { instance.skip? }
 
@@ -38,14 +52,44 @@ describe CsvRowModel::Import::Mapper do
       end
     end
 
-    describe "::memoize" do
-      before do
-        instance.define_singleton_method(:_memoized_method) { Random.rand }
-      end
-      subject { -> { instance.memoized_method } }
+    describe "#method_missing" do
+      let(:method) { :source_row }
+      subject { instance.public_send(method) }
 
-      it "memoized the method" do
-        expect(subject.call).to eql subject.call
+      it "calls the row model with the method" do
+        expect(subject).to eql source_row
+      end
+
+      context "when the method raises an error" do
+        let(:method) { :method_that_raises }
+
+        it "gives the inner exception" do
+          expect { subject }.to raise_error("test")
+        end
+      end
+
+      context "when the method is protected" do
+        let(:method) { :protected_method }
+
+        it "raises the original_error before calling protected" do
+          expect { subject }.to raise_error(NoMethodError, /Mapper/)
+        end
+      end
+
+      context "when the method is a column_name" do
+        let(:method) { :string1 }
+
+        it "raises the original_error before calling protected" do
+          expect { subject }.to raise_error(NoMethodError, /Mapper/)
+        end
+      end
+
+      context "when the method is a column_name that's in Mapper" do
+        let(:method) { :string2 }
+
+        it "raises the original_error before calling protected" do
+          expect(subject).to eql "mapper"
+        end
       end
     end
   end
@@ -97,7 +141,7 @@ describe CsvRowModel::Import::Mapper do
         end
 
         it "set's the row_model_class" do
-          expect { subject }.to raise_error(described_class::RowModelClassNotDefined)
+          expect { subject }.to raise_error(CsvRowModel::RowModelClassNotDefined)
         end
       end
     end

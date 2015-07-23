@@ -5,6 +5,7 @@ class Boolean; end unless defined? Boolean
 
 require 'active_warnings'
 require 'csv_row_model/validators/default_change'
+require 'csv_row_model/exceptions'
 
 if autoload && defined?(Rails)
   require 'csv_row_model/engine'
