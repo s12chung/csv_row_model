@@ -121,14 +121,12 @@ There are two layers:
 1. `RowModel` - represents the CSV row and validates CSV syntax
 2. `Mapper` - defines the relationship between `RowModel` and the database, so it validates database operations
 
-The `attribute` call above does the following:
-1. Defines a attribute method: `project` that:
-   - returns when `row_model.id` or `row_model.name` is `invalid?` (`:dependencies` options)
-   - otherwise, calls `_project` and memozies the result (`:memoize` option)
-2. Filters errors based on the `:dependencies`:
-  - if `row_model.id` or `row_model.name` is `invalid?`, then `import_mapper.errors.keys # => [:id, :name]`
-  and the `:project` key is removed (`import_mapper.project` is dependent on `row_model.id` and `row_model.name`)
-  - otherwise, `import_mapper.errors` stays the same for `project`
+In the example, the `attribute` method defines a method `project`, which is memoized by default (turn off with `:memoize` option).
+Also note the `:dependencies` `id` and `name`, which correspond to `row_model.id/name`. When any of the dependencies are `invalid?`:
+
+  1. The attribute block is not called and the attribute returns `nil`.
+  2. Attribute errors are filtered based on the dependencies. In this case, if `row_model.id/name` are `invalid?`, then
+  the `:project` key is removed from the errors, resulting in: `import_mapper.errors.keys # => [:id, :name]`.
 
 Also, importing is the same:
 
