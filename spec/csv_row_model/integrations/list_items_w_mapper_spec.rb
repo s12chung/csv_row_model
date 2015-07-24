@@ -30,10 +30,8 @@ describe 'List Items Scenario with Mapper' do
   end
   class ListImportWMapper
     include CsvRowModel::Import::Mapper
-    dependent_attributes list: [:list_name, :items]
 
-    protected
-    def _list
+    attribute :list, dependencies: [:list_name, :items] do
       { list_name: row_model.list_name, items: row_model.items }
     end
   end

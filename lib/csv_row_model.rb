@@ -14,6 +14,7 @@ else
   require 'active_support/all'
 
   require 'csv_row_model/version'
+  require 'csv_row_model/deep_class_var'
   require 'csv_row_model/validators/validate_attributes'
 
   require 'csv_row_model/model'

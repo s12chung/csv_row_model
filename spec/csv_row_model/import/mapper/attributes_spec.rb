@@ -1,17 +1,24 @@
 require 'spec_helper'
 
-describe CsvRowModel::Import::Mapper::DependentAttributes do
+describe CsvRowModel::Import::Mapper::Attributes do
   describe "instance" do
     let(:klass) { DependentImportMapper }
     let(:instance) { klass.new source_row }
     let (:source_row) { ["no_errors", "no_errors"]  }
 
-    describe "dependent_attribute_methods" do
+    describe "attribute_methods" do
       subject { instance.attribute1 }
 
       it "should execute with memoization" do
         expect(subject).to_not eql nil
         expect(subject).to eql instance.attribute1
+      end
+
+      it "should work when calling next" do
+        instance.attribute2
+        instance.attribute2
+        expect(instance.attribute2).to eql nil
+        expect(instance.attribute3).to eql nil
       end
 
       context "with row_model errors" do
@@ -66,14 +73,12 @@ describe CsvRowModel::Import::Mapper::DependentAttributes do
     describe "#memoize" do
       let(:klass) do
         Class.new do
-          include CsvRowModel::Import::Mapper::DependentAttributes
-
-          def _test; Random.rand end
+          include CsvRowModel::Import::Mapper::Attributes
         end
       end
 
       let(:instance) { klass.new }
-      subject { instance.send(:memoize, "test") }
+      subject { instance.send(:memoize, "test") { Random.rand } }
 
       it "memoizes the result" do
         expect(subject).to_not eql nil

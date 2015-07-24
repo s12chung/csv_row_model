@@ -1,4 +1,4 @@
-require 'csv_row_model/import/mapper/dependent_attributes'
+require 'csv_row_model/import/mapper/attributes'
 
 module CsvRowModel
   module Import
@@ -9,7 +9,7 @@ module CsvRowModel
       included do
         include ActiveWarnings
         include Validators::ValidateAttributes
-        include DependentAttributes
+        include Attributes
 
         attr_reader :row_model
 

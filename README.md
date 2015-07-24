@@ -105,14 +105,11 @@ class ProjectImportMapper
 
   maps_to ProjectImportRowModel
 
-  dependent_attributes project: [:id, :name]
-
-  protected
-
-  def _project
+  attribute :project, dependencies: [:id, :name] do
     project = Project.where(id: row_model.id).first
 
-    return unless project # project not found, invalid.
+    # project not found, invalid.
+    next unless project # use the `next` keyword instead of `return` in Procs/blocks
 
     project.name = row_model.name
     project
@@ -124,15 +121,14 @@ There are two layers:
 1. `RowModel` - represents the CSV row and validates CSV syntax
 2. `Mapper` - defines the relationship between `RowModel` and the database, so it validates database operations
 
-The `dependent_attributes` call above does the following:
-
-1. Filters errors based on the dependencies:
+The `attribute` call above does the following:
+1. Defines a attribute method: `project` that:
+   - returns when `row_model.id` or `row_model.name` is `invalid?` (`:dependencies` options)
+   - otherwise, calls `_project` and memozies the result (`:memoize` option)
+2. Filters errors based on the `:dependencies`:
   - if `row_model.id` or `row_model.name` is `invalid?`, then `import_mapper.errors.keys # => [:id, :name]`
   and the `:project` key is removed (`import_mapper.project` is dependent on `row_model.id` and `row_model.name`)
   - otherwise, `import_mapper.errors` stays the same for `project`
-2. Defines a attribute method: `project` that:
-  - returns when `row_model.id` or `row_model.name` is `invalid?`
-  - otherwise, calls `_project` and memozies the result
 
 Also, importing is the same:
 

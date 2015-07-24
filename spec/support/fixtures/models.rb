@@ -42,10 +42,23 @@ class DependentImportMapper
 
   validates :attribute1, :string2, presence: true
 
-  dependent_attributes attribute1: %i[string1 string2]
+  attribute :attribute1, dependencies: %i[string1 string2] do
+    Random.rand
+  end
+
+  attribute :attribute2 do
+    attribute3
+    attribute3
+    next
+
+    "never"
+  end
+
+  attribute :attribute3 do
+    next
+    "never touch"
+  end
 
   # handle case with matching name
   def string2; nil end
-
-  def _attribute1; Random.rand end
 end
