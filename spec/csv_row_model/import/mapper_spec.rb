@@ -92,6 +92,21 @@ describe CsvRowModel::Import::Mapper do
         end
       end
     end
+
+    describe "#try" do
+      let(:options) { { previous: "" } }
+
+      it "should free the previous" do
+        instance.try(:free_previous)
+        expect(instance.previous).to eql nil
+      end
+
+      it "should stay with itself if it returns falsey" do
+        expect(instance).to receive(:string2).and_return(false)
+        instance.try(:string2)
+        # expect(instance.try(:test)).to eql false
+      end
+    end
   end
 
   describe "class" do

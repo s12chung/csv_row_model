@@ -18,6 +18,11 @@ module CsvRowModel
           filter_errors
           errors.empty?
         end
+
+        # trying should also go down to the row_model
+        def try(*a, &b)
+          a.empty? || respond_to?(a.first) ? super : row_model.try(*a, &b)
+        end
       end
 
       def initialize(*args)
