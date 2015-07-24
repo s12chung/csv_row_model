@@ -8,10 +8,15 @@ module CsvRowModel
 
       included do
         include ActiveWarnings
-        include Validators::ValidateAttributes
+
+        include Inspect
+
         include Attributes
 
         attr_reader :row_model
+
+        # memory fix...
+        delegate :to_json, to: :row_model
 
         def valid?(*args)
           super
@@ -63,6 +68,11 @@ module CsvRowModel
       end
 
       class_methods do
+        INSPECT_INSTANCE_VARIABLES = %i[@row_model].freeze
+        def inspect_instance_variables
+          INSPECT_INSTANCE_VARIABLES
+        end
+
         # @return [Class] returns the class that includes {Model} that the {Mapper} class maps to
         # defaults based on self.class: `FooMapper` or `Foo` => `FooRowModel` or the one set by {Mapper.maps_to}
         def row_model_class
