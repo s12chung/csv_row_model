@@ -13,19 +13,25 @@ class BasicImportModel < BasicModel
   protected
   def protected_method; end
 end
-
-class ParentImportModel < BasicImportModel
-  include CsvRowModel::Import
-
-  has_many :children, BasicImportModel
-end
-
-class ImportMapper
+class BasicImportMapper
   include CsvRowModel::Import::Mapper
 
   maps_to BasicImportModel
 
   def string2; "mapper" end
+end
+
+
+class ChildImportModel < BasicImportModel
+  validates :string1, absence: true
+end
+class ParentImportModel < BasicImportModel
+  has_many :children, ChildImportModel
+end
+class ParentImportMapper
+  include CsvRowModel::Import::Mapper
+
+  maps_to ParentImportModel
 end
 
 

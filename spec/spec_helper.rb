@@ -8,4 +8,6 @@ Dir[Dir.pwd + '/spec/support/**/*.rb'].each { |f| require f }
 
 RSpec.configure do |c|
   c.run_all_when_everything_filtered = true
+
+  c.include CsvFilePaths
 end

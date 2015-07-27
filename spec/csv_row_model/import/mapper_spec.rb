@@ -4,7 +4,7 @@ describe CsvRowModel::Import::Mapper do
   describe "instance" do
     let(:source_row) { %w[a b] }
     let(:options) { {} }
-    let(:instance) { ImportMapper.new(source_row, options) }
+    let(:instance) { BasicImportMapper.new(source_row, options) }
 
     describe "#initialize" do
       it "created the row_model" do
