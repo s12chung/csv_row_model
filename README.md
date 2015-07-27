@@ -29,6 +29,7 @@ class ProjectRowModel
   # column indices are tracked with each call
   column :id
   column :name
+  column :owner_id, header: 'Project Manager' # optional header String, that allows to modify the header of the colmnun
 end
 ```
 
@@ -303,6 +304,42 @@ class ImportFile < CsvRowModel::Import::File
 
   def track_skip
     ...
+  end
+end
+```
+
+### Export RowModel
+
+Maps each attribute of the `RowModel` to a column of a CSV row.
+
+```ruby
+class ProjectExportRowModel < ProjectRowModel
+  include CsvRowModel::Export
+
+  # Optionally it's possible to override the attribute method, by default it
+  # does source_model.public_send(attribute)
+  def name
+    "#{source_model.id} - #{source_model.name}"
+  end
+end
+```
+
+And to export:
+
+```ruby
+export_csv = CsvRowModel::Export::Csv.new(collection, ProjectExportRowModel)
+csv_string = export_csv.export(:find_each) # optional, pass a enum_method by default is :each
+```
+
+#### Format Header
+Override the `format_header` method to format column header names:
+```ruby
+class ProjectExportRowModel < ProjectRowModel
+  include CsvRowModel::Export
+  class << self
+    def format_header(column_name)
+      column_name.to_s.titleize
+    end
   end
 end
 ```

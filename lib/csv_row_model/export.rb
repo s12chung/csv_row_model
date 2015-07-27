@@ -7,6 +7,11 @@ module CsvRowModel
       attr_reader :source_model
 
       self.column_names.each do |column_name|
+
+        # Safe to override
+        #
+        #
+        # @return [String] a string of public_send(column_name) of the CSV model
         define_method(column_name) do
           source_model.public_send(column_name)
         end
@@ -20,15 +25,14 @@ module CsvRowModel
       @source_model = source_model
     end
 
+    def to_rows
+      [to_row]
+    end
+
     # @return [Array] an array of public_send(column_name) of the CSV model
     def to_row
       attributes.values
     end
-
-    # to be tested when tests are up:
-    # def raw_csv_model
-    #   self.class.raw_csv_model_class.new(attributes)
-    # end
 
     class_methods do
 
@@ -48,11 +52,17 @@ module CsvRowModel
         column_name
       end
 
-      # @param [Symbol] column_name name of column to find option
-      # @return [Hash] options for the column_name
-      def options(column_name)
-        columns[column_name]
+
+      # @return [Boolean] by default false
+      def single_model?
+        false
       end
+    end
+
+    private
+
+    def is_column_name? column_name
+      column_name.is_a?(Symbol) && self.class.index(column_name)
     end
   end
 end

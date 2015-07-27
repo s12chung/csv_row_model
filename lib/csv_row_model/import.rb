@@ -90,6 +90,11 @@ module CsvRowModel
         Import
       end
 
+      # by default import model is a collection model
+      def type
+        :collection_model
+      end
+
       # See {Model#column}
       def column(column_name, options={})
         super
