@@ -109,7 +109,7 @@ class ProjectImportMapper
     project = Project.where(id: row_model.id).first
 
     # project not found, invalid.
-    next unless project # use the `next` keyword instead of `return` in Procs/blocks
+    return unless project
 
     project.name = row_model.name
     project

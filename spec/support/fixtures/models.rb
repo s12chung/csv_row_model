@@ -59,6 +59,19 @@ class DependentImportMapper
     "never touch"
   end
 
+  attribute :attribute4 do
+    attribute5
+    attribute5
+    return
+
+    "never again"
+  end
+
+  attribute :attribute5 do
+    return
+    "never touch again"
+  end
+
   # handle case with matching name
   def string2; nil end
 end

@@ -21,6 +21,13 @@ describe CsvRowModel::Import::Mapper::Attributes do
         expect(instance.attribute3).to eql nil
       end
 
+      it "should work when calling return" do
+        instance.attribute4
+        instance.attribute4
+        expect(instance.attribute4).to eql nil
+        expect(instance.attribute5).to eql nil
+      end
+
       context "with row_model errors" do
         let(:source_row) {["", ""] }
 

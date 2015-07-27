@@ -36,9 +36,9 @@ module CsvRowModel
         # equal to: @method_name ||= yield
         # @param [Symbol] method_name method_name in description
         # @return [Object] the memoized result
-        def memoize(method_name, &block)
+        def memoize(method_name)
           variable_name = "@#{method_name}"
-          instance_variable_get(variable_name) || instance_variable_set(variable_name, instance_exec(&block))
+          instance_variable_get(variable_name) || instance_variable_set(variable_name, yield)
         end
 
         class_methods do
@@ -77,7 +77,12 @@ module CsvRowModel
           # @option options [Hash] :memoize whether to memoize the attribute (default: true)
           # @option options [Hash] :dependencies the dependcies it has with the underlying row_model (default: [])
           def attribute(attribute_name, options={}, &block)
-            options = options.reverse_merge(memoize: true, dependencies: [])
+            default_options = { memoize: true, dependencies: [] }
+            invalid_options = options.keys - default_options.keys
+            raise ArgumentError.new("Invalid option(s): #{invalid_options}") if invalid_options.present?
+
+            options = options.reverse_merge(default_options)
+
             _attributes.merge!(attribute_name.to_sym => [options, block])
             define_attribute_method(attribute_name)
           end
@@ -85,10 +90,13 @@ module CsvRowModel
           # Define the attribute_method
           # @param [Symbol] attribute_name name of attribute to add
           def define_attribute_method(attribute_name)
+            define_method("__#{attribute_name}", &block(attribute_name))
+
             define_method(attribute_name) do
               return unless valid_dependencies?(attribute_name)
-              options, block = self.class.options(attribute_name), self.class.block(attribute_name)
-              options[:memoize] ? memoize(attribute_name, &block) : instance_exec(&block)
+              self.class.options(attribute_name)[:memoize] ?
+                memoize(attribute_name) { public_send("__#{attribute_name}") } :
+                public_send("__#{attribute_name}")
             end
           end
         end
