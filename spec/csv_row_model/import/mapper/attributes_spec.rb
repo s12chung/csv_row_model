@@ -14,18 +14,40 @@ describe CsvRowModel::Import::Mapper::Attributes do
         expect(subject).to eql instance.attribute1
       end
 
-      it "should work when calling next" do
-        instance.attribute2
-        instance.attribute2
-        expect(instance.attribute2).to eql nil
-        expect(instance.attribute3).to eql nil
+      context "when calling next" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Import::Mapper
+            maps_to ImportModelWithValidations
+
+            attribute(:attribute1) { attribute2; attribute2; next; "never" }
+            attribute(:attribute2) { next; "never touch" }
+          end
+        end
+
+        it "works" do
+          instance.attribute1; instance.attribute1
+          expect(instance.attribute1).to eql nil
+          expect(instance.attribute2).to eql nil
+        end
       end
 
-      it "should work when calling return" do
-        instance.attribute4
-        instance.attribute4
-        expect(instance.attribute4).to eql nil
-        expect(instance.attribute5).to eql nil
+      context "when calling return" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Import::Mapper
+            maps_to ImportModelWithValidations
+
+            attribute(:attribute1) { attribute2; attribute2; return; "never" }
+            attribute(:attribute2) { return; "never touch" }
+          end
+        end
+
+        it "works" do
+          instance.attribute1; instance.attribute1
+          expect(instance.attribute1).to eql nil
+          expect(instance.attribute2).to eql nil
+        end
       end
 
       context "with row_model errors" do
