@@ -92,5 +92,30 @@ describe CsvRowModel::Import::Mapper::Attributes do
         expect(subject).to eql instance.send(:memoize, "test")
       end
     end
+
+    describe "class" do
+      let(:klass) do
+        Class.new do
+          include CsvRowModel::Import::Mapper::Attributes
+        end
+      end
+
+      describe "::attribute" do
+        subject { klass.send(:attribute, :attribute_name, options) { true } }
+        let(:options) { { dependencies: [], memoize: false } }
+
+        it "works" do
+          subject
+        end
+
+        context "when giving an invalid option" do
+          let(:options) { { testing: "" } }
+
+          it "raises exception" do
+            expect { subject }.to raise_error(ArgumentError)
+          end
+        end
+      end
+    end
   end
 end
