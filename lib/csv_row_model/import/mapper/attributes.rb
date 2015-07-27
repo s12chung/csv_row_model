@@ -13,7 +13,7 @@ module CsvRowModel
         # add errors from row_model and remove each dependent attribute from errors if it's row_model_dependencies
         # are in the errors
         def filter_errors
-          with_warnings? ? row_model.with_warnings { _filter_errors } : _filter_errors
+          using_warnings? ? row_model.using_warnings { _filter_errors } : _filter_errors
         end
 
         def _filter_errors

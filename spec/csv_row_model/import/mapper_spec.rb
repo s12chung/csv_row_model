@@ -21,7 +21,7 @@ describe CsvRowModel::Import::Mapper do
       end
 
       it "calls #filter_errors when calling #safe?" do
-        expect(instance.row_model).to receive(:with_warnings).and_call_original
+        expect(instance.row_model).to receive(:using_warnings).and_call_original
         instance.safe?
       end
     end
