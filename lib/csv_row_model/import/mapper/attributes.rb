@@ -5,7 +5,7 @@ module CsvRowModel
         extend ActiveSupport::Concern
 
         included do
-          include DeepClassVar
+          include Concerns::DeepClassVar
         end
 
         protected

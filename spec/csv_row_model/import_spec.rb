@@ -17,6 +17,11 @@ describe CsvRowModel::Import do
       end
     end
 
+    describe "#inspect" do
+      subject { instance.inspect }
+      it("works") { subject }
+    end
+
     describe "#original_attributes" do
       subject { instance.original_attributes }
 

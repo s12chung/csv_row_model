@@ -4,11 +4,11 @@ class Grandparent; end
 module Child; end
 class Parent < Grandparent
   include Child
-  include CsvRowModel::DeepClassVar
+  include CsvRowModel::Concerns::DeepClassVar
 end
 class ClassWithFamily < Parent; end
 
-describe CsvRowModel::DeepClassVar do
+describe CsvRowModel::Concerns::DeepClassVar do
   describe "class" do
     describe "::deep_class_var" do
       let(:variable_name) { :@deep_class_var }

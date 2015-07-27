@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe CsvRowModel::Inspect do
+describe CsvRowModel::Concerns::Inspect do
   describe "instance" do
     let(:klass) do
       Class.new do
-        include CsvRowModel::Inspect
+        include CsvRowModel::Concerns::Inspect
         def initialize
           @var1 = "dog"
           @var2 = { a: "dug", b: "the" }

@@ -12,6 +12,11 @@ describe CsvRowModel::Import::Mapper do
       end
     end
 
+    describe "#inspect" do
+      subject { instance.inspect }
+      it("works") { subject }
+    end
+
     describe "#valid?" do
       subject { instance.valid? }
 

@@ -4,6 +4,8 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     included do
+      include Concerns::Inspect
+
       attr_reader :attr_reader, :source_header, :source_row, :context, :previous
 
       self.column_names.each { |*args| define_attribute_method(*args) }
