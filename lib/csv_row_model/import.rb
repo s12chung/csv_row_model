@@ -83,6 +83,11 @@ module CsvRowModel
 
     class_methods do
 
+      INSPECT_INSTANCE_VARIABLES = %i[@mapped_row @initialized_at @parent @context @previous].freeze
+      def inspect_instance_variables
+        INSPECT_INSTANCE_VARIABLES
+      end
+
       # @return [Class] used for {Model::Children.has_many_relationships}
       def has_many_relationships_module
         Import

@@ -22,17 +22,17 @@ describe 'List Items Scenario with Mapper' do
   end
   class ListImportWRowModel < BaseWModel
     include CsvRowModel::Import
-    has_many :items, ItemImportRowModel
+    has_many :item_row_models, ItemImportRowModel
+
+    def items
+      deep_public_send(:item)
+    end
   end
   class ListImportWMapper
     include CsvRowModel::Import::Mapper
-    memoize :list_name, :items
-    private
-    def _list_name
-      row_model.list_name
-    end
-    def _items
-      row_model.deep_public_send(:item)
+
+    attribute :list, dependencies: [:list_name, :items] do
+      { list_name: row_model.list_name, items: row_model.items }
     end
   end
   subject do
@@ -43,11 +43,9 @@ describe 'List Items Scenario with Mapper' do
     mapper = enum.next
 
     expect(mapper.row_model.source_header).to eql(['list_name', 'item'])
-    expect(mapper.list_name).to eql('list a')
-    expect(mapper.items).to eql(['item 1', 'item 2', 'item 3'])
+    expect(mapper.list).to eql(list_name: 'list a', items: ['item 1', 'item 2', 'item 3'])
 
     mapper = enum.next
-    expect(mapper.list_name).to eql('list b')
-    expect(mapper.items).to eql(['item 1'])
+    expect(mapper.list).to eql(list_name: 'list b', items: ['item 1'])
   end
 end

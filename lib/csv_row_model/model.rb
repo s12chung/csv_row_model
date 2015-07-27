@@ -1,4 +1,3 @@
-require 'csv_row_model/model/deep_class_var'
 require 'csv_row_model/model/columns'
 require 'csv_row_model/model/children'
 

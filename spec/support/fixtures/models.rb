@@ -7,9 +7,14 @@ end
 
 class BasicImportModel < BasicModel
   include CsvRowModel::Import
+
+  def method_that_raises; raise "test" end
+
+  protected
+  def protected_method; end
 end
 
-class ParentImportModel < BasicModel # BasicImportModel
+class ParentImportModel < BasicImportModel
   include CsvRowModel::Import
 
   has_many :children, BasicImportModel
@@ -20,5 +25,40 @@ class ImportMapper
 
   maps_to BasicImportModel
 
-  memoize :memoized_method
+  def string2; "mapper" end
+end
+
+
+
+class ImportModelWithValidations < BasicModel
+  include CsvRowModel::Import
+
+  validates :string1, presence: true
+end
+class DependentImportMapper
+  include CsvRowModel::Import::Mapper
+
+  maps_to ImportModelWithValidations
+
+  validates :attribute1, :string2, presence: true
+
+  attribute :attribute1, dependencies: %i[string1 string2] do
+    Random.rand
+  end
+
+  attribute :attribute2 do
+    attribute3
+    attribute3
+    next
+
+    "never"
+  end
+
+  attribute :attribute3 do
+    next
+    "never touch"
+  end
+
+  # handle case with matching name
+  def string2; nil end
 end

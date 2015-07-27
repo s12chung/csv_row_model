@@ -15,7 +15,7 @@ module CsvRowModel
       end
 
       class_methods do
-        # @return [Array] column names for the row model
+        # @return [Array<Symbol>] column names for the row model
         def column_names
           columns.keys
         end
@@ -52,7 +52,7 @@ module CsvRowModel
         # @option options [Hash] :default default value of the column if it is blank?, can pass Proc
         # @option options [Hash] :header human friendly string of the column name, by default header_format(column_name)
         def column(column_name, options={})
-          _columns.merge!(column_name => options)
+          _columns.merge!(column_name.to_sym => options)
         end
       end
     end

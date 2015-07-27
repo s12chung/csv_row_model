@@ -32,7 +32,7 @@ class ProjectRowModel
 end
 ```
 
-### ImportRowModel
+### Import RowModel
 
 Automagically maps each column of a CSV row to an attribute of the `RowModel`.
 
@@ -41,6 +41,7 @@ class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
 
   def name
+    check_invalid_attributes(:name) # needed for `Mapper#dependent_attributes`
     mapped_row[:name].upcase # original_attribute[:name] is accessible as well
   end
 end
@@ -95,11 +96,8 @@ row_model = import_file.next
 row_model.projects # => [<ProjectImportRowModel>, ...] if ProjectImportRowModel#valid? == true
 ```
 
-### ImportMapper
-
-If the CSV row represents something complex, a `Mapper` can be used to hide CSV details.
-
-CSV Row --is represented by--> `RowModel` --is abstracted by--> `Mapper`
+### Import Mapper
+`RowModel` represents a row, but rows can map to other objects. For instance:
 
 ```ruby
 class ProjectImportMapper
@@ -107,37 +105,40 @@ class ProjectImportMapper
 
   maps_to ProjectImportRowModel
 
-  # shortcut to memoize operations, to minimize gem size
-  # https://github.com/matthewrudy/memoist is not used,
-  # but you may use it yourself
-  memoize :project, :user
+  attribute :project, dependencies: [:id, :name] do
+    project = Project.where(id: row_model.id).first
 
-  def project_name; row_model.name end
+    # project not found, invalid.
+    next unless project # use the `next` keyword instead of `return` in Procs/blocks
 
-  protected
-
-  def _project
-    project = Project.find(row_model.id)
     project.name = row_model.name
     project
   end
-
-  def _user; User.find_by_email(row_model.email) end
 end
 ```
+There are two layers:
 
-Importing is the same:
+1. `RowModel` - represents the CSV row and validates CSV syntax
+2. `Mapper` - defines the relationship between `RowModel` and the database, so it validates database operations
+
+In the example, the `attribute` method defines a method `project`, which is memoized by default (turn off with `:memoize` option).
+Also note the `:dependencies` `id` and `name`, which correspond to `row_model.id/name`. When any of the dependencies are `invalid?`:
+
+  1. The attribute block is not called and the attribute returns `nil`.
+  2. Attribute errors are filtered based on the dependencies. In this case, if `row_model.id/name` are `invalid?`, then
+  the `:project` key is removed from the errors, resulting in: `import_mapper.errors.keys # => [:id, :name]`.
+
+Also, importing is the same:
 
 ```ruby
 import_file = CsvRowModel::Import::File.new(file_path, ProjectImportMapper)
 import_mapper = import_file.next
 
 import_mapper.row_model # gets the row model underneath
-import_mapper.context # :context, :previous, :free_previous are delegated to row_model for convenience
+import_mapper.context # delegate to all row_model methods, EXCEPT column_name methods (to keep separatation)
 
 # the `RowModel` is still working underneath
 import_mapper.project.name # => "SOME PROJECT NAME"
-import_mapper.project.name == import_mapper.project_name # => true
 ```
 
 ## Column Options
