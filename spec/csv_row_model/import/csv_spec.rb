@@ -93,7 +93,15 @@ describe CsvRowModel::Import::Csv do
   end
 
   describe "#next_row" do
+    subject { instance.next_row }
 
+    it "returns the next row without changing the state" do
+      start_of_file? instance
+
+      expect(subject).to eql ["string1", "string2"]
+
+      start_of_file? instance
+    end
   end
 
   describe "#read_row" do
@@ -107,23 +115,46 @@ describe CsvRowModel::Import::Csv do
       expect(instance.end_of_file?).to eql true
     end
 
-    context "after next_row" do
-      before { instance.next_row }
-
-      it "works" do
-        expect(subject).to eql ["string1", "string2"]
-      end
-    end
-
     context "with empty lines" do
       let(:file_path) { syntax_empty_5_rows_path }
 
-      it "skips the empty lines" do
+      it "skips the empty lines and tracks skipped_rows" do
         expect(instance.read_row).to eql ["string1", "string2"]
         expect(instance.index).to eql 1
+        expect(instance.skipped_rows).to eql(0 => :empty)
+
         expect(instance.read_row).to eql ["lang1", "lang2"]
         expect(instance.index).to eql 3
+        expect(instance.skipped_rows).to eql(2 => :empty)
+
         expect(instance.read_row).to eql nil
+        expect(instance.skipped_rows).to eql({4 => :empty, 5 => :empty})
+      end
+
+      context "after next_row" do
+        before { instance.next_row }
+
+        it "works" do
+          expect(subject).to eql ["string1", "string2"]
+          expect(instance.skipped_rows).to eql(0 => :empty)
+        end
+      end
+    end
+
+    context "with bad quotes row and and tracks skipped_rows" do
+      let(:file_path) { syntax_bad_quotes_5_rows_path }
+
+      it "skips the bad quotes" do
+        expect(instance.read_row).to eql ["string1", "string2"]
+        expect(instance.index).to eql 1
+        expect(instance.skipped_rows).to eql(0 => :illegal_quote)
+
+        expect(instance.read_row).to eql ["lang1", "lang2"]
+        expect(instance.index).to eql 3
+        expect(instance.skipped_rows).to eql(2 => :illegal_quote)
+
+        expect(instance.read_row).to eql nil
+        expect(instance.skipped_rows).to eql({4 => :illegal_quote, 5 => :unclosed_quote})
       end
     end
   end

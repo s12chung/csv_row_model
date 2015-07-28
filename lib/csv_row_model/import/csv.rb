@@ -38,7 +38,7 @@ module CsvRowModel
         return @header if @header
 
         ruby_csv = _ruby_csv
-        @header = _read_row(ruby_csv)
+        @header = _read_row({}, 0, ruby_csv)
         ruby_csv.close
         @header
       end
@@ -64,18 +64,20 @@ module CsvRowModel
       # Returns the next row __without__ changing the position of the CSV
       # @return [Array, nil] the next row, or `nil` at the end of file
       def next_row
-        @next_row ||= _read_row
+        @next_skipped_rows = {}
+        @next_row ||= _read_row(@next_skipped_rows)
       end
 
       # Returns the next row, while changing the position of the CSV
       # @return [Array, nil] the changed current row, or `nil` at the end of file
       def read_row
         if @next_row
-          @current_row = @next_row
+          @current_row, @skipped_rows = @next_row, @next_skipped_rows
           @next_row = nil
           increment_index(@current_row)
         else
-          @current_row = _read_row do |row|
+          @skipped_rows = {}
+          @current_row = _read_row(@skipped_rows) do |row|
             increment_index(row)
           end
         end
@@ -93,14 +95,31 @@ module CsvRowModel
         errors.add(:ruby_csv, e.message)
       end
 
-      def _read_row(ruby_csv=@ruby_csv)
+      def _read_row(skipped_rows={}, index=@index, ruby_csv=@ruby_csv)
         loop do
           row = ruby_csv.readline
+
+          raise "empty?" if row.try(:empty?)
+
+          index += 1 if index
+
           yield row if block_given?
-          return row unless row.try(:empty?)
+          return row
         end
       rescue Exception => e
-        errors.add(:ruby_csv, e.message)
+        index += 1 if index
+        yield [] if block_given?
+
+        # thanks to the ruby CSV library, quotes can still escape to the next line
+        reason = case e.message
+                   when "empty?"; :empty
+                   when /Illegal quoting/i; :illegal_quote
+                   when /Unclosed quoted/i; :unclosed_quote
+                 end
+
+        skipped_rows.merge!(index => reason)
+
+        retry
       end
 
       def increment_index(current_row)
