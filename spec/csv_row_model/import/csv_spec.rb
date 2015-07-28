@@ -4,6 +4,15 @@ describe CsvRowModel::Import::Csv do
   let(:file_path) { basic_1_row_path }
   let(:instance) { described_class.new(file_path) }
 
+  describe "#valid?" do
+    subject { instance.valid? }
+    let(:file_path) { "abc" }
+
+    it "returns false" do
+      expect(subject).to eql false
+    end
+  end
+
   describe "#size" do
     subject { instance.size }
     it "works" do

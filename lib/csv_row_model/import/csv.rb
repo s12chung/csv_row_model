@@ -13,7 +13,10 @@ module CsvRowModel
 
       include ActiveModel::Validations
 
-      validate :_ruby_csv
+      validate do
+        begin; _ruby_csv
+        rescue => e; errors.add(:ruby_csv, e.message) end
+      end
 
       def initialize(file_path)
         @file_path = file_path
@@ -35,6 +38,7 @@ module CsvRowModel
       # Returns the header __without__ changing the position of the CSV
       # @return [Array, nil] the header
       def header
+        return unless valid?
         return @header if @header
 
         ruby_csv = _ruby_csv
@@ -45,6 +49,8 @@ module CsvRowModel
 
       # Resets the file to the start of file
       def reset
+        return unless valid?
+
         @index = -1
         @current_row = nil
         @ruby_csv = _ruby_csv
@@ -91,11 +97,11 @@ module CsvRowModel
 
       def _ruby_csv
         CSV.open(file_path)
-      rescue => e
-        errors.add(:ruby_csv, e.message)
       end
 
       def _read_row(skipped_rows={}, index=@index, ruby_csv=@ruby_csv)
+        return unless valid?
+
         loop do
           row = ruby_csv.readline
 
