@@ -21,7 +21,7 @@ module CsvRowModel
       # @return [Input, Mapper] the previous row model set by {#next}
       attr_reader :previous_row_model
 
-      delegate :header, :size, to: :csv
+      delegate :header, :size, :skipped_rows, to: :csv
 
       # @param [String] file_path path of csv file
       # @param [Import, Mapper] row_model_class model class returned for importing
