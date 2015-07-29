@@ -130,8 +130,11 @@ describe CsvRowModel::Import do
     end
 
     describe "::parse_lambda" do
+      let(:parse_lambda) { CsvRowModel::Coercer.new({type: type, parse: parse}, self).send(:parse_lambda) }
+
       let(:source_cell) { "1.01" }
-      subject { import_model_klass.parse_lambda(:string1).call(source_cell) }
+
+      subject { parse_lambda.call(source_cell) }
 
       {
         nil => "1.01",
@@ -141,14 +144,8 @@ describe CsvRowModel::Import do
         Float => 1.01
       }.each do |type, expected_result|
         context "with #{type.nil? ? "nil" : type} type" do
-          let(:import_model_klass) do
-            Class.new do
-              include CsvRowModel::Model
-              include CsvRowModel::Import
-
-              column :string1, type: type
-            end
-          end
+          let(:type)  { type }
+          let(:parse) { nil }
 
           it "returns the parsed type" do
             expect(subject).to eql expected_result
@@ -158,15 +155,8 @@ describe CsvRowModel::Import do
 
       context "with Date type" do
         let(:source_cell) { "15/12/30" }
-
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-
-            column :string1, type: Date
-          end
-        end
+        let(:type)  { Date }
+        let(:parse) { nil }
 
         it "returns the correct date" do
           expect(subject).to eql Date.new(2015,12,30)
@@ -174,14 +164,8 @@ describe CsvRowModel::Import do
       end
 
       context "with parse option" do
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-
-            column :string1, parse: ->(s) { "haha" }
-          end
-        end
+        let(:type)  { nil }
+        let(:parse) { ->(s) { "haha" } }
 
         it "returns what the parse returns" do
           expect(subject).to eql "haha"
@@ -189,7 +173,7 @@ describe CsvRowModel::Import do
 
         context "of Proc that accesses instance" do
           let(:instance) { import_model_klass.new([]) }
-          subject { instance.instance_exec "", &import_model_klass.parse_lambda(:string1) }
+          let(:source_row) { [["1.01"]] }
 
           let(:import_model_klass) do
             Class.new do
@@ -201,11 +185,13 @@ describe CsvRowModel::Import do
               def something; Random.rand end
             end
           end
-          let(:random) { Random.rand }
+          let(:random) { 0.02183303366172007 }
 
           it "returns the default" do
             expect(Random).to receive(:rand).and_return(random)
-            expect(subject).to eql random
+            expect(
+              import_model_klass.new(source_row).original_attributes[:string1]
+            ).to eql(random)
           end
         end
       end
@@ -213,16 +199,10 @@ describe CsvRowModel::Import do
       context "with nil source cell" do
         let(:source_cell) { "15/12/30" }
 
-        described_class::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
+        CsvRowModel::Coercer::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
           context "with #{type.nil? ? "nil" : type} type" do
-            let(:import_model_klass) do
-              Class.new do
-                include CsvRowModel::Model
-                include CsvRowModel::Import
-
-                column :string1, type: type
-              end
-            end
+            let(:type) { type }
+            let(:parse) { nil }
 
             it "doesn't return an exception" do
               expect { subject }.to_not raise_error
@@ -233,15 +213,8 @@ describe CsvRowModel::Import do
 
       context "with invalid type" do
         let(:source_cell) { "15/12/30" }
-
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-
-            column :string1, type: Object
-          end
-        end
+        let(:type)  { Object }
+        let(:parse) { nil }
 
         it "raises exception" do
           expect { subject }.to raise_error(ArgumentError)

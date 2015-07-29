@@ -20,6 +20,7 @@ else
 
   require 'csv_row_model/model'
 
+  require 'csv_row_model/coercer'
   require 'csv_row_model/import'
   require 'csv_row_model/import/csv'
   require 'csv_row_model/import/file'
