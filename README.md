@@ -26,8 +26,8 @@ Define your `RowModel`.
 class ProjectRowModel
   include CsvRowModel::Model
 
-  # column numbers are tracked
-  column :id, type: Integer # optional type parsing, or use the :parse option with a Proc
+  # column indices are tracked with each call
+  column :id
   column :name
 end
 ```
@@ -41,8 +41,9 @@ class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
 
   def name
-    check_invalid_attributes(:name) # needed for `Mapper#dependent_attributes`
-    mapped_row[:name].upcase # original_attribute[:name] is accessible as well
+    # mapped_row is raw
+    # the calculated original_attribute[:name] is accessible as well
+    mapped_row[:name].upcase
   end
 end
 ```
@@ -87,7 +88,6 @@ class UserImportRowModel
   column :email
 
   # uses ProjectImportRowModel#valid? to detect the child row
-  # use validations or overriding to do this
   has_many :projects, ProjectImportRowModel
 end
 
@@ -121,7 +121,7 @@ There are two layers:
 1. `RowModel` - represents the CSV row and validates CSV syntax
 2. `Mapper` - defines the relationship between `RowModel` and the database, so it validates database operations
 
-In the example, the `attribute` method defines a method `project`, which is memoized by default (turn off with `:memoize` option).
+In the example, the `attribute` method defines a method `project`, which is memoized by default (turn off with `memoize: true` option).
 Also note the `:dependencies` `id` and `name`, which correspond to `row_model.id/name`. When any of the dependencies are `invalid?`:
 
   1. The attribute block is not called and the attribute returns `nil`.
