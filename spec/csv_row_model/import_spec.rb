@@ -153,6 +153,15 @@ describe CsvRowModel::Import do
         end
       end
 
+      context "with both option" do
+        let(:type)  { Date }
+        let(:parse) { ->(s) { "haha" } }
+
+        it "raises exception" do
+          expect { subject }.to raise_error('You need either :parse OR :type but not both of them')
+        end
+      end
+
       context "with Date type" do
         let(:source_cell) { "15/12/30" }
         let(:type)  { Date }

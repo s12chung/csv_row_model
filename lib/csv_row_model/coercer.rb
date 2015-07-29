@@ -10,6 +10,7 @@ module CsvRowModel
     # @return [Lambda, Proc] returns the Lambda/Proc given in the parse option or:
     # ->(original_value) { parse_proc_exists? ? parsed_value : original_value  }
     def parse_lambda
+      raise ArgumentError.new("You need either :parse OR :type but not both of them") if options[:parse] && options[:type]
       parse_lambda = options[:parse] || CLASS_TO_PARSE_LAMBDA[options[:type]]
       return parse_lambda if parse_lambda
       raise ArgumentError.new("type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(:nil?).join(", ")}")
