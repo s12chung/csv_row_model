@@ -91,17 +91,6 @@ describe CsvRowModel::Import::File do
     end
   end
 
-  describe "#each_iterator" do
-    let(:file_path) { child_3_rows_with_invalid_path }
-    let(:model_class) { ChildImportModel }
-
-    subject { instance.each_iterator }
-
-    it "gives the next valid row" do
-      expect(subject.next.source_row).to eql [nil, "seconds2"]
-    end
-  end
-
   describe "#each" do
     context "with abort" do
       before { instance.define_singleton_method(:abort?) { true } }

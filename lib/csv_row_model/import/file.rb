@@ -62,16 +62,12 @@ module CsvRowModel
         csv.end_of_file?
       end
 
-      # @return [Boolean] iterator of the {#each} method
-      def each_iterator(context={})
-        to_enum(:each, context)
-      end
-
       # Iterates through the entire csv file and provides the `current_row_model` in a block, while handing aborts and skips
       # via. calling {Model#abort?} and {Model#skip?}
       #
       # @param context [Hash] context passed to the {Import}
       def each(context={})
+        return to_enum(__callee__, context) unless block_given?
         return false if _abort?
 
         while self.next(context)
