@@ -32,24 +32,26 @@ module CsvRowModel
       @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
-    # @return [Hash] a map of `column_name => attribute_before_override`
+    # @return [Hash] a map of `column_name => original_attribute(column_name)`
     def original_attributes
       @original_attributes ||= begin
-        @default_changes = {}
-
-        values = self.class.column_names.map.with_index do |column_name, column_index|
-          value = self.class.format_cell(mapped_row[column_name], column_name, column_index)
-
-          if value.present?
-            Coercer.new(self.class.options(column_name), self).decode(value)
-          else
-            original_value = value
-            value = instance_exec(value, &self.class.default_lambda(column_name))
-            @default_changes[column_name] = [original_value, value]
-            value
-          end
-        end
+        values = self.class.column_names.map { |column_name| original_attribute(column_name) }
         self.class.column_names.zip(values).to_h
+      end
+    end
+
+    # @return [Object] the column's attribute before override
+    def original_attribute(column_name)
+      @default_changes ||= {}
+      value = self.class.format_cell(mapped_row[column_name], column_name, self.class.index(column_name))
+
+      if value.present?
+        Coercer.new(self.class.options(column_name), self).decode(value)
+      else
+        original_value = value
+        value = instance_exec(value, &self.class.default_lambda(column_name))
+        @default_changes[column_name] = [original_value, value]
+        value
       end
     end
 
@@ -106,7 +108,7 @@ module CsvRowModel
       # Define default attribute method for a column
       # @param column_name [Symbol] the cell's column_name
       def define_attribute_method(column_name)
-        define_method(column_name) { original_attributes[column_name] }
+        define_method(column_name) { original_attribute(column_name) }
       end
     end
   end
