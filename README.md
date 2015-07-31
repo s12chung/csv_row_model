@@ -135,7 +135,7 @@ import_file = CsvRowModel::Import::File.new(file_path, ProjectImportMapper)
 import_mapper = import_file.next
 
 import_mapper.row_model # gets the row model underneath
-import_mapper.context # delegate to all row_model methods, EXCEPT column_name methods (to keep separatation)
+import_mapper.context # delegate to all row_model methods, EXCEPT column_name related methods (to keep separatation)
 
 # the `RowModel` is still working underneath
 import_mapper.project.name # => "SOME PROJECT NAME"

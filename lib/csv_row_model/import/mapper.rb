@@ -50,11 +50,13 @@ module CsvRowModel
 
       protected
 
-      # allow Mapper to delegate missing methods to the row_model, EXCEPT column_name methods to keep separation
+      # allow Mapper to delegate missing methods to the row_model, EXCEPT column_name methods, mapped_row,
+      # original_attributes, original_attribute to keep separation
+      ATTRIBUTE_METHODS = %i[mapped_row original_attributes original_attribute].freeze
       def method_missing(name, *args, &block)
         super
       rescue NoMethodError, NameError => original_error
-        raise original_error if row_model.class.column_names.include? name
+        raise original_error if ATTRIBUTE_METHODS.include?(name) || row_model.class.column_names.include?(name)
 
         begin
           row_model.public_send name, *args, &block

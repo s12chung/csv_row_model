@@ -89,6 +89,14 @@ describe CsvRowModel::Import::Mapper do
         end
       end
 
+      context "when the method is a blocked method" do
+        let(:method) { :mapped_row }
+
+        it "raises the original_error before calling protected" do
+          expect { subject }.to raise_error(NoMethodError, /Mapper/)
+        end
+      end
+
       context "when the method is a column_name that's in Mapper" do
         let(:method) { :string2 }
 
