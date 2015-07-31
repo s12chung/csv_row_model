@@ -9,7 +9,7 @@ module CsvRowModel
       included do
         include ActiveWarnings
 
-        include Inspect
+        include Concerns::Inspect
 
         include Attributes
 

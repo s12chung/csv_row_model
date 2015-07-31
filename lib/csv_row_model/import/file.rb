@@ -21,7 +21,7 @@ module CsvRowModel
       # @return [Input, Mapper] the previous row model set by {#next}
       attr_reader :previous_row_model
 
-      delegate :header, :size, to: :csv
+      delegate :header, :size, :skipped_rows, to: :csv
 
       # @param [String] file_path path of csv file
       # @param [Import, Mapper] row_model_class model class returned for importing
@@ -43,17 +43,17 @@ module CsvRowModel
       def next(context={})
         csv.skip_header
 
-        next_line_is_parent_row = true
+        next_row_is_parent = true
         loop do
-          @previous_row_model = current_row_model if next_line_is_parent_row
+          @previous_row_model = current_row_model if next_row_is_parent
 
-          csv.readline
+          csv.read_row
           return set_end_of_file if csv.end_of_file?
 
-          set_current_row_model(context) if next_line_is_parent_row
+          set_current_row_model(context) if next_row_is_parent
 
-          next_line_is_parent_row = !current_row_model.append_child(csv.next_line)
-          return current_row_model if next_line_is_parent_row
+          next_row_is_parent = !current_row_model.append_child(csv.next_row)
+          return current_row_model if next_row_is_parent
         end
       end
 

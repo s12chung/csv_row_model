@@ -3,19 +3,21 @@ autoload = false
 
 class Boolean; end unless defined? Boolean
 
+require 'active_model'
+require 'active_support/all'
 require 'active_warnings'
-require 'csv_row_model/exceptions'
-require 'csv_row_model/inspect'
+require 'csv'
+
 require 'csv_row_model/validators/default_change'
 
 if autoload && defined?(Rails)
   require 'csv_row_model/engine'
 else
-  require 'active_model'
-  require 'active_support/all'
-
   require 'csv_row_model/version'
-  require 'csv_row_model/deep_class_var'
+
+  require 'csv_row_model/concerns/inspect'
+  require 'csv_row_model/concerns/deep_class_var'
+
   require 'csv_row_model/validators/validate_attributes'
 
   require 'csv_row_model/model'
@@ -32,4 +34,6 @@ else
 end
 
 module CsvRowModel
+  class RowModelClassNotDefined < StandardError; end
+  class AccessedInvalidAttribute < StandardError; end
 end

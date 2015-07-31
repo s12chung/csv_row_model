@@ -10,7 +10,7 @@ module CsvRowModel
       include ActiveWarnings
       include Validators::ValidateAttributes
 
-      include DeepClassVar
+      include Concerns::DeepClassVar
       include Columns
       include Children
 

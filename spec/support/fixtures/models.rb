@@ -13,19 +13,25 @@ class BasicImportModel < BasicModel
   protected
   def protected_method; end
 end
-
-class ParentImportModel < BasicImportModel
-  include CsvRowModel::Import
-
-  has_many :children, BasicImportModel
-end
-
-class ImportMapper
+class BasicImportMapper
   include CsvRowModel::Import::Mapper
 
   maps_to BasicImportModel
 
   def string2; "mapper" end
+end
+
+
+class ChildImportModel < BasicImportModel
+  validates :string1, absence: true
+end
+class ParentImportModel < BasicImportModel
+  has_many :children, ChildImportModel
+end
+class ParentImportMapper
+  include CsvRowModel::Import::Mapper
+
+  maps_to ParentImportModel
 end
 
 
@@ -44,32 +50,6 @@ class DependentImportMapper
 
   attribute :attribute1, dependencies: %i[string1 string2] do
     Random.rand
-  end
-
-  attribute :attribute2 do
-    attribute3
-    attribute3
-    next
-
-    "never"
-  end
-
-  attribute :attribute3 do
-    next
-    "never touch"
-  end
-
-  attribute :attribute4 do
-    attribute5
-    attribute5
-    return
-
-    "never again"
-  end
-
-  attribute :attribute5 do
-    return
-    "never touch again"
   end
 
   # handle case with matching name
