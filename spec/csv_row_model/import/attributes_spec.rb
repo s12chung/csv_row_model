@@ -100,6 +100,13 @@ describe CsvRowModel::Import::Attributes do
   end
 
   describe "class" do
+    let(:import_model_klass) do
+      Class.new do
+        include CsvRowModel::Model
+        include CsvRowModel::Import
+      end
+    end
+
     describe "::format_cell" do
       let(:cell) { "the_cell" }
       subject { BasicImportModel.format_cell(cell, nil, nil) }
@@ -113,11 +120,8 @@ describe CsvRowModel::Import::Attributes do
       let(:source_row) { ['a', nil] }
 
       context "try to looking for in another field" do
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-
+        before do
+          import_model_klass.instance_eval do
             column :string1
             column :string2, default: -> { string1 }
           end
@@ -145,12 +149,6 @@ describe CsvRowModel::Import::Attributes do
 
     describe "::parse_lambda" do
       let(:source_cell) { "1.01" }
-      let(:import_model_klass) do
-        Class.new do
-          include CsvRowModel::Model
-          include CsvRowModel::Import
-        end
-      end
       subject { import_model_klass.parse_lambda(:string1).call(source_cell) }
 
       {
@@ -161,7 +159,7 @@ describe CsvRowModel::Import::Attributes do
         Float => 1.01
       }.each do |type, expected_result|
         context "with #{type.nil? ? "nil" : type} type" do
-          before { import_model_klass.send(:column, :string1, type: type) }
+          before { import_model_klass.instance_eval { column :string1, type: type } }
 
           it "returns the parsed type" do
             expect(subject).to eql expected_result
@@ -171,7 +169,7 @@ describe CsvRowModel::Import::Attributes do
 
       context "with Date type" do
         let(:source_cell) { "15/12/30" }
-        before { import_model_klass.send(:column, :string1, type: Date) }
+        before { import_model_klass.instance_eval { column :string1, type: Date }}
 
         it "returns the correct date" do
           expect(subject).to eql Date.new(2015,12,30)
@@ -179,7 +177,7 @@ describe CsvRowModel::Import::Attributes do
       end
 
       context "with invalid type" do
-        before { import_model_klass.send(:column, :string1, type: Object ) }
+        before { import_model_klass.instance_eval { column :string1, type: Object } }
 
         it "raises exception" do
           expect { subject }.to raise_error(ArgumentError)
@@ -187,7 +185,7 @@ describe CsvRowModel::Import::Attributes do
       end
 
       context "with parse option" do
-        before { import_model_klass.send(:column, :string1, parse: ->(s) { "haha" }) }
+        before { import_model_klass.instance_eval { column :string1, parse: ->(s) { "haha" } } }
 
         it "returns what the parse returns" do
           expect(subject).to eql "haha"
@@ -198,8 +196,10 @@ describe CsvRowModel::Import::Attributes do
           subject { instance.instance_exec "", &import_model_klass.parse_lambda(:string1) }
 
           before do
-            import_model_klass.send(:column, :string1, parse: ->(s) { something })
-            import_model_klass.send(:define_method, :something) { Random.rand }
+            import_model_klass.instance_eval do
+              column :string1, parse: ->(s) { something }
+              define_method(:something) { Random.rand }
+            end
           end
           let(:random) { Random.rand }
 
@@ -211,7 +211,7 @@ describe CsvRowModel::Import::Attributes do
       end
 
       context "with both option" do
-        before { import_model_klass.send(:column, :string1, type: Date, parse: ->(s) { "haha" }) }
+        before { import_model_klass.instance_eval { column :string1, type: Date, parse: ->(s) { "haha" } } }
 
         it "raises exception" do
           expect { subject }.to raise_error('You need either :parse OR :type but not both of them')
@@ -223,7 +223,7 @@ describe CsvRowModel::Import::Attributes do
 
         described_class::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
           context "with #{type.nil? ? "nil" : type} type" do
-            before { import_model_klass.send(:column, :string1, type: type) }
+            before { import_model_klass.instance_eval { column :string1, type: type } }
 
             it "doesn't return an exception" do
               expect { subject }.to_not raise_error
