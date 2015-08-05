@@ -38,9 +38,19 @@ module CsvRowModel
     end
 
 
-    # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model
+    # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model (values are from format_cell)
     def csv_string_model
-      @csv_string_model ||= self.class.csv_string_model_class.new(mapped_row)
+      @csv_string_model ||= begin
+        if source_row
+          column_names = self.class.column_names
+          hash = column_names.zip(column_names.map.with_index do |column_name, index|
+                                    self.class.format_cell(source_row[index], column_name, index)
+                                  end).to_h
+        else
+          hash = {}
+        end
+        self.class.csv_string_model_class.new(hash)
+      end
     end
 
     def valid?(*args)

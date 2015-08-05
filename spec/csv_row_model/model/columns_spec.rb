@@ -36,12 +36,11 @@ describe CsvRowModel::Model::Columns do
     end
 
     describe "::options" do
-      let(:options) { { haha: "haha", waka: "waka" } }
+      let(:options) { { type: Integer, validate_type: true } }
       let(:klass) do
         o = options
         Class.new do
           include CsvRowModel::Model
-
           column :blah, o
         end
       end
@@ -50,6 +49,21 @@ describe CsvRowModel::Model::Columns do
 
       it "returns the options for the column" do
         expect(subject).to eql options
+      end
+    end
+
+    describe "::column" do
+      context "with invalid option" do
+        subject do
+          Class.new do
+            include CsvRowModel::Model
+            column :blah, invalid_option: true
+          end
+        end
+
+        it "raises error" do
+          expect { subject }.to raise_error(ArgumentError)
+        end
       end
     end
   end

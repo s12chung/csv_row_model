@@ -35,6 +35,15 @@ describe CsvRowModel::Import do
         expect(subject.string1).to eql "1.01"
         expect(subject.string2).to eql "b"
       end
+
+      context "with format_cell" do
+        it "should format_cell first" do
+          expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return(nil)
+          expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil)
+          expect(subject.string1).to eql nil
+          expect(subject.string2).to eql nil
+        end
+      end
     end
 
     describe "#valid?" do

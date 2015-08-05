@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe DateFormatValidator do
+describe FloatFormatValidator do
   let(:klass) do
     Class.new do
       include ActiveWarnings

@@ -20,6 +20,12 @@ describe CsvRowModel::Import::Attributes do
     describe "#original_attribute" do
       subject { instance.original_attribute(:string1) }
 
+      it "calls format_cell and returns the result" do
+        expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return("waka").twice
+        expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil).once
+        expect(subject).to eql("waka")
+      end
+
       context "with all options" do
         let(:import_model_klass) do
           Class.new do
@@ -44,15 +50,40 @@ describe CsvRowModel::Import::Attributes do
 
         context "when returns a parsable string" do
           let(:source_row) { ["123"] }
-          it "returns the default" do
+          it "returns the parsed result" do
             expect(subject).to eql("123".to_f)
           end
         end
       end
 
-      it "calls format_cell and returns the result" do
-        expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return "waka"
-        expect(subject).to eql("waka")
+      context "with invalid csv_string_model" do
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+            include CsvRowModel::Import
+
+            column :string1, type: Integer, validate_type: true
+          end
+        end
+
+        it "returns nil" do
+          expect(subject).to eql(nil)
+        end
+
+        context "with default" do
+          let(:import_model_klass) do
+            Class.new do
+              include CsvRowModel::Model
+              include CsvRowModel::Import
+
+              column :string1, type: Integer, validate_type: true, default: 123
+            end
+          end
+
+          it "returns the default" do
+            expect(subject).to eql(123)
+          end
+        end
       end
     end
 

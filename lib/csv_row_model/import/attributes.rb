@@ -32,9 +32,10 @@ module CsvRowModel
         @default_changes ||= {}
         value = self.class.format_cell(mapped_row[column_name], column_name, self.class.index(column_name))
 
-        if value.present?
+        csv_string_model.valid?
+        if value.present? && csv_string_model.errors[column_name].blank?
           instance_exec(value, &self.class.parse_lambda(column_name))
-        else
+        elsif self.class.options(column_name)[:default]
           original_value = value
           value = instance_exec(value, &self.class.default_lambda(column_name))
           @default_changes[column_name] = [original_value, value]

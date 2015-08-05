@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe DateFormatValidator do
+describe IntegerFormatValidator do
   let(:klass) do
     Class.new do
       include ActiveWarnings
@@ -23,9 +23,23 @@ describe DateFormatValidator do
   end
 
   context "Float" do
-    before { instance.string1 = "123.00" }
+    before { instance.string1 = "123.0000" }
     it "is valid" do
       expect(subject).to eql true
+    end
+
+    context "with decimals" do
+      before { instance.string1 = "123.123" }
+      it "is invalid" do
+        expect(subject).to eql false
+      end
+    end
+
+    context "with decimals that have zeros" do
+      before { instance.string1 = "123.0001" }
+      it "is invalid" do
+        expect(subject).to eql false
+      end
     end
   end
 
