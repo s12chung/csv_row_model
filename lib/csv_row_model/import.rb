@@ -37,6 +37,28 @@ module CsvRowModel
       @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
+
+    # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model
+    def csv_string_model
+      @csv_string_model ||= self.class.csv_string_model_class.new(mapped_row)
+    end
+
+    def valid?(*args)
+      super
+
+      proc = -> do
+        csv_string_model.valid?(*args)
+        errors.messages.merge!(csv_string_model.errors.messages)
+        errors.empty?
+      end
+
+      if using_warnings?
+        csv_string_model.using_warnings &proc
+      else
+        proc.call
+      end
+    end
+
     # Free `previous` from memory to avoid making a linked list
     def free_previous
       @previous = nil

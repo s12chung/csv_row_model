@@ -1,5 +1,6 @@
 require 'csv_row_model/model/columns'
 require 'csv_row_model/model/children'
+require 'csv_row_model/model/validations'
 
 module CsvRowModel
   # Base module for representing a RowModel---a model that represents row(s).
@@ -7,12 +8,10 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     included do
-      include ActiveWarnings
-      include Validators::ValidateAttributes
-
       include Concerns::DeepClassVar
       include Columns
       include Children
+      include Validations
 
       # @return [Model] return the parent, if this instance is a child
       attr_reader :parent
