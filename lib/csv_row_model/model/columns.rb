@@ -47,10 +47,15 @@ module CsvRowModel
         #
         # @param [Symbol] column_name name of column to add
         # @param options [Hash]
-        # @option options [Hash] :type class you want to automatically parse to (by default does nothing, equivalent to String)
-        # @option options [Hash] :parse a Proc for parsing the cell
-        # @option options [Hash] :default default value of the column if it is blank?, can pass Proc
-        # @option options [Hash] :header human friendly string of the column name, by default header_format(column_name)
+        #
+        # @option options [class] :type class you want to automatically parse to (by default does nothing, equivalent to String)
+        # @option options [Lambda, Proc] :parse for parsing the cell
+        # @option options [Boolean, Lambda, Proc] :validate_type adds a validations within a {::csv_string_model} call.
+        # if true, it will add the default validation for the given :type (if applicable)
+        # if Lambda/Proc, it will be passed to a {::validate} call
+        #
+        # @option options [Object] :default default value of the column if it is blank?, can pass Proc
+        # @option options [String] :header human friendly string of the column name, by default format_header(column_name)
         def column(column_name, options={})
           _columns.merge!(column_name.to_sym => options)
         end

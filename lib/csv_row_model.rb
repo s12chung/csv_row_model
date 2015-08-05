@@ -10,6 +10,11 @@ require 'csv'
 
 require 'csv_row_model/validators/default_change'
 
+require 'csv_row_model/validators/boolean_format'
+require 'csv_row_model/validators/date_format'
+require 'csv_row_model/validators/float_format'
+require 'csv_row_model/validators/integer_format'
+
 if autoload && defined?(Rails)
   require 'csv_row_model/engine'
 else

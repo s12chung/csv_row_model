@@ -1,19 +1,23 @@
+require 'csv_row_model/validators/boolean_format'
+
 module CsvRowModel
   module Import
     module Attributes
       extend ActiveSupport::Concern
+      # Classes with a validations associated with them in csv_row_model/validators
+      PARSE_VALIDATION_CLASSES = [Boolean, Integer, Float, Date].freeze
 
       # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
       # Can pass custom Proc with :parse option.
       CLASS_TO_PARSE_LAMBDA = {
         nil => ->(s) { s },
         # inspired by https://github.com/MrJoy/to_bool/blob/5c9ed38e47c638725e33530ea1a8aec96281af20/lib/to_bool.rb#L23
-        Boolean => ->(s) { s =~ /^(false|f|no|n|0|)$/i ? false : true },
+        Boolean => ->(s) { s =~ BooleanFormatValidator::FALSE_BOOLEAN_REGEX ? false : true },
         String  => ->(s) { s },
         Integer => ->(s) { s.to_i },
         Float   => ->(s) { s.to_f },
         Date    => ->(s) { s.present? ? Date.parse(s) : s }
-      }
+      }.freeze
 
       # @return [Hash] a map of `column_name => original_attribute(column_name)`
       def original_attributes
@@ -76,7 +80,22 @@ module CsvRowModel
         # Define default attribute method for a column
         # @param column_name [Symbol] the cell's column_name
         def define_attribute_method(column_name)
+          add_type_validation(column_name)
           define_method(column_name) { original_attribute(column_name) }
+        end
+
+        # Adds the type validation based on :validate_type option
+        def add_type_validation(column_name)
+          options = options(column_name)
+          validate_type = options[:validate_type]
+
+          return unless validate_type
+
+          type = options[:type]
+          raise ArgumentError.new("invalid :type given for :validate_type for column") unless PARSE_VALIDATION_CLASSES.include? type
+          validate_type = Proc.new { validates column_name, "#{type.name.underscore}_format".to_sym => true }
+
+          csv_string_model(&validate_type)
         end
       end
     end

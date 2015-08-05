@@ -147,6 +147,29 @@ describe CsvRowModel::Import::Attributes do
       end
     end
 
+    describe "::add_type_validation" do
+
+      described_class::PARSE_VALIDATION_CLASSES.each do |type|
+        context "with #{type} type" do
+          subject { import_model_klass.instance_eval { column :string1, type: type, validate_type: true } }
+
+          it "adds the validator" do
+            subject
+            validators = import_model_klass.csv_string_model_class._validators[:string1]
+            expect(validators.size).to eql 1
+            expect(validators.first.class.to_s).to eql "#{type}FormatValidator"
+          end
+        end
+      end
+
+      context "with no type" do
+        subject { import_model_klass.instance_eval { column :string1, validate_type: true } }
+        it "raises exception" do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+    end
+
     describe "::parse_lambda" do
       let(:source_cell) { "1.01" }
       subject { import_model_klass.parse_lambda(:string1).call(source_cell) }
