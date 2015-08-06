@@ -179,7 +179,6 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe "::add_type_validation" do
-
       described_class::PARSE_VALIDATION_CLASSES.each do |type|
         context "with #{type} type" do
           subject { import_model_klass.instance_eval { column :string1, type: type, validate_type: true } }
@@ -190,6 +189,17 @@ describe CsvRowModel::Import::Attributes do
             expect(validators.size).to eql 1
             expect(validators.first.class.to_s).to eql "#{type}FormatValidator"
           end
+        end
+      end
+
+      context "when attribute is blank" do
+        before { import_model_klass.instance_eval { column :string1, type: Integer, validate_type: true } }
+        let(:instance) { import_model_klass.new([""]) }
+
+        subject { instance.valid? }
+
+        it "doesn't validate" do
+          expect(subject).to eql true
         end
       end
 

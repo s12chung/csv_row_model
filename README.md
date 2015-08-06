@@ -242,7 +242,7 @@ class ProjectRowModel
 
   csv_string_model do
     # this is applied before the parsed CSV on csv_string_model
-    validates :id, integer_format: true
+    validates :id, integer_format: true, allow_blank: true
   end
 end
 
@@ -267,7 +267,7 @@ class ProjectRowModel
   column :id, type: Integer, validate_type: true
 
   # csv_string_model do
-  #   validates :id, integer_format: true
+  #   validates :id, integer_format: true, allow_blank: true
   # end
 end
 ```
