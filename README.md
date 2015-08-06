@@ -228,11 +228,12 @@ on your `RowModel` or `Mapper`.
 Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Mapper` for warnings
 (such as setting defaults), but not errors (which by default results in a skip).
 
-`RowModel` has two validation layers on the csv_string_model (a model of `#mapped_row` with `::format_cell` applied) and itself:
+`RowModel` has two validation layers on the `csv_string_model` (a model of `#mapped_row` with `::format_cell` applied) and itself:
 
 ```ruby
 class ProjectRowModel
   include CsvRowModel::Model
+  include CsvRowModel::Import
 
   column :id, type: Integer
 
@@ -244,6 +245,16 @@ class ProjectRowModel
     validates :id, integer_format: true
   end
 end
+
+# Applied to the String
+ProjectRowModel.new(["not_a_number"])
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id is not a Integer format"]
+
+# Applied to the parsed Integer
+row_model = ProjectRowModel.new(["-1"])
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id must be greater than 0"]
 ```
 
 Notice that there are validators given for different types: `Boolean`, `Date`, `Float`, `Integer`:

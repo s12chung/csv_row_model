@@ -11,7 +11,6 @@ module CsvRowModel
       # Can pass custom Proc with :parse option.
       CLASS_TO_PARSE_LAMBDA = {
         nil => ->(s) { s },
-        # inspired by https://github.com/MrJoy/to_bool/blob/5c9ed38e47c638725e33530ea1a8aec96281af20/lib/to_bool.rb#L23
         Boolean => ->(s) { s =~ BooleanFormatValidator::FALSE_BOOLEAN_REGEX ? false : true },
         String  => ->(s) { s },
         Integer => ->(s) { s.to_i },
