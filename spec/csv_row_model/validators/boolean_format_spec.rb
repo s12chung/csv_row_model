@@ -15,6 +15,8 @@ describe BooleanFormatValidator do
   let(:instance) { klass.new }
   subject { instance.safe? }
 
+  include_examples "validate_type_examples"
+
   context "proper Boolean" do
     before { instance.string1 = "t" }
 

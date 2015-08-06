@@ -15,6 +15,8 @@ describe IntegerFormatValidator do
   let(:instance) { klass.new }
   subject { instance.safe? }
 
+  include_examples "validate_type_examples"
+
   context "proper Integer" do
     before { instance.string1 = "123" }
     it "is valid" do

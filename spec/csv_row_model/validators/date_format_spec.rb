@@ -15,6 +15,8 @@ describe DateFormatValidator do
   let(:instance) { klass.new }
   subject { instance.safe? }
 
+  include_examples "validate_type_examples"
+
   context "proper Date" do
     before { instance.string1 = "12/12/2012" }
 
