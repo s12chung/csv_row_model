@@ -10,6 +10,14 @@ class ClassWithFamily < Parent; end
 
 describe CsvRowModel::Concerns::DeepClassVar do
   describe "class" do
+    describe "::inherited_ancestors" do
+      subject { ClassWithFamily.send(:inherited_ancestors, Child) }
+
+      it "returns the inherited ancestors" do
+        expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::DeepClassVar]
+      end
+    end
+
     describe "::deep_class_var" do
       let(:variable_name) { :@deep_class_var }
 
