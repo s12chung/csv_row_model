@@ -25,6 +25,11 @@ module CsvRowModel
       attributes.values
     end
 
+    # to be tested when tests are up:
+    # def raw_csv_model
+    #   self.class.raw_csv_model_class.new(attributes)
+    # end
+
     class_methods do
 
       # @return [Array] column headers for the row model

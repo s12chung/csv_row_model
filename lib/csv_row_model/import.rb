@@ -1,3 +1,5 @@
+require 'csv_row_model/import/attributes'
+
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for importing csvs.
   module Import
@@ -5,6 +7,7 @@ module CsvRowModel
 
     included do
       include Concerns::Inspect
+      include Attributes
 
       attr_reader :attr_reader, :source_header, :source_row, :context, :previous
 
@@ -34,33 +37,36 @@ module CsvRowModel
       @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
-    # @return [Hash] a map of `column_name => original_attribute(column_name)`
-    def original_attributes
-      @original_attributes ||= begin
-        values = self.class.column_names.map { |column_name| original_attribute(column_name) }
-        self.class.column_names.zip(values).to_h
+
+    # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model (values are from format_cell)
+    def csv_string_model
+      @csv_string_model ||= begin
+        if source_row
+          column_names = self.class.column_names
+          hash = column_names.zip(column_names.map.with_index do |column_name, index|
+                                    self.class.format_cell(source_row[index], column_name, index)
+                                  end).to_h
+        else
+          hash = {}
+        end
+        self.class.csv_string_model_class.new(hash)
       end
     end
 
-    # @return [Object] the column's attribute before override
-    def original_attribute(column_name)
-      @default_changes ||= {}
-      value = self.class.format_cell(mapped_row[column_name], column_name, self.class.index(column_name))
+    def valid?(*args)
+      super
 
-      if value.present?
-        Coercer.new(self.class.options(column_name), self).decode(value)
+      proc = -> do
+        csv_string_model.valid?(*args)
+        errors.messages.merge!(csv_string_model.errors.messages)
+        errors.empty?
+      end
+
+      if using_warnings?
+        csv_string_model.using_warnings &proc
       else
-        original_value = value
-        value = instance_exec(value, &self.class.default_lambda(column_name))
-        @default_changes[column_name] = [original_value, value]
-        value
+        proc.call
       end
-    end
-
-    # return [Hash] a map changes from {.column}'s default option': `column_name -> [value_before_default, default_set]`
-    def default_changes
-      original_attributes
-      @default_changes
     end
 
     # Free `previous` from memory to avoid making a linked list
@@ -74,7 +80,6 @@ module CsvRowModel
     end
 
     class_methods do
-
       INSPECT_INSTANCE_VARIABLES = %i[@mapped_row @initialized_at @parent @context @previous].freeze
       def inspect_instance_variables
         INSPECT_INSTANCE_VARIABLES
@@ -89,28 +94,6 @@ module CsvRowModel
       def column(column_name, options={})
         super
         define_attribute_method(column_name)
-      end
-
-      # Safe to override. Method applied to each cell by default
-      #
-      # @param cell [String] the cell's string
-      # @param column_name [Symbol] the cell's column_name
-      # @param column_index [Integer] the column_name's index
-      def format_cell(cell, column_name, column_index)
-        cell
-      end
-
-      # @return [Lambda] returns a Lambda: ->(original_value) { default_exists? ? default : original_value }
-      def default_lambda(column_name)
-        default = options(column_name)[:default]
-        default.is_a?(Proc) ? ->(s) { instance_exec(&default) } : ->(s) { default.nil? ? s : default }
-      end
-
-      protected
-      # Define default attribute method for a column
-      # @param column_name [Symbol] the cell's column_name
-      def define_attribute_method(column_name)
-        define_method(column_name) { original_attribute(column_name) }
       end
     end
   end

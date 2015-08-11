@@ -1,5 +1,5 @@
 autoload = false
-# autoload = true #uncomment for testing purposes only, not covered by rspec
+autoload = true #uncomment for testing purposes only, not covered by rspec
 
 class Boolean; end unless defined? Boolean
 
@@ -9,6 +9,11 @@ require 'active_warnings'
 require 'csv'
 
 require 'csv_row_model/validators/default_change'
+
+require 'csv_row_model/validators/boolean_format'
+require 'csv_row_model/validators/date_format'
+require 'csv_row_model/validators/float_format'
+require 'csv_row_model/validators/integer_format'
 
 if autoload && defined?(Rails)
   require 'csv_row_model/engine'
@@ -22,7 +27,6 @@ else
 
   require 'csv_row_model/model'
 
-  require 'csv_row_model/coercer'
   require 'csv_row_model/import'
   require 'csv_row_model/import/csv'
   require 'csv_row_model/import/file'

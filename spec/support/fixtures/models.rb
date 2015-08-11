@@ -35,7 +35,6 @@ class ParentImportMapper
 end
 
 
-
 class ImportModelWithValidations < BasicModel
   include CsvRowModel::Import
 

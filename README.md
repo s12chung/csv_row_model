@@ -145,7 +145,7 @@ import_mapper.project.name # => "SOME PROJECT NAME"
 ### Default Attributes
 For `Import`, `default_attributes` are calculated as thus:
 - `format_cell`
-- if `value_form_format_cell.blank?`, `default_lambda.call`
+- if `value_from_format_cell.blank? || csv_string_model.errors[column_name].blank?`, `default_lambda.call` or nil
 - otherwise, `parse_lambda.call`
 
 #### Format Cell
@@ -163,7 +163,7 @@ end
 ```
 
 #### Default
-Called when `format_cell` is `blank?`, it sets the default value of the cell:
+Called when `format_cell` is `value_from_format_cell.blank? || csv_string_model.errors[column_name].blank?`, it sets the default value of the cell:
 ```ruby
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
@@ -227,6 +227,51 @@ on your `RowModel` or `Mapper`.
 
 Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Mapper` for warnings
 (such as setting defaults), but not errors (which by default results in a skip).
+
+`RowModel` has two validation layers on the `csv_string_model` (a model of `#mapped_row` with `::format_cell` applied) and itself:
+
+```ruby
+class ProjectRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Import
+
+  column :id, type: Integer
+
+  # this is applied to the parsed CSV on the model
+  validates :id, numericality: { greater_than: 0 }
+
+  csv_string_model do
+    # this is applied before the parsed CSV on csv_string_model
+    validates :id, integer_format: true, allow_blank: true
+  end
+end
+
+# Applied to the String
+ProjectRowModel.new(["not_a_number"])
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id is not a Integer format"]
+
+# Applied to the parsed Integer
+row_model = ProjectRowModel.new(["-1"])
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id must be greater than 0"]
+```
+
+Notice that there are validators given for different types: `Boolean`, `Date`, `Float`, `Integer`:
+
+```ruby
+class ProjectRowModel
+  include CsvRowModel::Model
+
+  # the :validate_type option does the commented code below.
+  column :id, type: Integer, validate_type: true
+
+  # csv_string_model do
+  #   validates :id, integer_format: true, allow_blank: true
+  # end
+end
+```
+
 
 ## Callbacks
 `CsvRowModel::Import::File` can be subclassed to access

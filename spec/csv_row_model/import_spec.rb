@@ -22,101 +22,107 @@ describe CsvRowModel::Import do
       it("works") { subject }
     end
 
-    describe "#original_attributes" do
-      subject { instance.original_attributes }
-
-      it "returns them" do
-        expect(instance).to receive(:original_attribute).with(:string1).and_return "waka"
-        expect(instance).to receive(:original_attribute).with(:string2).and_return "baka"
-        expect(subject).to eql(string1: "waka", string2: "baka")
-      end
-    end
-
-    describe "#original_attribute" do
-      subject { instance.original_attribute(:string1) }
-
-      context "with all options" do
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-
-            column :string1, default: -> { default }, parse: ->(s) { parse(s) }
-
-            def default; "123" end
-            def parse(s); s.to_f end
-            def self.format_cell(*args); args.first end
-          end
-        end
-
-        context "format_cell returns empty string" do
-          let(:source_row) { [""] }
-
-          it "returns the default" do
-            expect(subject).to eql("123")
-          end
-        end
-
-        context "when returns a parsable string" do
-          let(:source_row) { ["123"] }
-          it "returns the default" do
-            expect(subject).to eql("123".to_f)
-          end
-        end
-      end
-
-      it "calls format_cell and returns the result" do
-        expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return "waka"
-        expect(subject).to eql("waka")
-      end
-    end
-
-    describe "#default_changes" do
-      subject { instance.default_changes }
-
-      let(:import_model_klass) do
-        Class.new do
-          include CsvRowModel::Model
-          include CsvRowModel::Import
-
-          column :string1, default: 123
-
-          def self.format_cell(*args); nil end
-        end
-      end
-
-      it "sets the default" do
-        expect(subject).to eql(string1: [nil, 123])
-      end
-    end
-
-    describe "attribute methods" do
-      subject { instance.string1 }
-
-      context "when included before and after #column call" do
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-
-            column :string1
-
-            include CsvRowModel::Import
-
-            column :string2
-          end
-        end
-
-        it "works" do
-          expect(instance.string1).to eql "1.01"
-          expect(instance.string2).to eql "b"
-        end
-      end
-    end
-
     describe "#mapped_row" do
       subject { instance.mapped_row }
       it "returns a map of `column_name => source_row[index_of_column_name]" do
         expect(subject).to eql(string1: "1.01", string2: "b")
+      end
+    end
+
+    describe "#csv_string_model" do
+      subject { instance.csv_string_model }
+      it "returns csv_string_model with methods working" do
+        expect(subject.string1).to eql "1.01"
+        expect(subject.string2).to eql "b"
+      end
+
+      context "with format_cell" do
+        it "should format_cell first" do
+          expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return(nil)
+          expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil)
+          expect(subject.string1).to eql nil
+          expect(subject.string2).to eql nil
+        end
+      end
+    end
+
+    describe "#valid?" do
+      subject { instance.valid? }
+      let(:import_model_klass) { ImportModelWithValidations }
+
+      it "works" do
+        expect(subject).to eql true
+      end
+
+      context "with empty row" do
+        let(:source_row) { %w[] }
+
+        it "works" do
+          expect(subject).to eql false
+        end
+      end
+
+      context "with custom class" do
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+            include CsvRowModel::Import
+
+            column :id
+
+            def self.name; "TwoLayerValid" end
+          end
+        end
+
+        context "overriding validations" do
+          before do
+            import_model_klass.instance_eval do
+              validates :id, length: { minimum: 5 }
+              csv_string_model do
+                validates :id, presence: true
+              end
+            end
+          end
+
+          it "takes the csv_string_model_class validation first then the row_model validation" do
+            expect(subject).to eql false
+            expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
+          end
+
+          context "with empty row" do
+            let(:source_row) { [''] }
+
+            it "just shows the csv_string_model_class validation" do
+              expect(subject).to eql false
+              expect(instance.errors.full_messages).to eql ["Id can't be blank"]
+            end
+          end
+        end
+
+        context "with warnings" do
+          before do
+            import_model_klass.instance_eval do
+              warnings do
+                validates :id, length: { minimum: 5 }
+              end
+              csv_string_model do
+                warnings do
+                  validates :id, presence: true
+                end
+              end
+            end
+          end
+
+          context "with empty row" do
+            let(:source_row) { [''] }
+
+            it "just shows the csv_string_model_class validation" do
+              expect(subject).to eql true
+              expect(instance.safe?).to eql false
+              expect(instance.warnings.full_messages).to eql ["Id can't be blank"]
+            end
+          end
+        end
       end
     end
 
@@ -131,42 +137,5 @@ describe CsvRowModel::Import do
         expect(instance.previous).to eql nil
       end
     end
-  end
-
-  describe "class" do
-    describe "::format_cell" do
-      let(:cell) { "the_cell" }
-      subject { BasicImportModel.format_cell(cell, nil, nil) }
-
-      it "returns the cell" do
-        expect(subject).to eql cell
-      end
-    end
-
-    describe "::default_lambda" do
-      let(:source_row) { ['a', nil] }
-
-      context "try to looking for in another field" do
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-
-            column :string1
-            column :string2, default: -> { string1 }
-          end
-        end
-
-        it "returns the default" do
-          expect(
-            import_model_klass.new(source_row).original_attributes[:string1]
-          ).to eql('a')
-          expect(
-            import_model_klass.new(source_row).original_attributes[:string2]
-          ).to eql('a')
-        end
-      end
-    end
-
   end
 end
