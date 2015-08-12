@@ -80,8 +80,8 @@ describe CsvRowModel::Import::Attributes do
             end
           end
 
-          it "returns the default" do
-            expect(subject).to eql(123)
+          it "returns nil" do
+            expect(subject).to eql(nil)
           end
         end
       end
@@ -148,9 +148,11 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe "::default_lambda" do
-      let(:source_row) { ['a', nil] }
+      let(:instance) { import_model_klass.new(source_row) }
 
-      context "try to looking for in another field" do
+      context "when looking for in another field for default" do
+        let(:source_row) { ['a', nil] }
+
         before do
           import_model_klass.instance_eval do
             column :string1
@@ -158,13 +160,10 @@ describe CsvRowModel::Import::Attributes do
           end
         end
 
+
         it "returns the default" do
-          expect(
-            import_model_klass.new(source_row).original_attributes[:string1]
-          ).to eql('a')
-          expect(
-            import_model_klass.new(source_row).original_attributes[:string2]
-          ).to eql('a')
+          expect(instance.original_attributes[:string1]).to eql('a')
+          expect(import_model_klass.new(source_row).original_attributes[:string2]).to eql('a')
         end
       end
     end
