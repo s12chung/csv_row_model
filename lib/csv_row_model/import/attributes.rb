@@ -29,10 +29,12 @@ module CsvRowModel
       # @return [Object] the column's attribute before override
       def original_attribute(column_name)
         @default_changes ||= {}
-        value = self.class.format_cell(mapped_row[column_name], column_name, self.class.index(column_name))
 
         csv_string_model.valid?
-        if value.present? && csv_string_model.errors[column_name].blank?
+        return nil unless csv_string_model.errors[column_name].blank?
+
+        value = self.class.format_cell(mapped_row[column_name], column_name, self.class.index(column_name))
+        if value.present?
           instance_exec(value, &self.class.parse_lambda(column_name))
         elsif self.class.options(column_name)[:default]
           original_value = value

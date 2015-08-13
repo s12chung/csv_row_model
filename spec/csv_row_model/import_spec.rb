@@ -74,6 +74,25 @@ describe CsvRowModel::Import do
           end
         end
 
+        context "when setting default, but invalid csv_string_model validation" do
+          let(:source_row) { ["1", ""]}
+
+          before do
+            import_model_klass.instance_eval do
+              column :name, default: "the default!"
+
+              csv_string_model do
+                validates :name, presence: true
+              end
+            end
+          end
+
+          it "returns just invalid" do
+            expect(subject).to eql false
+            expect(instance.errors.full_messages).to eql ["Name can't be blank"]
+          end
+        end
+
         context "overriding validations" do
           before do
             import_model_klass.instance_eval do
@@ -95,6 +114,19 @@ describe CsvRowModel::Import do
             it "just shows the csv_string_model_class validation" do
               expect(subject).to eql false
               expect(instance.errors.full_messages).to eql ["Id can't be blank"]
+            end
+          end
+
+          context "with errors has a key with empty value" do
+            before do
+              instance.csv_string_model.valid?
+            end
+
+            it "still shows the non-string validation" do
+              expect(subject).to eql false
+              expect(instance.csv_string_model.errors[:id]).to eql([])
+              expect(instance.csv_string_model.errors.messages).to eql(id: [])
+              expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
             end
           end
         end

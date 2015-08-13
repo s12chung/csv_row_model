@@ -145,7 +145,7 @@ import_mapper.project.name # => "SOME PROJECT NAME"
 ### Default Attributes
 For `Import`, `default_attributes` are calculated as thus:
 - `format_cell`
-- if `value_from_format_cell.blank? || csv_string_model.errors[column_name].blank?`, `default_lambda.call` or nil
+- if `value_from_format_cell.blank?`, `default_lambda.call` or nil
 - otherwise, `parse_lambda.call`
 
 #### Format Cell
@@ -163,7 +163,7 @@ end
 ```
 
 #### Default
-Called when `format_cell` is `value_from_format_cell.blank? || csv_string_model.errors[column_name].blank?`, it sets the default value of the cell:
+Called when `format_cell` is `value_from_format_cell.blank?`, it sets the default value of the cell:
 ```ruby
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import

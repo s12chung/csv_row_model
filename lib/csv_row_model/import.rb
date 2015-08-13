@@ -58,7 +58,7 @@ module CsvRowModel
 
       proc = -> do
         csv_string_model.valid?(*args)
-        errors.messages.merge!(csv_string_model.errors.messages)
+        errors.messages.merge!(csv_string_model.errors.messages.reject {|k, v| v.empty? })
         errors.empty?
       end
 
