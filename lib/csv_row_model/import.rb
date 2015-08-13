@@ -9,7 +9,7 @@ module CsvRowModel
       include Concerns::Inspect
       include Attributes
 
-      attr_reader :attr_reader, :source_header, :source_row, :context, :previous
+      attr_reader :attr_reader, :source_header, :source_row, :context, :index, :previous
 
       self.column_names.each { |*args| define_attribute_method(*args) }
 
@@ -18,6 +18,7 @@ module CsvRowModel
 
     # @param [Array] source_row the csv row
     # @param options [Hash]
+    # @option options [Integer] :index index in the CSV file
     # @option options [Hash] :context extra data you want to work with the model
     # @option options [Array] :source_header the csv header row
     # @option options [CsvRowModel::Import] :previous the previous row model
@@ -25,7 +26,7 @@ module CsvRowModel
     def initialize(source_row, options={})
       options = options.symbolize_keys.reverse_merge(context: {})
       @source_row, @context = source_row, OpenStruct.new(options[:context])
-      @source_header, @previous = options[:source_header], options[:previous].try(:dup)
+      @index, @source_header, @previous = options[:index], options[:source_header], options[:previous].try(:dup)
 
       previous.try(:free_previous)
       super(source_row, options)

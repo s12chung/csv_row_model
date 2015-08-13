@@ -26,11 +26,21 @@ describe CsvRowModel::Import::File do
     subject { instance.next }
 
     it "gets the rows until the end of file" do
+      row_model = nil
       (0..4).each do |index|
-        row_model = instance.next
+        previous_row_model = row_model
+        row_model = instance.next(some_context: true)
         expect(row_model.class).to eql model_class
+
         expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
+        expect(row_model.source_header).to eql %w[string1 string2]
+
+        expect(row_model.previous.try(:source_row)).to eql previous_row_model.try(:source_row)
+        # + 1 due to header
+        expect(row_model.index).to eql index + 1
+        expect(row_model.context).to eql OpenStruct.new(some_context: true)
       end
+
       3.times do
         expect(instance.next).to eql nil
         expect(instance.end_of_file?).to eql true
