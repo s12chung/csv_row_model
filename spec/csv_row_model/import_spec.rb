@@ -118,15 +118,21 @@ describe CsvRowModel::Import do
           end
 
           context "with errors has a key with empty value" do
-            before do
-              instance.csv_string_model.valid?
-            end
+            context "with errors has a key with empty value" do
+              before do
+                expect(instance.csv_string_model).to receive(:valid?).at_least(1).times.and_wrap_original do |original, *args|
+                  result = original.call(*args)
+                  # this makes instance.csv_string_model.errors.messages = { id: [] }
+                  instance.csv_string_model.errors[:id]
+                  result
+                end
+              end
 
-            it "still shows the non-string validation" do
-              expect(subject).to eql false
-              expect(instance.csv_string_model.errors[:id]).to eql([])
-              expect(instance.csv_string_model.errors.messages).to eql(id: [])
-              expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
+              it "still shows the non-string validation" do
+                expect(subject).to eql false
+                expect(instance.csv_string_model.errors.messages).to eql(id: [])
+                expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
+              end
             end
           end
         end
