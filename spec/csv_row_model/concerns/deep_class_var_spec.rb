@@ -1,7 +1,15 @@
 require 'spec_helper'
 
 class Grandparent; end
-module Child; end
+module Child
+  extend ActiveSupport::Concern
+
+  class_methods do
+    def deep_class_module
+      Child
+    end
+  end
+end
 class Parent < Grandparent
   include Child
   include CsvRowModel::Concerns::DeepClassVar
@@ -11,7 +19,7 @@ class ClassWithFamily < Parent; end
 describe CsvRowModel::Concerns::DeepClassVar do
   describe "class" do
     describe "::inherited_ancestors" do
-      subject { ClassWithFamily.send(:inherited_ancestors, Child) }
+      subject { ClassWithFamily.send(:inherited_ancestors) }
 
       it "returns the inherited ancestors" do
         expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::DeepClassVar]
@@ -27,9 +35,9 @@ describe CsvRowModel::Concerns::DeepClassVar do
         end
       end
 
-      subject { ClassWithFamily.send(:deep_class_var, variable_name, [], :+, Child) }
+      subject { ClassWithFamily.send(:deep_class_var, variable_name, [], :+) }
 
-      it "returns a class variable merged across ancestors until included_module" do
+      it "returns a class variable merged across ancestors until deep_class_module" do
         expect(subject).to eql %w[Parent ClassWithFamily]
       end
     end

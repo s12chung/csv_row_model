@@ -19,13 +19,11 @@ module CsvRowModel
         def column_names
           columns.keys
         end
-        # alias_method :row_names, :column_names
 
         # @return [Hash] column names mapped to their options
         def columns
-          deep_class_var(:@_columns, {}, :merge, Model)
+          deep_class_var(:@_columns, {}, :merge)
         end
-        # alias_method :rows, :columns
 
         # @param [Symbol] column_name name of column to find option
         # @return [Hash] options for the column_name

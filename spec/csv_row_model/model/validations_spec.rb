@@ -2,7 +2,12 @@ require 'spec_helper'
 
 describe CsvRowModel::Model::Validations do
   describe "class" do
-    let(:klass) { Class.new { include CsvRowModel::Model::Validations } }
+    let(:klass) {
+      Class.new do
+        include CsvRowModel::Model::Validations
+        def self.deep_class_module; CsvRowModel::Model::Validations end
+      end
+    }
 
     describe "::csv_string_model_class" do
       subject { klass.csv_string_model_class }

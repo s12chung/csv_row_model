@@ -49,7 +49,7 @@ module CsvRowModel
 
           # @return [Hash] map of `attribute_name => [options, block]`
           def attributes
-            deep_class_var :@_mapper_attributes, {}, :merge, CsvRowModel::Import::Mapper::Attributes
+            deep_class_var :@_mapper_attributes, {}, :merge
           end
 
           # @param [Symbol] attribute_name name of attribute to find option

@@ -85,11 +85,6 @@ module CsvRowModel
         INSPECT_INSTANCE_VARIABLES
       end
 
-      # @return [Class] used for {Model::Children.has_many_relationships}
-      def has_many_relationships_module
-        Import
-      end
-
       # by default import model is a collection model
       def type
         :collection_model

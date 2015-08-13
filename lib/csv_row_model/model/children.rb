@@ -40,9 +40,11 @@ module CsvRowModel
       end
 
       class_methods do
+        # Won't work for Export right now
+        #
         # @return [Hash] map of `relation_name => CsvRowModel::Import or CsvRowModel::Export class`
         def has_many_relationships
-          deep_class_var :@_has_many_relationships, {}, :merge, has_many_relationships_module
+          deep_class_var :@_has_many_relationships, {}, :merge
         end
 
         protected
