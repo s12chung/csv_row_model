@@ -4,7 +4,7 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     included do
-      attr_reader :source_model
+      attr_reader :source_model, :context
 
       self.column_names.each do |column_name|
 
@@ -21,8 +21,9 @@ module CsvRowModel
     end
 
     # @param [Model] source_models object to export to CSV
-    def initialize(source_model)
+    def initialize(source_model, context)
       @source_model = source_model
+      @context = context
     end
 
     def to_rows

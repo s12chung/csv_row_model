@@ -19,8 +19,8 @@ module CsvRowModel
         csv << header
       end
 
-      def append_model(model)
-        export_model_class.new(model).to_rows.each do |row|
+      def append_model(model, context={})
+        export_model_class.new(model, context).to_rows.each do |row|
           csv << row
         end
       end
