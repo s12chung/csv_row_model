@@ -20,8 +20,9 @@ module CsvRowModel
       validates :source_model, presence: true
     end
 
-    # @param [Model] source_models object to export to CSV
-    def initialize(source_model, context)
+    # @param [Model] source_model object to export to CSV
+    # @param [Hash]  context
+    def initialize(source_model, context={})
       @source_model = source_model
       @context = context
     end

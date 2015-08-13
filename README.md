@@ -324,11 +324,26 @@ class ProjectExportRowModel < ProjectRowModel
 end
 ```
 
+### Export SingleModel
+
+Maps each attribute of the `RowModel` to a row on the CSV.
+
+```ruby
+class ProjectExportRowModel < ProjectRowModel
+  include CsvRowModel::Export
+  include CsvRowModel::Export::SingleModel
+
+
+end
+```
+
 And to export:
 
 ```ruby
-export_csv = CsvRowModel::Export::Csv.new(collection, ProjectExportRowModel)
-csv_string = export_csv.export(:find_each) # optional, pass a enum_method by default is :each
+export_csv = CsvRowModel::Export::Csv.new(ProjectExportRowModel)
+csv_string = export_csv.generate do |csv|
+               csv.append_model(project) #optional you can pass a context
+             end
 ```
 
 #### Format Header

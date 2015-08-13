@@ -45,7 +45,7 @@ module CsvRowModel
           @_columns ||= {}
         end
 
-        VALID_OPTIONS_KEYS = %i[type parse validate_type default header].freeze
+        VALID_OPTIONS_KEYS = %i[type parse validate_type default header header_matchs].freeze
 
         # Adds column to the row model
         #
