@@ -48,8 +48,10 @@ module CsvRowModel
         end
 
         protected
-        def _has_many_relationships
+        def merge_has_many_relationships(relation_hash)
           @_has_many_relationships ||= {}
+          cache(:@_has_many_relationships).break_all
+          @_has_many_relationships.merge! relation_hash
         end
 
         # Defines a relationship between a row model (only one relation per model for now).
@@ -57,10 +59,11 @@ module CsvRowModel
         # @param [Symbol] relation_name the name of the relation
         # @param [CsvRowModel::Import] row_model_class class of the relation
         def has_many(relation_name, row_model_class)
-          raise "for now, CsvRowModel's has_many may only be called once" if _has_many_relationships.keys.present?
+          raise "for now, CsvRowModel's has_many may only be called once" if @_has_many_relationships.present?
 
           relation_name = relation_name.to_sym
-          _has_many_relationships.merge!(relation_name => row_model_class)
+
+          merge_has_many_relationships(relation_name => row_model_class)
 
           define_method(relation_name) do
             #

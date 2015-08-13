@@ -26,8 +26,11 @@ describe CsvRowModel::Concerns::DeepClassVar do
       end
     end
 
-    describe "::deep_class_var" do
+    context "with deep_deep_class_var set" do
       let(:variable_name) { :@deep_class_var }
+      def deep_class_var
+        ClassWithFamily.send(:deep_class_var, variable_name, [], :+)
+      end
 
       before do
         [Grandparent, Parent, Child, ClassWithFamily].each do |klass|
@@ -35,10 +38,49 @@ describe CsvRowModel::Concerns::DeepClassVar do
         end
       end
 
-      subject { ClassWithFamily.send(:deep_class_var, variable_name, [], :+) }
+      describe "::deep_class_var" do
+        subject { deep_class_var }
 
-      it "returns a class variable merged across ancestors until deep_class_module" do
-        expect(subject).to eql %w[Parent ClassWithFamily]
+        it "returns a class variable merged across ancestors until deep_class_module" do
+          expect(subject).to eql %w[Parent ClassWithFamily]
+        end
+
+        it "caches the result" do
+          expect(deep_class_var.object_id).to eql deep_class_var.object_id
+        end
+      end
+
+      describe "::break_cache" do
+        subject { ClassWithFamily.break_cache(variable_name) }
+
+        it "breaks the cache" do
+          value = deep_class_var
+          expect(value.object_id).to eql deep_class_var.object_id
+          subject
+          expect(value.object_id).to_not eql deep_class_var.object_id
+        end
+      end
+
+      describe "::cache.break_all" do
+        subject { Parent.send(:cache, variable_name).break_all }
+
+        def parent_deep_class_var
+          Parent.send(:deep_class_var, variable_name, [], :+)
+        end
+
+        it "breaks the cache of self class" do
+          value = parent_deep_class_var
+          expect(value.object_id).to eql parent_deep_class_var.object_id
+          subject
+          expect(value.object_id).to_not eql parent_deep_class_var.object_id
+        end
+
+        it "breaks the cache of children class" do
+          value = deep_class_var
+          expect(value.object_id).to eql deep_class_var.object_id
+          subject
+          expect(value.object_id).to_not eql deep_class_var.object_id
+        end
       end
     end
   end

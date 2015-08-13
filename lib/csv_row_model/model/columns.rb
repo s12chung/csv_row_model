@@ -39,8 +39,10 @@ module CsvRowModel
 
         protected
 
-        def _columns
+        def merge_columns(column_hash)
           @_columns ||= {}
+          cache(:@_columns).break_all
+          @_columns.merge!(column_hash)
         end
 
         VALID_OPTIONS_KEYS = %i[type parse validate_type default header header_matchs].freeze
@@ -62,7 +64,7 @@ module CsvRowModel
           extra_keys = options.keys - VALID_OPTIONS_KEYS
           raise ArgumentError.new("invalid options #{extra_keys}") unless extra_keys.empty?
 
-          _columns.merge!(column_name.to_sym => options)
+          merge_columns(column_name.to_sym => options)
         end
         # alias_method :row, :column
       end

@@ -65,8 +65,10 @@ module CsvRowModel
           end
 
           protected
-          def _attributes
+          def merge_attribute(attribute_hash)
             @_mapper_attributes ||= {}
+            cache(:@_mapper_attributes).break_all
+            @_mapper_attributes.merge! attribute_hash
           end
 
           # Adds column to the row model
@@ -83,7 +85,7 @@ module CsvRowModel
 
             options = options.reverse_merge(default_options)
 
-            _attributes.merge!(attribute_name.to_sym => [options, block])
+            merge_attribute(attribute_name.to_sym => [options, block])
             define_attribute_method(attribute_name)
           end
 
