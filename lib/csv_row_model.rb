@@ -26,15 +26,18 @@ else
   require 'csv_row_model/validators/validate_attributes'
 
   require 'csv_row_model/model'
+  require 'csv_row_model/model/single_model'
 
   require 'csv_row_model/import'
+  require 'csv_row_model/import/single_model'
   require 'csv_row_model/import/csv'
   require 'csv_row_model/import/file'
   require 'csv_row_model/import/mapper'
 
 
   require 'csv_row_model/export'
-  require 'csv_row_model/export_collection/csv'
+  require 'csv_row_model/export/csv'
+  require 'csv_row_model/export/single_model'
 end
 
 module CsvRowModel

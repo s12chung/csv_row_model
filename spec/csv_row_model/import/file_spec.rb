@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe CsvRowModel::Import::File do
+
   let(:file_path) { basic_1_row_path }
   let(:model_class) { BasicImportModel }
   let(:instance) { described_class.new file_path, model_class }
@@ -132,6 +133,35 @@ describe CsvRowModel::Import::File do
 
         expect { |b| instance.each(&b) }.to yield_control.exactly(3).times
       end
+    end
+  end
+
+  context "colection model" do
+    let(:file_path) { basic_1_row_path }
+
+    subject do
+      described_class.new file_path, BasicImportModel
+    end
+
+    specify do
+      enum = subject.each
+      first_line = enum.next
+      expect(first_line.source_header).to eql(['string1', 'string2'])
+      expect(first_line.source_row).to eql(['lang1', 'lang2'])
+    end
+  end
+
+  context "single model" do
+    let(:file_path) { basic_1_model_path }
+
+    subject do
+      described_class.new file_path, BasicRowImportModel
+    end
+
+    specify do
+      enum = subject.each
+      model = enum.next
+      expect(model.source_row).to eql(['value 1', 'value 2'])
     end
   end
 end

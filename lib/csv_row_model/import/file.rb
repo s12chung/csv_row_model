@@ -41,19 +41,11 @@ module CsvRowModel
       #
       # @param context [Hash] context passed to the {Import}
       def next(context={})
-        csv.skip_header
-
-        next_row_is_parent = true
-        loop do
-          @previous_row_model = current_row_model if next_row_is_parent
-
-          csv.read_row
-          return set_end_of_file if csv.end_of_file?
-
-          set_current_row_model(context) if next_row_is_parent
-
-          next_row_is_parent = !current_row_model.append_child(csv.next_row)
-          return current_row_model if next_row_is_parent
+        if is_single_model?
+          return set_end_of_file if end_of_file?
+          set_single_model(context)
+        else
+          next_collection_model(context)
         end
       end
 
@@ -81,9 +73,55 @@ module CsvRowModel
       end
 
       protected
-      def set_current_row_model(context)
+
+      # @return [boolean] if type of model is collection_model
+      def is_single_model?
+        @is_single_model ||= begin
+          row_model_class.respond_to?(:type) ? (row_model_class.type == :single_model) : false
+        end
+      end
+
+      def set_current_collection_model(context)
         @current_row_model = row_model_class.new(csv.current_row, context: context, source_header: header, previous: previous_row_model)
         @index += 1
+      end
+
+      def set_single_model(context={})
+        source_row = Array.new(row_model_class.header_matchers.size)
+        while !end_of_file?
+          csv.read_row
+          update_source_row(source_row)
+        end
+        @current_row_model = row_model_class.new(source_row, context: context)
+      end
+
+      def update_source_row(source_row)
+        current_row = csv.current_row
+        return unless current_row
+        current_row.each_with_index do |cell, position|
+          next if cell.blank?
+          index = row_model_class.index_header_match(cell)
+          next unless index
+          source_row[index] = current_row[position + 1]
+          break
+        end
+      end
+
+      def next_collection_model(context)
+        csv.skip_header
+
+        next_row_is_parent = true
+        loop do
+          @previous_row_model = current_row_model if next_row_is_parent
+
+          csv.read_row
+          return set_end_of_file if csv.end_of_file?
+
+          set_current_collection_model(context) if next_row_is_parent
+
+          next_row_is_parent = !current_row_model.append_child(csv.next_row)
+          return current_row_model if next_row_is_parent
+        end
       end
 
       def set_end_of_file
