@@ -8,13 +8,6 @@ require 'active_support/all'
 require 'active_warnings'
 require 'csv'
 
-require 'csv_row_model/validators/default_change'
-
-require 'csv_row_model/validators/boolean_format'
-require 'csv_row_model/validators/date_format'
-require 'csv_row_model/validators/float_format'
-require 'csv_row_model/validators/integer_format'
-
 if autoload && defined?(Rails)
   require 'csv_row_model/engine'
 else
@@ -38,7 +31,16 @@ else
   require 'csv_row_model/export'
   require 'csv_row_model/export/csv'
   require 'csv_row_model/export/single_model'
+
+  require 'csv_row_model/validators/number_validator'
 end
+
+require 'csv_row_model/validators/default_change'
+
+require 'csv_row_model/validators/boolean_format'
+require 'csv_row_model/validators/date_format'
+require 'csv_row_model/validators/float_format'
+require 'csv_row_model/validators/integer_format'
 
 module CsvRowModel
   class RowModelClassNotDefined < StandardError; end

@@ -22,6 +22,10 @@ describe IntegerFormatValidator do
     it "is valid" do
       expect(subject).to eql true
     end
+
+    include_examples "prefix_zero"
+    include_examples "suffix_zero"
+    include_examples "suffix_decimal_zero"
   end
 
   context "Float" do
