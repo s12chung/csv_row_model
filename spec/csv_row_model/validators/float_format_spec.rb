@@ -22,6 +22,16 @@ describe FloatFormatValidator do
     it "is valid" do
       expect(subject).to eql true
     end
+
+    context "trailing zero" do
+      before { instance.string1 = "1230.12300" }
+      it "is valid" do
+        expect(subject).to eql true
+      end
+    end
+
+    include_examples "prefix_zero"
+    include_examples "suffix_zero"
   end
 
   context "Integer" do
@@ -29,6 +39,10 @@ describe FloatFormatValidator do
     it "is valid" do
       expect(subject).to eql true
     end
+
+    include_examples "prefix_zero"
+    include_examples "suffix_zero"
+    include_examples "suffix_decimal_zero"
   end
 
   context "bad Float" do

@@ -1,8 +1,7 @@
-class IntegerFormatValidator < ActiveModel::EachValidator # :nodoc:
+class IntegerFormatValidator < CsvRowModel::Validators::NumberValidator # :nodoc:
   def validate_each(record, attribute, value)
-    value ||= ""
-    before, decimal, after = value.partition(".")
-    return if value.class == String && value.to_i.to_s == before && (after.blank? || after =~ /0+\z/)
+    before, after = before_after_decimal(value)
+    return if value.class == String && value.to_i.to_s == before && after.empty?
     record.errors.add(attribute, 'is not a Integer format')
   end
 end
