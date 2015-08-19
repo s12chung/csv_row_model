@@ -67,7 +67,7 @@ module CsvRowModel
           protected
           def merge_attribute(attribute_hash)
             @_mapper_attributes ||= {}
-            cache(:@_mapper_attributes).break_all
+            clear_all_cache(:@_mapper_attributes)
             @_mapper_attributes.merge! attribute_hash
           end
 

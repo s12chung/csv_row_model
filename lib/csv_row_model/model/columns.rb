@@ -41,7 +41,7 @@ module CsvRowModel
 
         def merge_columns(column_hash)
           @_columns ||= {}
-          cache(:@_columns).break_all
+          clear_all_cache(:@_columns)
           @_columns.merge!(column_hash)
         end
 

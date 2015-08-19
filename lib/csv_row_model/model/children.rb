@@ -50,7 +50,7 @@ module CsvRowModel
         protected
         def merge_has_many_relationships(relation_hash)
           @_has_many_relationships ||= {}
-          cache(:@_has_many_relationships).break_all
+          clear_all_cache(:@_has_many_relationships)
           @_has_many_relationships.merge! relation_hash
         end
 

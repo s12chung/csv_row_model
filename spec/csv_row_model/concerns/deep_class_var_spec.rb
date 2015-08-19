@@ -50,10 +50,10 @@ describe CsvRowModel::Concerns::DeepClassVar do
         end
       end
 
-      describe "::break_cache" do
-        subject { ClassWithFamily.break_cache(variable_name) }
+      describe "::clear_cache" do
+        subject { ClassWithFamily.clear_cache(variable_name) }
 
-        it "breaks the cache" do
+        it "clears the cache" do
           value = deep_class_var
           expect(value.object_id).to eql deep_class_var.object_id
           subject
@@ -61,21 +61,21 @@ describe CsvRowModel::Concerns::DeepClassVar do
         end
       end
 
-      describe "::cache.break_all" do
-        subject { Parent.send(:cache, variable_name).break_all }
+      describe "::clear_all_cache" do
+        subject { Parent.send(:clear_all_cache, variable_name) }
 
         def parent_deep_class_var
           Parent.send(:deep_class_var, variable_name, [], :+)
         end
 
-        it "breaks the cache of self class" do
+        it "clears the cache of self class" do
           value = parent_deep_class_var
           expect(value.object_id).to eql parent_deep_class_var.object_id
           subject
           expect(value.object_id).to_not eql parent_deep_class_var.object_id
         end
 
-        it "breaks the cache of children class" do
+        it "clears the cache of children class" do
           value = deep_class_var
           expect(value.object_id).to eql deep_class_var.object_id
           subject
