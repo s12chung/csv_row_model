@@ -49,7 +49,7 @@ module CsvRowModel
 
           # @return [Hash] map of `attribute_name => [options, block]`
           def attributes
-            deep_class_var :@_mapper_attributes, {}, :merge, CsvRowModel::Import::Mapper::Attributes
+            deep_class_var :@_mapper_attributes, {}, :merge
           end
 
           # @param [Symbol] attribute_name name of attribute to find option
@@ -65,8 +65,10 @@ module CsvRowModel
           end
 
           protected
-          def _attributes
+          def merge_attribute(attribute_hash)
             @_mapper_attributes ||= {}
+            clear_all_cache(:@_mapper_attributes)
+            @_mapper_attributes.merge! attribute_hash
           end
 
           # Adds column to the row model
@@ -83,7 +85,7 @@ module CsvRowModel
 
             options = options.reverse_merge(default_options)
 
-            _attributes.merge!(attribute_name.to_sym => [options, block])
+            merge_attribute(attribute_name.to_sym => [options, block])
             define_attribute_method(attribute_name)
           end
 

@@ -43,5 +43,12 @@ module CsvRowModel
     def abort?
       false
     end
+
+    class_methods do
+      protected
+      def deep_class_module
+        Model
+      end
+    end
   end
 end

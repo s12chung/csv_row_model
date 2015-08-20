@@ -15,7 +15,7 @@ module CsvRowModel
           # @return [Class] the Class with validations of the csv_string_model
           def csv_string_model_class
             @csv_string_model_class ||= begin
-              parent_class = inherited_ancestors(Validations)[1..-1].find do |klass|
+              parent_class = inherited_ancestors[1..-1].find do |klass|
                 klass.respond_to?(:csv_string_model_class)
               end.try(:csv_string_model_class)
               parent_class ||= CsvStringModel

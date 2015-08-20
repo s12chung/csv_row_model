@@ -119,6 +119,7 @@ describe CsvRowModel::Import::Mapper::Attributes do
       let(:klass) do
         Class.new do
           include CsvRowModel::Import::Mapper::Attributes
+          def self.deep_class_module; CsvRowModel::Import::Mapper::Attributes end
         end
       end
 

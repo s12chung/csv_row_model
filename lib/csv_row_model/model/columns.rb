@@ -19,13 +19,11 @@ module CsvRowModel
         def column_names
           columns.keys
         end
-        # alias_method :row_names, :column_names
 
         # @return [Hash] column names mapped to their options
         def columns
-          deep_class_var(:@_columns, {}, :merge, Model)
+          deep_class_var(:@_columns, {}, :merge)
         end
-        # alias_method :rows, :columns
 
         # @param [Symbol] column_name name of column to find option
         # @return [Hash] options for the column_name
@@ -41,8 +39,10 @@ module CsvRowModel
 
         protected
 
-        def _columns
+        def merge_columns(column_hash)
           @_columns ||= {}
+          clear_all_cache(:@_columns)
+          @_columns.merge!(column_hash)
         end
 
         VALID_OPTIONS_KEYS = %i[type parse validate_type default header header_matchs].freeze
@@ -64,7 +64,7 @@ module CsvRowModel
           extra_keys = options.keys - VALID_OPTIONS_KEYS
           raise ArgumentError.new("invalid options #{extra_keys}") unless extra_keys.empty?
 
-          _columns.merge!(column_name.to_sym => options)
+          merge_columns(column_name.to_sym => options)
         end
         # alias_method :row, :column
       end

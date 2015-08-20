@@ -97,6 +97,10 @@ module CsvRowModel
           end
           @row_model_class = row_model_class
         end
+
+        def deep_class_module
+          Mapper
+        end
       end
     end
   end
