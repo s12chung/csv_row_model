@@ -50,8 +50,8 @@ describe CsvRowModel::Concerns::DeepClassVar do
         end
       end
 
-      describe "::clear_cache" do
-        subject { ClassWithFamily.clear_cache(variable_name) }
+      describe "::clear_class_cache" do
+        subject { ClassWithFamily.clear_class_cache(variable_name) }
 
         it "clears the cache" do
           value = deep_class_var
@@ -61,8 +61,8 @@ describe CsvRowModel::Concerns::DeepClassVar do
         end
       end
 
-      describe "::clear_all_cache" do
-        subject { Parent.send(:clear_all_cache, variable_name) }
+      describe "::clear_deep_class_cache" do
+        subject { Parent.send(:clear_deep_class_cache, variable_name) }
 
         def parent_deep_class_var
           Parent.send(:deep_class_var, variable_name, [], :+)

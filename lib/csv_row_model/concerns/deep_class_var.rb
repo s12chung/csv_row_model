@@ -6,8 +6,8 @@ module CsvRowModel
       class_methods do
         # Clears the cache for a variable
         # @param variable_name [Symbol] variable_name to cache against
-        def clear_cache(variable_name)
-          instance_variable_set cache_variable_name(variable_name), nil
+        def clear_class_cache(variable_name)
+          instance_variable_set deep_class_cache_variable_name(variable_name), nil
         end
 
         protected
@@ -24,7 +24,7 @@ module CsvRowModel
         # @param merge_method [Symbol] method to merge values of the class variable
         # @return [Object] a class variable merged across ancestors until deep_class_module
         def deep_class_var(variable_name, default_value, merge_method)
-          cache_memoize(variable_name) do
+          deep_class_cache(variable_name) do
             value = default_value
 
             inherited_ancestors.each do |ancestor|
@@ -38,25 +38,25 @@ module CsvRowModel
 
         # @param variable_name [Symbol] variable_name to cache against
         # @return [String] the cache variable name for the cache
-        def cache_variable_name(variable_name)
+        def deep_class_cache_variable_name(variable_name)
           "#{variable_name}_deep_class_cache"
         end
 
         # Clears the cache for a variable and the same variable for all it's dependant descendants
         # @param variable_name [Symbol] variable_name to cache against
-        def clear_all_cache(variable_name)
+        def clear_deep_class_cache(variable_name)
           ([self] + descendants).each do |descendant|
-            descendant.try(:clear_cache, variable_name)
+            descendant.try(:clear_class_cache, variable_name)
           end
         end
 
-        # Memozies a cache_variable_name
+        # Memozies a deep_class_cache_variable_name
         # @param variable_name [Symbol] variable_name to cache against
-        def cache_memoize(variable_name)
+        def deep_class_cache(variable_name)
           #
           # equal to: (has @)variable_name_deep_class_cache ||= Cache.new(klass, variable_name)
           #
-          cache_variable_name = cache_variable_name(variable_name)
+          cache_variable_name = deep_class_cache_variable_name(variable_name)
           instance_variable_get(cache_variable_name) || instance_variable_set(cache_variable_name, yield)
         end
       end
