@@ -116,14 +116,33 @@ describe CsvRowModel::Import::Mapper::Attributes do
     end
 
     describe "class" do
-      let(:klass) do
-        Class.new do
-          include CsvRowModel::Import::Mapper::Attributes
-          def self.deep_class_module; CsvRowModel::Import::Mapper::Attributes end
+      describe "::dependencies" do
+        context "with many dependencies" do
+          subject { klass.dependencies }
+
+          let(:klass) do
+            Class.new do
+              include CsvRowModel::Import::Mapper
+              maps_to ImportModelWithValidations
+
+              attribute(:a1, dependencies: %i[a b c d]) { true }
+              attribute(:a2, dependencies: %i[b c]) { true }
+            end
+          end
+
+          it "merges the dependencies of overlapping attributes" do
+            expect(subject).to eql(a: %i[a1], b: %i[a1 a2], c: %i[a1 a2], d: %i[a1])
+          end
         end
       end
 
       describe "::attribute" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Import::Mapper::Attributes
+            def self.deep_class_module; CsvRowModel::Import::Mapper::Attributes end
+          end
+        end
         subject { klass.send(:attribute, :attribute_name, options) { true } }
         let(:options) { { dependencies: [], memoize: false } }
 
