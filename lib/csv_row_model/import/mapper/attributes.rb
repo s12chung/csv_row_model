@@ -47,7 +47,7 @@ module CsvRowModel
             attributes.keys
           end
 
-          # @return [Hash] map of `attribute_name => [options, block]`
+          # @return [Hash{Symbol => Array}] map of `attribute_name => [options, block]`
           def attributes
             deep_class_var :@_mapper_attributes, {}, :merge
           end
@@ -62,6 +62,18 @@ module CsvRowModel
           # @return [Proc, Lambda] block called for attribute
           def block(attribute_name)
             attributes[attribute_name].last
+          end
+
+          # @return [Hash{Symbol => Array}] map of `dependency => [array of row_model attributes dependent on]`
+          def dependencies
+            dependencies = {}
+            attribute_names.each do |attribute_name|
+              options(attribute_name)[:dependencies].each do |dependency|
+                dependencies[dependency] ||= []
+                dependencies[dependency] << attribute_name
+              end
+            end
+            dependencies
           end
 
           protected
