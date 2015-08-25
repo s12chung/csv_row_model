@@ -82,7 +82,7 @@ module CsvRowModel
       end
 
       def set_current_collection_model(context)
-        @current_row_model = row_model_class.new(csv.current_row, context: context, source_header: header, previous: previous_row_model)
+        @current_row_model = row_model_class.new(csv.current_row, index: csv.index, context: context, source_header: header, previous: previous_row_model)
         @index += 1
       end
 
