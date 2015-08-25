@@ -33,7 +33,6 @@ describe CsvRowModel::Import::File do
         expect(row_model.class).to eql model_class
 
         expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
-        expect(row_model.source_header).to eql %w[string1 string2]
 
         expect(row_model.previous.try(:source_row)).to eql previous_row_model.try(:source_row)
         # + 1 due to header

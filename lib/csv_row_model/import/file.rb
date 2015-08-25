@@ -21,7 +21,7 @@ module CsvRowModel
       # @return [Input, Mapper] the previous row model set by {#next}
       attr_reader :previous_row_model
 
-      delegate :header, :size, :skipped_rows, to: :csv
+      delegate :header, :size, :skipped_rows, :end_of_file?, to: :csv
 
       # @param [String] file_path path of csv file
       # @param [Import, Mapper] row_model_class model class returned for importing
@@ -47,11 +47,6 @@ module CsvRowModel
         else
           next_collection_model(context)
         end
-      end
-
-      # @return [Boolean] returns true, if the object is at the end of file
-      def end_of_file?
-        csv.end_of_file?
       end
 
       # Iterates through the entire csv file and provides the `current_row_model` in a block, while handing aborts and skips
@@ -81,11 +76,6 @@ module CsvRowModel
         end
       end
 
-      def set_current_collection_model(context)
-        @current_row_model = row_model_class.new(csv.current_row, index: csv.index, context: context, source_header: header, previous: previous_row_model)
-        @index += 1
-      end
-
       def set_single_model(context={})
         source_row = Array.new(row_model_class.header_matchers.size)
         while !end_of_file?
@@ -108,20 +98,17 @@ module CsvRowModel
       end
 
       def next_collection_model(context)
+        return if csv.end_of_file?
+
         csv.skip_header
 
-        next_row_is_parent = true
-        loop do
-          @previous_row_model = current_row_model if next_row_is_parent
+        @previous_row_model = current_row_model
+        @current_row_model = row_model_class.read_csv(csv, context, previous_row_model)
+        @index += 1
 
-          csv.read_row
-          return set_end_of_file if csv.end_of_file?
+        set_end_of_file if csv.end_of_file?
 
-          set_current_collection_model(context) if next_row_is_parent
-
-          next_row_is_parent = !current_row_model.append_child(csv.next_row)
-          return current_row_model if next_row_is_parent
-        end
+        current_row_model
       end
 
       def set_end_of_file

@@ -7,7 +7,6 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       class_methods do
-
         # @return [Symbol] returns type of import
         def type
           :single_model
