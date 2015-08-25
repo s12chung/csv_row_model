@@ -64,22 +64,25 @@ module CsvRowModel
             attributes[attribute_name].last
           end
 
-          # @return [Hash{Symbol => Array}] map of `dependency => [array of row_model attributes dependent on]`
+          # @return [Hash{Symbol => Array}] map of `dependency => [array of mapper attributes dependent on dependency]`
           def dependencies
-            dependencies = {}
-            attribute_names.each do |attribute_name|
-              options(attribute_name)[:dependencies].each do |dependency|
-                dependencies[dependency] ||= []
-                dependencies[dependency] << attribute_name
+            deep_class_cache(:@_mapper_dependencies) do
+              dependencies = {}
+              attribute_names.each do |attribute_name|
+                options(attribute_name)[:dependencies].each do |dependency|
+                  dependencies[dependency] ||= []
+                  dependencies[dependency] << attribute_name
+                end
               end
+              dependencies
             end
-            dependencies
           end
 
           protected
           def merge_attribute(attribute_hash)
             @_mapper_attributes ||= {}
             clear_deep_class_cache(:@_mapper_attributes)
+            clear_deep_class_cache(:@_mapper_dependencies)
             @_mapper_attributes.merge! attribute_hash
           end
 

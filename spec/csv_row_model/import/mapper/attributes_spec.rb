@@ -129,9 +129,32 @@ describe CsvRowModel::Import::Mapper::Attributes do
               attribute(:a2, dependencies: %i[b c]) { true }
             end
           end
+          let(:default_dependencies) { { a: %i[a1], b: %i[a1 a2], c: %i[a1 a2], d: %i[a1] } }
 
           it "merges the dependencies of overlapping attributes" do
-            expect(subject).to eql(a: %i[a1], b: %i[a1 a2], c: %i[a1 a2], d: %i[a1])
+            expect(subject).to eql(default_dependencies)
+          end
+
+          shared_examples("dependencies cache") do
+            it "clears the cache and merges the dependencies" do
+              expect(testing_class).to receive(:attribute_names).twice.and_call_original
+
+              expect(testing_class.dependencies).to eql(default_dependencies)
+              expect(testing_class.dependencies).to eql(default_dependencies)
+              klass.send(:attribute, :a3, dependencies: %i[d e]) { true }
+              expect(testing_class.dependencies).to eql(default_dependencies.merge(d: %i[a1 a3], e: %i[a3]))
+            end
+          end
+
+          context "with new attribute added" do
+            let(:testing_class) { klass }
+            include_examples "dependencies cache"
+          end
+
+          context "on a subclass" do
+            let(:testing_class) { Class.new(klass) }
+
+            include_examples "dependencies cache"
           end
         end
       end
