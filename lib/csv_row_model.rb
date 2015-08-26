@@ -17,6 +17,7 @@ else
   require 'csv_row_model/concerns/deep_class_var'
 
   require 'csv_row_model/validators/validate_attributes'
+  require 'csv_row_model/validators/number_validator'
 
   require 'csv_row_model/model'
   require 'csv_row_model/model/single_model'
@@ -30,8 +31,6 @@ else
   require 'csv_row_model/export'
   require 'csv_row_model/export/csv'
   require 'csv_row_model/export/single_model'
-
-  require 'csv_row_model/validators/number_validator'
 end
 
 require 'csv_row_model/validators/default_change'

@@ -1,5 +1,5 @@
 require 'csv_row_model/import/attributes'
-require 'csv_row_model/import/presenter/concern'
+require 'csv_row_model/import/presenter'
 
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for importing csvs.
@@ -9,7 +9,6 @@ module CsvRowModel
     included do
       include Concerns::Inspect
       include Attributes
-      include Presenter::Concern
 
       attr_reader :attr_reader, :source_header, :source_row, :context, :index, :previous
 
@@ -40,6 +39,15 @@ module CsvRowModel
       @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
+    # Free `previous` from memory to avoid making a linked list
+    def free_previous
+      @previous = nil
+    end
+
+    # @return [Presenter] the presenter of self
+    def presenter
+      @presenter ||= self.class.presenter_class.new(self)
+    end
 
     # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model (values are from format_cell)
     def csv_string_model
@@ -72,11 +80,6 @@ module CsvRowModel
       end
     end
 
-    # Free `previous` from memory to avoid making a linked list
-    def free_previous
-      @previous = nil
-    end
-
     class_methods do
       INSPECT_INSTANCE_VARIABLES = %i[@mapped_row @initialized_at @parent @context @previous].freeze
       def inspect_instance_variables
@@ -92,6 +95,17 @@ module CsvRowModel
       def column(column_name, options={})
         super
         define_attribute_method(column_name)
+      end
+
+      # @return [Class] the Class of the Presenter
+      def presenter_class
+        @presenter_class ||= inherited_custom_class(:presenter_class, Presenter)
+      end
+
+      protected
+      # Call to define the presenter
+      def presenter(&block)
+        presenter_class.instance_eval &block
       end
     end
   end

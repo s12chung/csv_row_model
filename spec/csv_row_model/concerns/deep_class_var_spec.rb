@@ -16,6 +16,8 @@ class Parent < Grandparent
 end
 class ClassWithFamily < Parent; end
 
+class InheritedBaseClass; end
+
 describe CsvRowModel::Concerns::DeepClassVar do
   describe "class" do
     describe "::inherited_ancestors" do
@@ -23,6 +25,95 @@ describe CsvRowModel::Concerns::DeepClassVar do
 
       it "returns the inherited ancestors" do
         expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::DeepClassVar]
+      end
+    end
+
+    describe "::inherited_custom_class" do
+      let(:klass) { Parent }
+      subject { klass.send(:inherited_custom_class, :does_not_exist, InheritedBaseClass) }
+
+      it "gives a name" do
+        expect(subject.name).to eql "ParentInheritedBaseClass"
+      end
+
+      describe "::csv_string_model_class" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Model
+            def self.deep_class_module; CsvRowModel::Model end
+
+            csv_string_model { validates :string1, presence: true }
+          end
+        end
+
+        it "adds csv_string_model_class validations" do
+          expect(klass.csv_string_model_class.new(string1: "blah").valid?).to eql true
+          expect(klass.csv_string_model_class.new(string1: "").valid?).to eql false
+        end
+
+        context "with multiple subclasses" do
+          let(:klass2) { Class.new(klass) { csv_string_model { validates :string2, presence: true } } }
+          let(:klass3) { Class.new(klass2) { csv_string_model { validates :string3, presence: true } } }
+
+          it "adds propagates validations to subclasses" do
+            expect(klass2.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "blah").valid?).to eql true
+            expect(klass2.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "").valid?).to eql true
+            expect(klass2.csv_string_model_class.new(string1: "", string2: "1233", string3: "").valid?).to eql false
+
+            expect(klass3.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "blah").valid?).to eql true
+            expect(klass3.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "").valid?).to eql false
+            expect(klass3.csv_string_model_class.new(string1: "", string2: "1233", string3: "blah").valid?).to eql false
+          end
+        end
+      end
+
+      describe "::presenter_class" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Model
+            include CsvRowModel::Import
+            def self.name; "TestRowModel" end
+            def self.deep_class_module; CsvRowModel::Import end
+
+            presenter do
+              validates :attr2, presence: true
+              attribute(:attr1) { "blah" }
+              attribute(:attr2) { nil }
+            end
+          end
+        end
+
+        let(:row_model) { klass.new([""]) }
+        let(:instance) { klass.presenter_class.new(row_model) }
+
+        it "works" do
+          expect(instance.attr1).to eql "blah"
+          expect(instance.attr2).to eql nil
+
+          expect(instance.valid?).to eql false
+          expect(instance.errors.full_messages).to eql ["Attr2 can't be blank"]
+        end
+
+        context "with multiple subclasses" do
+          let(:klass2) { Class.new(klass) { presenter { attribute(:attr3) { "waka" } } } }
+          let(:instance2) { klass2.presenter_class.new(row_model) }
+          let(:klass3) { Class.new(klass2) { presenter { attribute(:attr2) { "override!" } } } }
+          let(:instance3) { klass3.presenter_class.new(row_model) }
+
+          it "just subclasses attributes fine" do
+            [instance2, instance3].each do |instance|
+              expect(instance.attr1).to eql "blah"
+              expect(instance.attr3).to eql "waka"
+            end
+
+            expect(instance2.attr2).to eql nil
+            expect(instance2.valid?).to eql false
+            expect(instance2.errors.full_messages).to eql ["Attr2 can't be blank"]
+
+            expect(instance3.attr2).to eql "override!"
+            expect(instance3.valid?).to eql true
+          end
+        end
       end
     end
 

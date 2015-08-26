@@ -4,8 +4,8 @@ describe CsvRowModel::Import do
   describe "instance" do
     let(:source_row) { %w[1.01 b] }
     let(:options) { {} }
-    let(:import_model_klass) { BasicImportModel }
-    let(:instance) { import_model_klass.new(source_row, options) }
+    let(:klass) { BasicImportModel }
+    let(:instance) { klass.new(source_row, options) }
 
     describe "#initialize" do
       subject { instance }
@@ -29,6 +29,34 @@ describe CsvRowModel::Import do
       end
     end
 
+    describe "#free_previous" do
+      let(:options) { { previous: klass.new([]) } }
+
+      subject { instance.free_previous }
+
+      it "makes previous nil" do
+        expect(instance.previous).to_not eql nil
+        subject
+        expect(instance.previous).to eql nil
+      end
+    end
+
+    describe "#presenter" do
+      let(:klass) do
+        Class.new(BasicImportModel) do
+          presenter do
+            attribute(:both_strings) { row_model.string1 + row_model.string2 }
+          end
+        end
+      end
+
+      subject { instance.presenter }
+
+      it "returns presenter with methods working" do
+        expect(subject.both_strings).to eql "1.01b"
+      end
+    end
+
     describe "#csv_string_model" do
       subject { instance.csv_string_model }
       it "returns csv_string_model with methods working" do
@@ -38,8 +66,8 @@ describe CsvRowModel::Import do
 
       context "with format_cell" do
         it "should format_cell first" do
-          expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return(nil)
-          expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil)
+          expect(klass).to receive(:format_cell).with("1.01", :string1, 0).and_return(nil)
+          expect(klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil)
           expect(subject.string1).to eql nil
           expect(subject.string2).to eql nil
         end
@@ -48,7 +76,7 @@ describe CsvRowModel::Import do
 
     describe "#valid?" do
       subject { instance.valid? }
-      let(:import_model_klass) { ImportModelWithValidations }
+      let(:klass) { ImportModelWithValidations }
 
       it "works" do
         expect(subject).to eql true
@@ -62,8 +90,8 @@ describe CsvRowModel::Import do
         end
       end
 
-      describe "csv_string_model" do
-        let(:import_model_klass) do
+      describe "with custom class" do
+        let(:klass) do
           Class.new do
             include CsvRowModel::Model
             include CsvRowModel::Import
@@ -78,7 +106,7 @@ describe CsvRowModel::Import do
           let(:source_row) { ["1", ""]}
 
           before do
-            import_model_klass.instance_eval do
+            klass.instance_eval do
               column :name, default: "the default!"
               csv_string_model do
                 validates :name, presence: true
@@ -94,7 +122,7 @@ describe CsvRowModel::Import do
 
         context "overriding validations" do
           before do
-            import_model_klass.instance_eval do
+            klass.instance_eval do
               validates :id, length: { minimum: 5 }
               csv_string_model do
                 validates :id, presence: true
@@ -136,7 +164,7 @@ describe CsvRowModel::Import do
 
         context "with warnings" do
           before do
-            import_model_klass.instance_eval do
+            klass.instance_eval do
               warnings do
                 validates :id, length: { minimum: 5 }
               end
@@ -158,18 +186,6 @@ describe CsvRowModel::Import do
             end
           end
         end
-      end
-    end
-
-    describe "#free_previous" do
-      let(:options) { { previous: import_model_klass.new([]) } }
-
-      subject { instance.free_previous }
-
-      it "makes previous nil" do
-        expect(instance.previous).to_not eql nil
-        subject
-        expect(instance.previous).to eql nil
       end
     end
   end
