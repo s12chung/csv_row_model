@@ -13,13 +13,6 @@ class BasicImportModel < BasicModel
   protected
   def protected_method; end
 end
-class BasicImportMapper
-  include CsvRowModel::Import::Mapper
-
-  maps_to BasicImportModel
-
-  def string2; "mapper" end
-end
 
 
 class ChildImportModel < BasicImportModel
@@ -28,23 +21,13 @@ end
 class ParentImportModel < BasicImportModel
   has_many :children, ChildImportModel
 end
-class ParentImportMapper
-  include CsvRowModel::Import::Mapper
-
-  maps_to ParentImportModel
-end
-
 
 class ImportModelWithValidations < BasicModel
   include CsvRowModel::Import
 
   validates :string1, presence: true
 end
-class DependentImportMapper
-  include CsvRowModel::Import::Mapper
-
-  maps_to ImportModelWithValidations
-
+class PresenterWithValidations < CsvRowModel::Import::Presenter
   validates :attribute1, :string2, presence: true
 
   attribute :attribute1, dependencies: %i[string1 string2] do

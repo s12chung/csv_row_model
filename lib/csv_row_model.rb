@@ -25,7 +25,6 @@ else
   require 'csv_row_model/import/single_model'
   require 'csv_row_model/import/csv'
   require 'csv_row_model/import/file'
-  require 'csv_row_model/import/mapper'
 
 
   require 'csv_row_model/export'

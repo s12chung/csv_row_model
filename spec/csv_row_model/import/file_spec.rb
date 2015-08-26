@@ -51,29 +51,19 @@ describe CsvRowModel::Import::File do
       let(:file_path) { parent_5_rows_path }
       let(:model_class) { ParentImportModel }
 
-      shared_examples("with children") do
-        it "gets the rows until the end of file" do
-          (0..1).each do |index|
-            row_model = instance.next
-            expect(row_model.class).to eql model_class
-            expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
+      it "gets the rows until the end of file" do
+        (0..1).each do |index|
+          row_model = instance.next
+          expect(row_model.class).to eql model_class
+          expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
 
-            children = row_model.children
-            expect(children.map(&:source_row)).to eql children.map.with_index {|c, index| [nil, "seconds#{index}"]  }
-          end
-          3.times do
-            expect(instance.next).to eql nil
-            expect(instance.end_of_file?).to eql true
-          end
+          children = row_model.children
+          expect(children.map(&:source_row)).to eql children.map.with_index {|c, index| [nil, "seconds#{index}"]  }
         end
-      end
-
-      include_examples "with children"
-
-      context "with mapper" do
-        let(:model_class) { ParentImportMapper }
-
-        include_examples "with children"
+        3.times do
+          expect(instance.next).to eql nil
+          expect(instance.end_of_file?).to eql true
+        end
       end
     end
   end

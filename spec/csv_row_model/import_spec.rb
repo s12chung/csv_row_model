@@ -62,7 +62,7 @@ describe CsvRowModel::Import do
         end
       end
 
-      context "with custom class" do
+      describe "csv_string_model" do
         let(:import_model_klass) do
           Class.new do
             include CsvRowModel::Model
@@ -80,7 +80,6 @@ describe CsvRowModel::Import do
           before do
             import_model_klass.instance_eval do
               column :name, default: "the default!"
-
               csv_string_model do
                 validates :name, presence: true
               end
@@ -118,21 +117,19 @@ describe CsvRowModel::Import do
           end
 
           context "with errors has a key with empty value" do
-            context "with errors has a key with empty value" do
-              before do
-                expect(instance.csv_string_model).to receive(:valid?).at_least(1).times.and_wrap_original do |original, *args|
-                  result = original.call(*args)
-                  # this makes instance.csv_string_model.errors.messages = { id: [] }
-                  instance.csv_string_model.errors[:id]
-                  result
-                end
+            before do
+              expect(instance.csv_string_model).to receive(:valid?).at_least(1).times.and_wrap_original do |original, *args|
+                result = original.call(*args)
+                # this makes instance.csv_string_model.errors.messages = { id: [] }
+                instance.csv_string_model.errors[:id]
+                result
               end
+            end
 
-              it "still shows the non-string validation" do
-                expect(subject).to eql false
-                expect(instance.csv_string_model.errors.messages).to eql(id: [])
-                expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
-              end
+            it "still shows the non-string validation" do
+              expect(subject).to eql false
+              expect(instance.csv_string_model.errors.messages).to eql(id: [])
+              expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
             end
           end
         end

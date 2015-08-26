@@ -14,17 +14,7 @@ module CsvRowModel
         class << self
           # @return [Class] the Class with validations of the csv_string_model
           def csv_string_model_class
-            @csv_string_model_class ||= begin
-              parent_class = inherited_ancestors[1..-1].find do |klass|
-                klass.respond_to?(:csv_string_model_class)
-              end.try(:csv_string_model_class)
-              parent_class ||= CsvStringModel
-
-              klass = Class.new(parent_class)
-              # how else can i get the current scopes name...
-              klass.send(:define_singleton_method, :name, &eval("-> { \"#{name}CsvStringModel\" }"))
-              klass
-            end
+            @csv_string_model_class ||= inherited_custom_class(:csv_string_model_class, CsvStringModel)
           end
 
           protected

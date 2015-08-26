@@ -1,4 +1,5 @@
 require 'csv_row_model/import/attributes'
+require 'csv_row_model/import/presenter/concern'
 
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for importing csvs.
@@ -8,6 +9,7 @@ module CsvRowModel
     included do
       include Concerns::Inspect
       include Attributes
+      include Presenter::Concern
 
       attr_reader :attr_reader, :source_header, :source_row, :context, :index, :previous
 
@@ -73,11 +75,6 @@ module CsvRowModel
     # Free `previous` from memory to avoid making a linked list
     def free_previous
       @previous = nil
-    end
-
-    # @return [Import] self, the row_model, as compared to {Mapper}
-    def row_model
-      self
     end
 
     class_methods do
