@@ -2,6 +2,7 @@ module CsvRowModel
   module Import
     class Presenter
       include Concerns::DeepClassVar
+      include Concerns::Inspect
       include ActiveWarnings
 
       attr_reader :row_model
@@ -99,6 +100,10 @@ module CsvRowModel
         end
 
         protected
+        def inspect_methods
+          @inspect_methods ||= %i[row_model].freeze
+        end
+
         def merge_attribute(attribute_hash)
           @_mapper_attributes ||= {}
           clear_deep_class_cache(:@_mapper_attributes)

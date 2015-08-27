@@ -95,11 +95,6 @@ module CsvRowModel
     end
 
     class_methods do
-      INSPECT_INSTANCE_VARIABLES = %i[@mapped_row @initialized_at @parent @context @previous].freeze
-      def inspect_instance_variables
-        INSPECT_INSTANCE_VARIABLES
-      end
-
       # by default import model is a collection model
       def type
         :collection_model
@@ -117,6 +112,10 @@ module CsvRowModel
       end
 
       protected
+      def inspect_methods
+        @inspect_methods ||= %i[mapped_row initialized_at parent context previous].freeze
+      end
+
       # Call to define the presenter
       def presenter(&block)
         presenter_class.instance_eval &block
