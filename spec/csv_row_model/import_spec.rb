@@ -35,9 +35,11 @@ describe CsvRowModel::Import do
       subject { instance.free_previous }
 
       it "makes previous nil" do
-        expect(instance.previous).to_not eql nil
-        subject
-        expect(instance.previous).to eql nil
+        expect {
+          subject
+        }.to change {
+          instance.previous
+        }.to(nil)
       end
     end
 
