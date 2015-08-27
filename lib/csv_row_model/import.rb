@@ -118,7 +118,7 @@ module CsvRowModel
 
       # Call to define the presenter
       def presenter(&block)
-        presenter_class.instance_eval &block
+        presenter_class.class_eval &block
       end
     end
   end

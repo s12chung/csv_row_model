@@ -57,7 +57,7 @@ module CsvRowModel
       protected
       # Called to add validations to the csv_string_model_class
       def csv_string_model(&block)
-        csv_string_model_class.instance_eval &block
+        csv_string_model_class.class_eval &block
       end
 
       def deep_class_module

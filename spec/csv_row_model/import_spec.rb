@@ -75,6 +75,7 @@ describe CsvRowModel::Import do
         Class.new(BasicImportModel) do
           presenter do
             attribute(:both_strings) { row_model.string1 + row_model.string2 }
+            def test_method; "work!" end
           end
         end
       end
@@ -83,6 +84,10 @@ describe CsvRowModel::Import do
 
       it "returns presenter with methods working" do
         expect(subject.both_strings).to eql "1.01b"
+      end
+
+      it "can define methods" do
+        expect(subject.test_method).to eql "work!"
       end
     end
 
@@ -135,7 +140,7 @@ describe CsvRowModel::Import do
           let(:source_row) { ["1", ""]}
 
           before do
-            klass.instance_eval do
+            klass.class_eval do
               column :name, default: "the default!"
               csv_string_model do
                 validates :name, presence: true
@@ -151,7 +156,7 @@ describe CsvRowModel::Import do
 
         context "overriding validations" do
           before do
-            klass.instance_eval do
+            klass.class_eval do
               validates :id, length: { minimum: 5 }
               csv_string_model do
                 validates :id, presence: true
@@ -193,7 +198,7 @@ describe CsvRowModel::Import do
 
         context "with warnings" do
           before do
-            klass.instance_eval do
+            klass.class_eval do
               warnings do
                 validates :id, length: { minimum: 5 }
               end
