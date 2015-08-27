@@ -7,7 +7,7 @@ module CsvRowModel
 
       attr_reader :row_model
 
-      delegate :context, to: :row_model
+      delegate :context, :previous, to: :row_model
 
       def initialize(row_model)
         @row_model = row_model
