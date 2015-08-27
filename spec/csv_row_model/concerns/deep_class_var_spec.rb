@@ -47,8 +47,8 @@ describe CsvRowModel::Concerns::DeepClassVar do
         end
 
         it "adds csv_string_model_class validations" do
-          expect(klass.csv_string_model_class.new(string1: "blah").valid?).to eql true
-          expect(klass.csv_string_model_class.new(string1: "").valid?).to eql false
+          expect(klass.csv_string_model_class.new(string1: "blah")).to be_valid
+          expect(klass.csv_string_model_class.new(string1: "")).to_not be_valid
         end
 
         context "with multiple subclasses" do
@@ -56,13 +56,13 @@ describe CsvRowModel::Concerns::DeepClassVar do
           let(:klass3) { Class.new(klass2) { csv_string_model { validates :string3, presence: true } } }
 
           it "adds propagates validations to subclasses" do
-            expect(klass2.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "blah").valid?).to eql true
-            expect(klass2.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "").valid?).to eql true
-            expect(klass2.csv_string_model_class.new(string1: "", string2: "1233", string3: "").valid?).to eql false
+            expect(klass2.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "blah")).to be_valid
+            expect(klass2.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "")).to be_valid
+            expect(klass2.csv_string_model_class.new(string1: "", string2: "1233", string3: "")).to_not be_valid
 
-            expect(klass3.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "blah").valid?).to eql true
-            expect(klass3.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "").valid?).to eql false
-            expect(klass3.csv_string_model_class.new(string1: "", string2: "1233", string3: "blah").valid?).to eql false
+            expect(klass3.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "blah")).to be_valid
+            expect(klass3.csv_string_model_class.new(string1: "blah", string2: "1233", string3: "")).to_not be_valid
+            expect(klass3.csv_string_model_class.new(string1: "", string2: "1233", string3: "blah")).to_not be_valid
           end
         end
       end
@@ -90,7 +90,7 @@ describe CsvRowModel::Concerns::DeepClassVar do
           expect(instance.attr1).to eql "blah"
           expect(instance.attr2).to eql nil
 
-          expect(instance.valid?).to eql false
+          expect(instance).to_not be_valid
           expect(instance.errors.full_messages).to eql ["Attr2 can't be blank"]
         end
 
@@ -107,11 +107,11 @@ describe CsvRowModel::Concerns::DeepClassVar do
             end
 
             expect(instance2.attr2).to eql nil
-            expect(instance2.valid?).to eql false
+            expect(instance2).to_not be_valid
             expect(instance2.errors.full_messages).to eql ["Attr2 can't be blank"]
 
             expect(instance3.attr2).to eql "override!"
-            expect(instance3.valid?).to eql true
+            expect(instance3).to be_valid
           end
         end
       end
