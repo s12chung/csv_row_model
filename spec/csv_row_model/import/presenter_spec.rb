@@ -8,6 +8,11 @@ describe CsvRowModel::Import::Presenter do
     let(:instance) { klass.new(row_model_class.new(source_row)) }
     let(:source_row) { ["no_errors", "no_errors"]  }
 
+    describe "#inspect" do
+      subject { instance.inspect }
+      it("works") { subject }
+    end
+
     describe "attribute_methods" do
       subject { instance.attribute1 }
 

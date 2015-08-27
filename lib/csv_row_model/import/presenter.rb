@@ -10,6 +10,14 @@ module CsvRowModel
         @row_model = row_model
       end
 
+      def skip?
+        !valid?
+      end
+
+      def abort?
+        false
+      end
+
       def valid?(*args)
         super
         filter_errors

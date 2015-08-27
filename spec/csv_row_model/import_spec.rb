@@ -17,6 +17,33 @@ describe CsvRowModel::Import do
       end
     end
 
+    describe "#skip?" do
+      subject { instance.skip? }
+
+      it "is false when valid" do
+        expect(subject).to eql false
+      end
+
+      it "is true when invalid" do
+        expect(instance).to receive(:valid?).and_return(false)
+        expect(subject).to eql true
+      end
+
+      it "is true when presenter is invalid?" do
+        expect(instance.presenter).to receive(:valid?).and_return(false)
+        expect(subject).to eql true
+      end
+    end
+
+    describe "#abort?" do
+      subject { instance.skip? }
+
+      it "is true when presenter is skip? is true" do
+        expect(instance.presenter).to receive(:skip?).and_return(true)
+        expect(subject).to eql true
+      end
+    end
+
     describe "#inspect" do
       subject { instance.inspect }
       it("works") { subject }

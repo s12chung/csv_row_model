@@ -64,6 +64,20 @@ module CsvRowModel
       end
     end
 
+    # Safe to override.
+    #
+    # @return [Boolean] returns true, if this instance should be skipped
+    def skip?
+      !valid? || presenter.skip?
+    end
+
+    # Safe to override.
+    #
+    # @return [Boolean] returns true, if the entire csv file should stop reading
+    def abort?
+      presenter.abort?
+    end
+
     def valid?(*args)
       super
 
