@@ -17,7 +17,6 @@ else
   require 'csv_row_model/concerns/deep_class_var'
 
   require 'csv_row_model/validators/validate_attributes'
-  require 'csv_row_model/validators/number_validator'
 
   require 'csv_row_model/model'
   require 'csv_row_model/model/single_model'
@@ -35,6 +34,7 @@ end
 
 require 'csv_row_model/validators/default_change'
 
+require 'csv_row_model/validators/number_validator'
 require 'csv_row_model/validators/boolean_format'
 require 'csv_row_model/validators/date_format'
 require 'csv_row_model/validators/float_format'
