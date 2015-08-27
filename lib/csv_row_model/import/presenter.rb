@@ -7,16 +7,22 @@ module CsvRowModel
 
       attr_reader :row_model
 
-      delegate :context, :previous, to: :row_model
+      delegate :context, to: :row_model
 
       def initialize(row_model)
         @row_model = row_model
       end
 
+      # Safe to override.
+      #
+      # @return [Boolean] returns true, if this instance should be skipped
       def skip?
         !valid?
       end
 
+      # Safe to override.
+      #
+      # @return [Boolean] returns true, if the entire csv file should stop reading
       def abort?
         false
       end
@@ -25,6 +31,11 @@ module CsvRowModel
         super
         filter_errors
         errors.empty?
+      end
+
+      # @return [Presenter] returns the presenter of the previous row_model
+      def previous
+        row_model.previous.try(:presenter)
       end
 
       protected
