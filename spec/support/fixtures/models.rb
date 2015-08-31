@@ -53,7 +53,7 @@ end
 
 class BasicRowModel
   include CsvRowModel::Model
-  include CsvRowModel::Model::SingleModel
+  include CsvRowModel::Model::FileModel
 
   row :string1
   row :string2, header_matchs: ['String 2', 'string two']
@@ -62,10 +62,10 @@ end
 
 class BasicRowImportModel < BasicRowModel
   include CsvRowModel::Import
-  include CsvRowModel::Import::SingleModel
+  include CsvRowModel::Import::FileModel
 end
 
 class BasicRowExportModel < BasicRowModel
   include CsvRowModel::Export
-  include CsvRowModel::Export::SingleModel
+  include CsvRowModel::Export::FileModel
 end

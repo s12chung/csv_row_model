@@ -33,7 +33,6 @@ describe CsvRowModel::Import::File do
         expect(row_model.class).to eql model_class
 
         expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
-        expect(row_model.source_header).to eql %w[string1 string2]
 
         expect(row_model.previous.try(:source_row)).to eql previous_row_model.try(:source_row)
         # + 1 due to header
@@ -60,6 +59,19 @@ describe CsvRowModel::Import::File do
           children = row_model.children
           expect(children.map(&:source_row)).to eql children.map.with_index {|c, index| [nil, "seconds#{index}"]  }
         end
+        3.times do
+          expect(instance.next).to eql nil
+          expect(instance.end_of_file?).to eql true
+        end
+      end
+    end
+
+    context "single_model" do
+      let(:file_path) { basic_1_model_path }
+      let(:instance) { described_class.new file_path, BasicRowImportModel }
+
+      it "works" do
+        expect(subject.source_row).to eql(['value 1', 'value 2'])
         3.times do
           expect(instance.next).to eql nil
           expect(instance.end_of_file?).to eql true
@@ -93,11 +105,13 @@ describe CsvRowModel::Import::File do
   end
 
   describe "#each" do
+    subject { instance.each }
+
     context "with abort" do
       before { instance.define_singleton_method(:abort?) { true } }
       it "never yields and call callbacks" do
         expect(instance).to receive(:run_callbacks).with(:abort).once
-        expect { |b| instance.each(&b) }.to_not yield_control.once
+        expect { subject.next }.to raise_error(StopIteration)
       end
     end
 
@@ -114,7 +128,9 @@ describe CsvRowModel::Import::File do
         allow(instance).to receive(:run_callbacks).with(anything).and_call_original
         expect(instance).to receive(:run_callbacks).with(:abort).and_call_original.once
 
-        expect { |b| instance.each(&b) }.to yield_control.twice
+        subject.next
+        subject.next
+        expect { subject.next }.to raise_error(StopIteration)
       end
     end
 
@@ -131,37 +147,11 @@ describe CsvRowModel::Import::File do
         allow(instance).to receive(:run_callbacks).with(anything).and_call_original
         expect(instance).to receive(:run_callbacks).with(:skip).and_call_original.twice
 
-        expect { |b| instance.each(&b) }.to yield_control.exactly(3).times
+        subject.next
+        subject.next
+        subject.next
+        expect { subject.next }.to raise_error(StopIteration)
       end
-    end
-  end
-
-  context "colection model" do
-    let(:file_path) { basic_1_row_path }
-
-    subject do
-      described_class.new file_path, BasicImportModel
-    end
-
-    specify do
-      enum = subject.each
-      first_line = enum.next
-      expect(first_line.source_header).to eql(['string1', 'string2'])
-      expect(first_line.source_row).to eql(['lang1', 'lang2'])
-    end
-  end
-
-  context "single model" do
-    let(:file_path) { basic_1_model_path }
-
-    subject do
-      described_class.new file_path, BasicRowImportModel
-    end
-
-    specify do
-      enum = subject.each
-      model = enum.next
-      expect(model.source_row).to eql(['value 1', 'value 2'])
     end
   end
 end

@@ -3,16 +3,10 @@ module CsvRowModel
   # represents just one model.
   # It needs CsvRowModel::Import
   module Import
-    module SingleModel
+    module FileModel
       extend ActiveSupport::Concern
 
       class_methods do
-
-        # @return [Symbol] returns type of import
-        def type
-          :single_model
-        end
-
         # Safe to override
         #
         # @param cell [String] the cell's string
@@ -32,6 +26,25 @@ module CsvRowModel
               Regexp.new(matchers.join('|'),Regexp::IGNORECASE)
             end
           end
+        end
+
+        def next(csv, context={}, previous=nil)
+          return csv.read_row unless csv.next_row
+
+          source_row = Array.new(header_matchers.size)
+
+          while csv.next_row
+            current_row = csv.read_row
+            current_row.each_with_index do |cell, position|
+              next if cell.blank?
+              index = index_header_match(cell)
+              next unless index
+              source_row[index] = current_row[position + 1]
+              break
+            end
+          end
+
+          new(source_row, context: context, previous: previous)
         end
       end
     end

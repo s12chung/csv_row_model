@@ -37,6 +37,12 @@ module CsvRowModel
           column_names.index column_name
         end
 
+        # @param [Symbol] column_name name of column to check
+        # @return [Boolean] true if it's a column name
+        def is_column_name? column_name
+          column_name.is_a?(Symbol) && index(column_name)
+        end
+
         protected
 
         def merge_columns(column_hash)
