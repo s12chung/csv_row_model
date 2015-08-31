@@ -297,7 +297,8 @@ end
 Within `#each`, **Skips** and **Aborts** will be done via the `skip?` or `abort?` method on the row model,
 allowing the following callbacks:
 
-* yield - `before`, `around`, or `after` the iteration yield
+* yield - `before`, `around`, or `after` the iteration yield (skips)
+* next - `before`, `around`, or `after` the each change in `current_row_model` (does not skip)
 * skip - `before`
 * abort - `before`
 

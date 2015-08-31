@@ -43,11 +43,13 @@ module CsvRowModel
       def next(context={})
         return if end_of_file?
 
-        @previous_row_model = current_row_model
-        @current_row_model = row_model_class.next(csv, context, previous_row_model)
-        @index += 1
-        @current_row_model = @index = nil if end_of_file?
-
+        run_callbacks :next do
+          @previous_row_model = current_row_model
+          @current_row_model = row_model_class.next(csv, context, previous_row_model)
+          @index += 1
+          @current_row_model = @index = nil if end_of_file?
+        end
+        
         current_row_model
       end
 
