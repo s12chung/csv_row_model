@@ -19,6 +19,27 @@ module CsvRowModel
           included_model_index == 0 ? [included_module] : ancestors[0..(included_model_index - 1)]
         end
 
+        # @param accessor_method_name [Symbol] method to access the inherited_custom_class
+        # @param base_parent_class [Class] class that the custom class inherits from if there's no parent
+        # @return [Class] a custom class with the inheritance following self. for example:
+        #
+        # grandparent -> parent -> self
+        #
+        # grandparent has inherited_custom_class, but parent, doesn't.
+        #
+        # then: base_parent_class -> grandparent::inherited_custom_class -> self::inherited_custom_class
+        def inherited_custom_class(accessor_method_name, base_parent_class)
+          parent_class = inherited_ancestors[1..-1].find do |klass|
+            klass.respond_to?(accessor_method_name)
+          end.try(accessor_method_name)
+          parent_class ||= base_parent_class
+
+          klass = Class.new(parent_class)
+          # how else can i get the current scopes name...
+          klass.send(:define_singleton_method, :name, &eval("-> { \"#{name}#{base_parent_class.name.demodulize}\" }"))
+          klass
+        end
+
         # @param variable_name [Symbol] class variable name (recommend :@_variable_name)
         # @param default_value [Object] default value of the class variable
         # @param merge_method [Symbol] method to merge values of the class variable

@@ -1,6 +1,7 @@
+require 'csv_row_model/model/csv_string_model'
+
 require 'csv_row_model/model/columns'
 require 'csv_row_model/model/children'
-require 'csv_row_model/model/validations'
 
 module CsvRowModel
   # Base module for representing a RowModel---a model that represents row(s).
@@ -9,9 +10,12 @@ module CsvRowModel
 
     included do
       include Concerns::DeepClassVar
+
+      include ActiveWarnings
+      include Validators::ValidateAttributes
+
       include Columns
       include Children
-      include Validations
 
       # @return [Model] return the parent, if this instance is a child
       attr_reader :parent
@@ -45,7 +49,17 @@ module CsvRowModel
     end
 
     class_methods do
+      # @return [Class] the Class with validations of the csv_string_model
+      def csv_string_model_class
+        @csv_string_model_class ||= inherited_custom_class(:csv_string_model_class, CsvStringModel)
+      end
+
       protected
+      # Called to add validations to the csv_string_model_class
+      def csv_string_model(&block)
+        csv_string_model_class.class_eval &block
+      end
+
       def deep_class_module
         Model
       end

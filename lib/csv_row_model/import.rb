@@ -1,4 +1,5 @@
 require 'csv_row_model/import/attributes'
+require 'csv_row_model/import/presenter'
 
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for importing csvs.
@@ -38,6 +39,15 @@ module CsvRowModel
       @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
+    # Free `previous` from memory to avoid making a linked list
+    def free_previous
+      @previous = nil
+    end
+
+    # @return [Presenter] the presenter of self
+    def presenter
+      @presenter ||= self.class.presenter_class.new(self)
+    end
 
     # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model (values are from format_cell)
     def csv_string_model
@@ -52,6 +62,20 @@ module CsvRowModel
         end
         self.class.csv_string_model_class.new(hash)
       end
+    end
+
+    # Safe to override.
+    #
+    # @return [Boolean] returns true, if this instance should be skipped
+    def skip?
+      !valid? || presenter.skip?
+    end
+
+    # Safe to override.
+    #
+    # @return [Boolean] returns true, if the entire csv file should stop reading
+    def abort?
+      presenter.abort?
     end
 
     def valid?(*args)
@@ -70,22 +94,7 @@ module CsvRowModel
       end
     end
 
-    # Free `previous` from memory to avoid making a linked list
-    def free_previous
-      @previous = nil
-    end
-
-    # @return [Import] self, the row_model, as compared to {Mapper}
-    def row_model
-      self
-    end
-
     class_methods do
-      INSPECT_INSTANCE_VARIABLES = %i[@mapped_row @initialized_at @parent @context @previous].freeze
-      def inspect_instance_variables
-        INSPECT_INSTANCE_VARIABLES
-      end
-
       # by default import model is a collection model
       def type
         :collection_model
@@ -95,6 +104,21 @@ module CsvRowModel
       def column(column_name, options={})
         super
         define_attribute_method(column_name)
+      end
+
+      # @return [Class] the Class of the Presenter
+      def presenter_class
+        @presenter_class ||= inherited_custom_class(:presenter_class, Presenter)
+      end
+
+      protected
+      def inspect_methods
+        @inspect_methods ||= %i[mapped_row initialized_at parent context previous].freeze
+      end
+
+      # Call to define the presenter
+      def presenter(&block)
+        presenter_class.class_eval &block
       end
     end
   end

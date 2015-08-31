@@ -1,10 +1,17 @@
 require 'spec_helper'
 
-describe CsvRowModel::Import::Mapper::Attributes do
+describe CsvRowModel::Import::Presenter do
   describe "instance" do
-    let(:klass) { DependentImportMapper }
-    let(:instance) { klass.new source_row }
-    let (:source_row) { ["no_errors", "no_errors"]  }
+    let(:row_model_class) { ImportModelWithValidations }
+    let(:klass) { PresenterWithValidations }
+
+    let(:instance) { klass.new(row_model_class.new(source_row)) }
+    let(:source_row) { ["no_errors", "no_errors"]  }
+
+    describe "#inspect" do
+      subject { instance.inspect }
+      it("works") { subject }
+    end
 
     describe "attribute_methods" do
       subject { instance.attribute1 }
@@ -16,10 +23,7 @@ describe CsvRowModel::Import::Mapper::Attributes do
 
       context "when calling next" do
         let(:klass) do
-          Class.new do
-            include CsvRowModel::Import::Mapper
-            maps_to ImportModelWithValidations
-
+          Class.new(CsvRowModel::Import::Presenter) do
             attribute(:attribute1) { attribute2; attribute2; next; "never" }
             attribute(:attribute2) { next; "never touch" }
           end
@@ -34,10 +38,7 @@ describe CsvRowModel::Import::Mapper::Attributes do
 
       context "when calling return" do
         let(:klass) do
-          Class.new do
-            include CsvRowModel::Import::Mapper
-            maps_to ImportModelWithValidations
-
+          Class.new(CsvRowModel::Import::Presenter) do
             attribute(:attribute1) { attribute2; attribute2; return; "never" }
             attribute(:attribute2) { return; "never touch" }
           end
@@ -60,6 +61,20 @@ describe CsvRowModel::Import::Mapper::Attributes do
       end
     end
 
+    describe "#valid?" do
+      subject { instance.valid? }
+
+      it "calls #filter_errors" do
+        expect(instance).to receive(:filter_errors)
+        subject
+      end
+
+      it "calls #filter_errors when calling #safe?" do
+        expect(instance.row_model).to receive(:using_warnings).and_call_original
+        instance.safe?
+      end
+    end
+
     describe "#filter_errors" do
       subject { instance.send :filter_errors }
       before do
@@ -67,7 +82,7 @@ describe CsvRowModel::Import::Mapper::Attributes do
         instance.errors.add(:string2)
       end
 
-      it "only has mapper errors" do
+      it "only has presenter errors" do
         subject
         expect(instance.errors.keys).to eql [:attribute1, :string2]
       end
@@ -100,13 +115,7 @@ describe CsvRowModel::Import::Mapper::Attributes do
     end
 
     describe "#memoize" do
-      let(:klass) do
-        Class.new do
-          include CsvRowModel::Import::Mapper::Attributes
-        end
-      end
-
-      let(:instance) { klass.new }
+      let(:klass) { Class.new(CsvRowModel::Import::Presenter) }
       subject { instance.send(:memoize, "test") { Random.rand } }
 
       it "memoizes the result" do
@@ -121,10 +130,7 @@ describe CsvRowModel::Import::Mapper::Attributes do
           subject { klass.dependencies }
 
           let(:klass) do
-            Class.new do
-              include CsvRowModel::Import::Mapper
-              maps_to ImportModelWithValidations
-
+            Class.new(CsvRowModel::Import::Presenter) do
               attribute(:a1, dependencies: %i[a b c d]) { true }
               attribute(:a2, dependencies: %i[b c]) { true }
             end
@@ -160,12 +166,7 @@ describe CsvRowModel::Import::Mapper::Attributes do
       end
 
       describe "::attribute" do
-        let(:klass) do
-          Class.new do
-            include CsvRowModel::Import::Mapper::Attributes
-            def self.deep_class_module; CsvRowModel::Import::Mapper::Attributes end
-          end
-        end
+        let(:klass) { Class.new(CsvRowModel::Import::Presenter) }
         subject { klass.send(:attribute, :attribute_name, options) { true } }
         let(:options) { { dependencies: [], memoize: false } }
 

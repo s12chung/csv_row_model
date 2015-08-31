@@ -4,8 +4,8 @@ describe CsvRowModel::Import do
   describe "instance" do
     let(:source_row) { %w[1.01 b] }
     let(:options) { {} }
-    let(:import_model_klass) { BasicImportModel }
-    let(:instance) { import_model_klass.new(source_row, options) }
+    let(:klass) { BasicImportModel }
+    let(:instance) { klass.new(source_row, options) }
 
     describe "#initialize" do
       subject { instance }
@@ -14,6 +14,33 @@ describe CsvRowModel::Import do
         let(:parent_instance) { BasicModel.new }
         let(:options) { { parent:  parent_instance } }
         specify { expect(subject.child?).to eql true }
+      end
+    end
+
+    describe "#skip?" do
+      subject { instance.skip? }
+
+      it "is false when valid" do
+        expect(subject).to eql false
+      end
+
+      it "is true when invalid" do
+        expect(instance).to receive(:valid?).and_return(false)
+        expect(subject).to eql true
+      end
+
+      it "is true when presenter is invalid?" do
+        expect(instance.presenter).to receive(:valid?).and_return(false)
+        expect(subject).to eql true
+      end
+    end
+
+    describe "#abort?" do
+      subject { instance.skip? }
+
+      it "is true when presenter is skip? is true" do
+        expect(instance.presenter).to receive(:skip?).and_return(true)
+        expect(subject).to eql true
       end
     end
 
@@ -29,6 +56,41 @@ describe CsvRowModel::Import do
       end
     end
 
+    describe "#free_previous" do
+      let(:options) { { previous: klass.new([]) } }
+
+      subject { instance.free_previous }
+
+      it "makes previous nil" do
+        expect {
+          subject
+        }.to change {
+          instance.previous
+        }.to(nil)
+      end
+    end
+
+    describe "#presenter" do
+      let(:klass) do
+        Class.new(BasicImportModel) do
+          presenter do
+            attribute(:both_strings) { row_model.string1 + row_model.string2 }
+            def test_method; "work!" end
+          end
+        end
+      end
+
+      subject { instance.presenter }
+
+      it "returns presenter with methods working" do
+        expect(subject.both_strings).to eql "1.01b"
+      end
+
+      it "can define methods" do
+        expect(subject.test_method).to eql "work!"
+      end
+    end
+
     describe "#csv_string_model" do
       subject { instance.csv_string_model }
       it "returns csv_string_model with methods working" do
@@ -38,8 +100,8 @@ describe CsvRowModel::Import do
 
       context "with format_cell" do
         it "should format_cell first" do
-          expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return(nil)
-          expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil)
+          expect(klass).to receive(:format_cell).with("1.01", :string1, 0).and_return(nil)
+          expect(klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil)
           expect(subject.string1).to eql nil
           expect(subject.string2).to eql nil
         end
@@ -48,7 +110,7 @@ describe CsvRowModel::Import do
 
     describe "#valid?" do
       subject { instance.valid? }
-      let(:import_model_klass) { ImportModelWithValidations }
+      let(:klass) { ImportModelWithValidations }
 
       it "works" do
         expect(subject).to eql true
@@ -62,8 +124,8 @@ describe CsvRowModel::Import do
         end
       end
 
-      context "with custom class" do
-        let(:import_model_klass) do
+      describe "with custom class" do
+        let(:klass) do
           Class.new do
             include CsvRowModel::Model
             include CsvRowModel::Import
@@ -78,9 +140,8 @@ describe CsvRowModel::Import do
           let(:source_row) { ["1", ""]}
 
           before do
-            import_model_klass.instance_eval do
+            klass.class_eval do
               column :name, default: "the default!"
-
               csv_string_model do
                 validates :name, presence: true
               end
@@ -95,7 +156,7 @@ describe CsvRowModel::Import do
 
         context "overriding validations" do
           before do
-            import_model_klass.instance_eval do
+            klass.class_eval do
               validates :id, length: { minimum: 5 }
               csv_string_model do
                 validates :id, presence: true
@@ -118,28 +179,26 @@ describe CsvRowModel::Import do
           end
 
           context "with errors has a key with empty value" do
-            context "with errors has a key with empty value" do
-              before do
-                expect(instance.csv_string_model).to receive(:valid?).at_least(1).times.and_wrap_original do |original, *args|
-                  result = original.call(*args)
-                  # this makes instance.csv_string_model.errors.messages = { id: [] }
-                  instance.csv_string_model.errors[:id]
-                  result
-                end
+            before do
+              expect(instance.csv_string_model).to receive(:valid?).at_least(1).times.and_wrap_original do |original, *args|
+                result = original.call(*args)
+                # this makes instance.csv_string_model.errors.messages = { id: [] }
+                instance.csv_string_model.errors[:id]
+                result
               end
+            end
 
-              it "still shows the non-string validation" do
-                expect(subject).to eql false
-                expect(instance.csv_string_model.errors.messages).to eql(id: [])
-                expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
-              end
+            it "still shows the non-string validation" do
+              expect(subject).to eql false
+              expect(instance.csv_string_model.errors.messages).to eql(id: [])
+              expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
             end
           end
         end
 
         context "with warnings" do
           before do
-            import_model_klass.instance_eval do
+            klass.class_eval do
               warnings do
                 validates :id, length: { minimum: 5 }
               end
@@ -161,18 +220,6 @@ describe CsvRowModel::Import do
             end
           end
         end
-      end
-    end
-
-    describe "#free_previous" do
-      let(:options) { { previous: import_model_klass.new([]) } }
-
-      subject { instance.free_previous }
-
-      it "makes previous nil" do
-        expect(instance.previous).to_not eql nil
-        subject
-        expect(instance.previous).to eql nil
       end
     end
   end

@@ -25,18 +25,16 @@ else
   require 'csv_row_model/import/single_model'
   require 'csv_row_model/import/csv'
   require 'csv_row_model/import/file'
-  require 'csv_row_model/import/mapper'
 
 
   require 'csv_row_model/export'
   require 'csv_row_model/export/csv'
   require 'csv_row_model/export/single_model'
-
-  require 'csv_row_model/validators/number_validator'
 end
 
 require 'csv_row_model/validators/default_change'
 
+require 'csv_row_model/validators/number_validator'
 require 'csv_row_model/validators/boolean_format'
 require 'csv_row_model/validators/date_format'
 require 'csv_row_model/validators/float_format'
