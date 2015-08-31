@@ -3,7 +3,7 @@ module CsvRowModel
   # represents just one model.
   # It needs CsvRowModel::Import
   module Import
-    module SingleModel
+    module FileModel
       extend ActiveSupport::Concern
 
       class_methods do
@@ -42,7 +42,7 @@ module CsvRowModel
             end
           end
 
-          new(source_row, context: context)
+          new(source_row, context: context, previous: previous)
         end
       end
     end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CsvRowModel::Import::SingleModel do
+describe CsvRowModel::Import::FileModel do
   describe "class" do
     let(:import_model_klass) { BasicRowImportModel }
 

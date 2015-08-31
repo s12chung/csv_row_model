@@ -37,7 +37,6 @@ module CsvRowModel
     end
 
     class_methods do
-
       # @return [Array] column headers for the row model
       def column_headers
         @column_headers ||= begin
@@ -54,17 +53,9 @@ module CsvRowModel
         column_name
       end
 
-
-      # @return [Boolean] by default false
-      def single_model?
-        false
+      def setup(csv, with_header: true)
+        csv << column_headers if with_header
       end
-    end
-
-    private
-
-    def is_column_name? column_name
-      column_name.is_a?(Symbol) && self.class.index(column_name)
     end
   end
 end

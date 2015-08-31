@@ -15,10 +15,6 @@ module CsvRowModel
         export_model_class.column_headers
       end
 
-      def append_header
-        csv << header
-      end
-
       def append_model(model, context={})
         export_model_class.new(model, context).to_rows.each do |row|
           csv << row
@@ -28,7 +24,7 @@ module CsvRowModel
       def generate(with_header: true)
         CSV.open(file.path,"wb") do |csv|
           @csv = csv
-          append_header if with_header && !export_model_class.single_model?
+          export_model_class.setup(csv, with_header: with_header)
           yield self
         end
       ensure

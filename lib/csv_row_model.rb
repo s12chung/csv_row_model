@@ -19,17 +19,17 @@ else
   require 'csv_row_model/validators/validate_attributes'
 
   require 'csv_row_model/model'
-  require 'csv_row_model/model/single_model'
+  require 'csv_row_model/model/file_model'
 
   require 'csv_row_model/import'
-  require 'csv_row_model/import/single_model'
+  require 'csv_row_model/import/file_model'
   require 'csv_row_model/import/csv'
   require 'csv_row_model/import/file'
 
 
   require 'csv_row_model/export'
   require 'csv_row_model/export/csv'
-  require 'csv_row_model/export/single_model'
+  require 'csv_row_model/export/file_model'
 end
 
 require 'csv_row_model/validators/default_change'
