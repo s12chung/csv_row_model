@@ -72,6 +72,10 @@ describe CsvRowModel::Import::File do
 
       it "works" do
         expect(subject.source_row).to eql(['value 1', 'value 2'])
+        3.times do
+          expect(instance.next).to eql nil
+          expect(instance.end_of_file?).to eql true
+        end
       end
     end
   end
