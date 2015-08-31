@@ -4,12 +4,6 @@ describe CsvRowModel::Import::SingleModel do
   describe "class" do
     let(:import_model_klass) { BasicRowImportModel }
 
-    describe "#type" do
-      subject { import_model_klass.type }
-
-      it{ expect(subject).to eql :single_model }
-    end
-
     describe "#header_matchers" do
       let(:header_matchers) { [/string1/i, /String 2|string two/i] }
 

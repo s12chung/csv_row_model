@@ -41,12 +41,14 @@ module CsvRowModel
       #
       # @param context [Hash] context passed to the {Import}
       def next(context={})
-        if is_single_model?
-          return set_end_of_file if end_of_file?
-          set_single_model(context)
-        else
-          next_collection_model(context)
-        end
+        return if end_of_file?
+
+        @previous_row_model = current_row_model
+        @current_row_model = row_model_class.next(csv, context, previous_row_model)
+        @index += 1
+        @current_row_model = @index = nil if end_of_file?
+
+        current_row_model
       end
 
       # Iterates through the entire csv file and provides the `current_row_model` in a block, while handing aborts and skips
@@ -65,55 +67,6 @@ module CsvRowModel
             yield current_row_model
           end
         end
-      end
-
-      protected
-
-      # @return [boolean] if type of model is collection_model
-      def is_single_model?
-        @is_single_model ||= begin
-          row_model_class.respond_to?(:type) ? (row_model_class.type == :single_model) : false
-        end
-      end
-
-      def set_single_model(context={})
-        source_row = Array.new(row_model_class.header_matchers.size)
-        while !end_of_file?
-          csv.read_row
-          update_source_row(source_row)
-        end
-        @current_row_model = row_model_class.new(source_row, context: context)
-      end
-
-      def update_source_row(source_row)
-        current_row = csv.current_row
-        return unless current_row
-        current_row.each_with_index do |cell, position|
-          next if cell.blank?
-          index = row_model_class.index_header_match(cell)
-          next unless index
-          source_row[index] = current_row[position + 1]
-          break
-        end
-      end
-
-      def next_collection_model(context)
-        return if csv.end_of_file?
-
-        csv.skip_header
-
-        @previous_row_model = current_row_model
-        @current_row_model = row_model_class.read_csv(csv, context, previous_row_model)
-        @index += 1
-
-        set_end_of_file if csv.end_of_file?
-
-        current_row_model
-      end
-
-      def set_end_of_file
-        # please return nil
-        @current_row_model = @index = nil
       end
     end
   end

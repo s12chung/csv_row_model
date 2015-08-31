@@ -95,15 +95,29 @@ module CsvRowModel
     end
 
     class_methods do
-      # by default import model is a collection model
-      def type
-        :collection_model
-      end
-
       # See {Model#column}
       def column(column_name, options={})
         super
         define_attribute_method(column_name)
+      end
+
+      # @param [Import::Csv] csv to read from
+      # @param [Hash] context extra data you want to work with the model
+      # @param [Import] prevuous the previous row model
+      # @return [Import] the next model instance from the csv
+      def next(csv, context={}, previous=nil)
+        csv.skip_header
+        row_model = nil
+
+        loop do
+          csv.read_row
+          row_model ||= new(csv.current_row, index: csv.index, context: context, previous: previous)
+
+          return row_model if csv.end_of_file?
+
+          next_row_is_parent = !row_model.append_child(csv.next_row)
+          return row_model if next_row_is_parent
+        end
       end
 
       # @return [Class] the Class of the Presenter
@@ -119,24 +133,6 @@ module CsvRowModel
       # Call to define the presenter
       def presenter(&block)
         presenter_class.class_eval &block
-      end
-
-      # @param [Import::Csv] read to read from
-      # @param [Hash] context extra data you want to work with the model
-      # @param [Import] context extra data you want to work with the model
-      # @return [Import] the previous row model
-      def read_csv(csv, context={}, previous=nil)
-        row_model = nil
-
-        loop do
-          csv.read_row
-          row_model ||= new(csv.current_row, index: csv.index, context: context, previous: previous)
-
-          return row_model if csv.end_of_file?
-
-          next_row_is_parent = !row_model.append_child(csv.next_row)
-          return row_model if next_row_is_parent
-        end
       end
     end
   end
