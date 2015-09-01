@@ -45,8 +45,8 @@ module CsvRowModel
 
 
         # @return [Array] column headers for the row model
-        def column_headers
-          @column_headers ||= begin
+        def headers
+          @headers ||= begin
             columns.map do |name, options|
               options[:header] || format_header(name)
             end

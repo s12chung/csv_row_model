@@ -11,8 +11,8 @@ module CsvRowModel
         @file = Tempfile.new("#{export_model_class}.csv")
       end
 
-      def header
-        export_model_class.column_headers
+      def headers
+        export_model_class.headers
       end
 
       def append_model(model, context={})
@@ -21,10 +21,10 @@ module CsvRowModel
         end
       end
 
-      def generate(with_header: true)
+      def generate(with_headers: true)
         CSV.open(file.path,"wb") do |csv|
           @csv = csv
-          export_model_class.setup(csv, with_header: with_header)
+          export_model_class.setup(csv, with_headers: with_headers)
           yield self
         end
       ensure

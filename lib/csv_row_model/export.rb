@@ -37,8 +37,8 @@ module CsvRowModel
     end
 
     class_methods do
-      def setup(csv, with_header: true)
-        csv << column_headers if with_header
+      def setup(csv, with_headers: true)
+        csv << headers if with_headers
       end
     end
   end

@@ -76,12 +76,12 @@ describe CsvRowModel::Model::Columns do
       end
     end
 
-    describe "::column_headers" do
-      let(:column_headers) { [:string1, 'String 2'] }
-      subject { BasicModel.column_headers }
+    describe "::headers" do
+      let(:headers) { [:string1, 'String 2'] }
+      subject { BasicModel.headers }
 
       it "returns an array with header column names" do
-        expect(subject).to eql column_headers
+        expect(subject).to eql headers
       end
     end
   end
