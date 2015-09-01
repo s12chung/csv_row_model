@@ -43,6 +43,23 @@ module CsvRowModel
           column_name.is_a?(Symbol) && index(column_name)
         end
 
+
+        # @return [Array] column headers for the row model
+        def column_headers
+          @column_headers ||= begin
+            columns.map do |name, options|
+              options[:header] || format_header(name)
+            end
+          end
+        end
+
+        # Safe to override
+        #
+        # @return [String] formatted header
+        def format_header(column_name)
+          column_name
+        end
+
         protected
 
         def merge_columns(column_hash)
