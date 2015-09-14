@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CsvRowModel::Export::Csv do
+describe CsvRowModel::Export::File do
 
   describe "instance" do
     let(:string1)    { "Test 1" }

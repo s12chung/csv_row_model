@@ -18,9 +18,9 @@ Or install it yourself as:
 
     $ gem install csv_row_model
 
-## RowModel
+# RowModel
 
-Define your `RowModel`.
+Define your `RowModel`'s schema.
 
 ```ruby
 class ProjectRowModel
@@ -32,6 +32,8 @@ class ProjectRowModel
   column :owner_id, header: 'Project Manager' # optional header String, that allows to modify the header of the colmnun
 end
 ```
+
+This schema can be used for both Import and Export.
 
 ## Import
 
@@ -342,18 +344,18 @@ Maps each attribute of the `RowModel` to a row on the CSV.
 class ProjectExportRowModel < ProjectRowModel
   include CsvRowModel::Export
   include CsvRowModel::Export::SingleModel
-
-
 end
 ```
 
 And to export:
 
 ```ruby
-export_csv = CsvRowModel::Export::Csv.new(ProjectExportRowModel)
-csv_string = export_csv.generate do |csv|
-               csv.append_model(project) #optional you can pass a context
-             end
+export_file = CsvRowModel::Export::File.new(ProjectExportRowModel)
+export_file.generate do |csv|
+  csv.append_model(project)
+end
+export_file.file # returns the TempFile on disk
+export_file.to_s # the string representation
 ```
 
 #### Format Header

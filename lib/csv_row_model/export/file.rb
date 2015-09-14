@@ -1,8 +1,6 @@
-require 'csv'
-
 module CsvRowModel
   module Export
-    class Csv
+    class File
       attr_reader :export_model_class, :csv, :file, :context
 
       # @param [Export] export_model export model class

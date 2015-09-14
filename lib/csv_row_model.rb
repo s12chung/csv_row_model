@@ -28,7 +28,7 @@ else
 
 
   require 'csv_row_model/export'
-  require 'csv_row_model/export/csv'
+  require 'csv_row_model/export/file'
   require 'csv_row_model/export/file_model'
 end
 
