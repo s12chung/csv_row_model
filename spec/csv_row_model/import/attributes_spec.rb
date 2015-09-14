@@ -156,10 +156,9 @@ describe CsvRowModel::Import::Attributes do
         before do
           import_model_klass.class_eval do
             column :string1
-            column :string2, default: -> { string1 }
+            column :string2, default: -> { original_attribute(:string1) }
           end
         end
-
 
         it "returns the default" do
           expect(instance.original_attributes[:string1]).to eql('a')

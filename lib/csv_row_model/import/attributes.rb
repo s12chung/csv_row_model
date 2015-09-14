@@ -83,7 +83,7 @@ module CsvRowModel
         # @param column_name [Symbol] the cell's column_name
         def define_attribute_method(column_name)
           add_type_validation(column_name)
-          define_method(column_name) { original_attribute(column_name) }
+          define_method(column_name) { original_attributes[column_name] }
         end
 
         # Adds the type validation based on :validate_type option
