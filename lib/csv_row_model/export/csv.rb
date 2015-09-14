@@ -3,19 +3,20 @@ require 'csv'
 module CsvRowModel
   module Export
     class Csv
-      attr_reader :export_model_class, :csv, :file
+      attr_reader :export_model_class, :csv, :file, :context
 
       # @param [Export] export_model export model class
-      def initialize(export_model_class)
+      def initialize(export_model_class, context={})
         @export_model_class = export_model_class
         @file = Tempfile.new("#{export_model_class}.csv")
+        @context = context
       end
 
       def headers
         export_model_class.headers
       end
 
-      def append_model(model, context={})
+      def append_model(model)
         export_model_class.new(model, context).to_rows.each do |row|
           csv << row
         end

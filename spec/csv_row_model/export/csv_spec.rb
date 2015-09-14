@@ -6,7 +6,7 @@ describe CsvRowModel::Export::Csv do
     let(:string1)    { "Test 1" }
     let(:string2)    { "Test 2" }
     let(:model)     { Model.new(string1, string2) }
-    let(:instance)   { described_class.new(BasicRowExportModel)  }
+    let(:instance)   { described_class.new(BasicRowExportModel, some_context: true)  }
 
     describe "#generate" do
       let(:row1)        { ['string1', string1] }
@@ -20,6 +20,7 @@ describe CsvRowModel::Export::Csv do
         instance.generate do |csv|
           csv.append_model(model)
         end
+        expect(instance.context).to eql(some_context: true)
         expect(instance.to_s).to eql csv_string
       end
     end
