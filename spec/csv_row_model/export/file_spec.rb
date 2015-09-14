@@ -18,7 +18,7 @@ describe CsvRowModel::Export::File do
 
       it "returns csv string" do
         instance.generate do |csv|
-          csv.append_model(model)
+          csv << model
         end
         expect(instance.context).to eql(some_context: true)
         expect(instance.to_s).to eql csv_string

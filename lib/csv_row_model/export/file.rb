@@ -19,6 +19,7 @@ module CsvRowModel
           csv << row
         end
       end
+      alias_method :<<, :append_model
 
       def generate(with_headers: true)
         CSV.open(file.path,"wb") do |csv|
