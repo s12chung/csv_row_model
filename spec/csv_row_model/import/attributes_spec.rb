@@ -10,15 +10,21 @@ describe CsvRowModel::Import::Attributes do
     describe "#original_attributes" do
       subject { instance.original_attributes }
 
-      it "returns them" do
-        expect(instance).to receive(:original_attribute).with(:string1).and_return "waka"
-        expect(instance).to receive(:original_attribute).with(:string2).and_return "baka"
-        expect(subject).to eql(string1: "waka", string2: "baka")
+      it "returns them and memoizes the result" do
+        # 2 attributes * (1 for csv_string_model + 1 for original_attributes)
+        expect(import_model_klass).to receive(:format_cell).exactly(4).times.and_call_original
+        5.times { expect(instance.original_attributes).to eql(string1: "1.01", string2: "b") }
       end
     end
 
     describe "#original_attribute" do
       subject { instance.original_attribute(:string1) }
+
+      it "memoizes the result" do
+        # 1 for subject + (2 attributes * 1 for csv_string_model)
+        expect(import_model_klass).to receive(:format_cell).exactly(3).times.and_call_original
+        5.times { expect(instance.original_attribute(:string1)).to eql "1.01" }
+      end
 
       it "calls format_cell and returns the result" do
         expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return("waka").twice
@@ -156,7 +162,7 @@ describe CsvRowModel::Import::Attributes do
         before do
           import_model_klass.class_eval do
             column :string1
-            column :string2, default: -> { original_attribute(:string1) }
+            column :string2, default: -> { string1 }
           end
         end
 

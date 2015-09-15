@@ -345,11 +345,6 @@ class ProjectImportRowModel < ProjectRowModel
   column :name, default: -> { get_name }
 
   def get_name; "John Doe" end
-
-  # this will not work:
-  # column :uid, default: -> { id }
-  # do this instead:
-  # column :uid, default: -> { default_attrbiute(:id) }
 end
 row_model = ProjectImportRowModel.new(["", ""])
 row_model.id # => 1
