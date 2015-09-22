@@ -25,6 +25,13 @@ describe CsvRowModel::Import::File do
     let(:file_path) { basic_5_rows_path }
     subject { instance.next }
 
+    context "when passing a context" do
+      subject { instance.next(another_context: true) }
+      it "merges contexts" do
+        expect(subject.context).to eql(OpenStruct.new(some_context: true, another_context: true))
+      end
+    end
+
     it "gets the rows until the end of file" do
       row_model = nil
       (0..4).each do |index|

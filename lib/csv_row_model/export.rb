@@ -24,7 +24,7 @@ module CsvRowModel
     # @param [Hash]  context
     def initialize(source_model, context={})
       @source_model = source_model
-      @context = context
+      @context = OpenStruct.new(context)
     end
 
     def to_rows

@@ -7,20 +7,25 @@ module CsvRowModel
       def initialize(export_model_class, context={})
         @export_model_class = export_model_class
         @file = Tempfile.new("#{export_model_class}.csv")
-        @context = context
+        @context = context.to_h
       end
 
       def headers
         export_model_class.headers
       end
 
-      def append_model(model)
-        export_model_class.new(model, context).to_rows.each do |row|
+      # Add a row_model to the
+      # @param [] source_model the source model of the export row model
+      # @param [Hash] context the extra context given to the instance of the row model
+      def append_model(source_model, context={})
+        export_model_class.new(source_model, context.to_h.reverse_merge(self.context)).to_rows.each do |row|
           csv << row
         end
       end
       alias_method :<<, :append_model
 
+      # Open a block to generate a file
+      # @param [Boolean] with_headers adds the header to the file if true
       def generate(with_headers: true)
         CSV.open(file.path,"wb") do |csv|
           @csv = csv
