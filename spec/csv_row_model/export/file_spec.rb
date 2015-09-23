@@ -21,9 +21,12 @@ describe CsvRowModel::Export::File do
                                          .with(anything, { some_context: true, another_context: true })
                                          .and_call_original
 
+        expect(instance.generated?).to eql false
+
         instance.generate do |csv|
           csv.append_model(model, another_context: true)
         end
+        expect(instance.generated?).to eql true
         expect(instance.context).to eql(some_context: true)
         expect(instance.to_s).to eql csv_string
       end
