@@ -38,6 +38,12 @@ module CsvRowModel
         row_model.previous.try(:presenter)
       end
 
+      def attributes
+        self.class.attribute_names
+          .zip(self.class.attribute_names.map { |attribute_name| public_send(attribute_name) })
+          .to_h
+      end
+
       protected
 
       # add errors from row_model and remove each dependent attribute from errors if it's row_model_dependencies

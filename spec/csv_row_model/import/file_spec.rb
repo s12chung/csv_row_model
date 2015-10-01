@@ -4,7 +4,7 @@ describe CsvRowModel::Import::File do
 
   let(:file_path) { basic_1_row_path }
   let(:model_class) { BasicImportModel }
-  let(:instance) { described_class.new file_path, model_class }
+  let(:instance) { described_class.new file_path, model_class, some_context: true }
 
   describe "#reset" do
     subject { instance.reset }
@@ -25,11 +25,18 @@ describe CsvRowModel::Import::File do
     let(:file_path) { basic_5_rows_path }
     subject { instance.next }
 
+    context "when passing a context" do
+      subject { instance.next(another_context: true) }
+      it "merges contexts" do
+        expect(subject.context).to eql(OpenStruct.new(some_context: true, another_context: true))
+      end
+    end
+
     it "gets the rows until the end of file" do
       row_model = nil
       (0..4).each do |index|
         previous_row_model = row_model
-        row_model = instance.next(some_context: true)
+        row_model = instance.next
         expect(row_model.class).to eql model_class
 
         expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]

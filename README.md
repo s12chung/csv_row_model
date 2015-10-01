@@ -20,30 +20,97 @@ Or install it yourself as:
 
 ## RowModel
 
-Define your `RowModel`.
+Define your `RowModel`'s schema.
 
 ```ruby
 class ProjectRowModel
   include CsvRowModel::Model
 
   # column indices are tracked with each call
-  column :id
+  column :id, type: Integer
   column :name
-  column :owner_id, header: 'Project Manager' # optional header String, that allows to modify the header of the colmnun
+end
+```
+
+This schema can be used for both Import and Export.
+
+## Export
+
+Maps each attribute of the `RowModel` to a column of a CSV row.
+
+```ruby
+class ProjectExportRowModel < ProjectRowModel
+  include CsvRowModel::Export
+
+  # Optional Override
+  def name
+    "#{source_model.id} - #{source_model.name}" # default implementation: source_model.name
+  end
+end
+```
+
+And to export:
+
+```ruby
+export_file = CsvRowModel::Export::File.new(ProjectExportRowModel)
+export_file.generate { |csv| csv.append_model(project) }
+export_file.file # => <Tempfile>
+export_file.to_s # => export_file.file.read
+```
+
+### FileModel
+Maps each attribute of the `RowModel` to a row on the CSV (a csv file is a now a model). More documentation is needed...
+
+```ruby
+class ProjectExportRowModel < ProjectRowModel
+  include CsvRowModel::Export
+  include CsvRowModel::Export::SingleModel
+end
+```
+
+### Header Value
+To generate a header value, the following pseudocode is executed:
+```ruby
+def header(column_name)
+  # 1. Header Option
+  header = options(column_name)[:header]
+
+  # 2. format_header
+  header || format_header(column_name)
+end
+```
+
+#### Header Option
+Specify the header manually:
+```ruby
+class ProjectRowModel
+  include CsvRowModel::Model
+  column :name, header: "NAME"
+end
+```
+
+#### Format Header
+Override the `format_header` method to format column header names:
+```ruby
+class ProjectExportRowModel < ProjectRowModel
+  include CsvRowModel::Export
+  class << self
+    def format_header(column_name)
+      column_name.to_s.titleize
+    end
+  end
 end
 ```
 
 ## Import
 
-Automagically maps each column of a CSV row to an attribute of the `RowModel`.
+Maps each column of a CSV row to an attribute of the `RowModel`.
 
 ```ruby
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
 
   def name
-    # mapped_row is raw
-    # the calculated original_attribute[:name] is accessible as well
     mapped_row[:name].upcase
   end
 end
@@ -71,14 +138,96 @@ row_model.previous # => <ProjectImportRowModel instance>
 row_model.previous.previous # => nil, save memory by avoiding a linked list
 ```
 
-## Presenter
+See [Attribute Values](#attribute-values) for more on configuring and overriding Import attribute values.
+
+### Children
+
+Child `RowModel` relationships can also be defined:
+
+```ruby
+class UserImportRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Import
+
+  column :id, type: Integer
+  column :name
+  column :email
+
+  # uses ProjectImportRowModel#valid? to detect the child row
+  has_many :projects, ProjectImportRowModel
+end
+
+import_file = CsvRowModel::Import::File.new(file_path, UserImportRowModel)
+row_model = import_file.next
+row_model.projects # => [<ProjectImportRowModel>, ...]
+```
+
+### Layers
+For complex `RowModel`s there are different layers you can work with:
+```ruby
+import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
+row_model = import_file.next
+
+# the three layers:
+# 1. csv_string_model - represents the row BEFORE parsing (attributes are always strings)
+row_model.csv_string_model
+
+# 2. RowModel - represents the row AFTER parsing
+row_model
+
+# 3. Presenter - an abstraction of a row
+row_model.presenter
+```
+
+#### CsvStringModel
+The `CsvStringModel` represents a row before parsing to add parsing validations.
+
+```ruby
+class ProjectRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Import
+
+  # Note the type definition here for parsing
+  column :id, type: Integer
+
+  # this is applied to the parsed CSV on the model
+  validates :id, numericality: { greater_than: 0 }
+
+  csv_string_model do
+    # define your csv_string_model here
+
+    # this is applied BEFORE the parsed CSV on csv_string_model
+    validates :id, presense: true
+
+    def random_method; "Hihi" end
+  end
+end
+
+# Applied to the String
+ProjectRowModel.new([""])
+csv_string_model = row_model.csv_string_model
+csv_string_model.random_method => "Hihi"
+csv_string_model.valid? => false
+csv_string_model.errors.full_messages # => ["Id can't be blank'"]
+
+# Errors are propagated for simplicity
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id can't be blank'"]
+
+# Applied to the parsed Integer
+row_model = ProjectRowModel.new(["-1"])
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id must be greater than 0"]
+```
+
+Note that `CsvStringModel` validations are calculated after [Format Cell](#format-cell).
+
+#### Presenter
 For complex rows, you can wrap your `RowModel` with a presenter:
 
 ```ruby
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
-
-  # same as above
 
   presenter do
     # define your presenter here
@@ -129,34 +278,30 @@ Also, the `attribute` defines a dynamic `#project` method that:
   - `presenter.errors` for dependencies are cleaned. For the example above, if `row_model.id/name` are `invalid?`, then
 the `:project` key is removed from the errors, so: `import_mapper.errors.keys # => [:id, :name]`
 
-## Children
-
-Child `RowModel` relationships can also be defined:
+### Attribute Values
+To generate a attribute value, the following pseudocode is executed:
 
 ```ruby
-class UserImportRowModel
-  include CsvRowModel::Model
-  include CsvRowModel::Import
+def original_attribute(column_name)
+  # 1. Get the raw CSV string value for the column
+  value = mapped_row[column_name]
 
-  column :id
-  column :name
-  column :email
+  # 2. Clean or format each cell
+  value = self.class.format_cell(value)
 
-  # uses ProjectImportRowModel#valid? to detect the child row
-  has_many :projects, ProjectImportRowModel
+  if value.present?
+    # 3a. Parse the cell value (which does nothing if no parsing is specified)
+    parse(value)
+  elsif default_exists?
+    # 3b. Set the default
+    default_for_column(column_name)
+  end
 end
 
-import_file = CsvRowModel::Import::File.new(file_path, UserImportRowModel)
-row_model = import_file.next
-row_model.projects # => [<ProjectImportRowModel>, ...]
-```
+def original_attributes; @original_attributes ||= { id: original_attribute(:id) } end
 
-## Column Options
-### Default Attributes
-For `Import`, `default_attributes` are calculated as thus:
-- `format_cell`
-- if `value_from_format_cell.blank?`, `default_lambda.call` or nil
-- otherwise, `parse_lambda.call`
+def id; original_attribute[:id] end
+```
 
 #### Format Cell
 Override the `format_cell` method to clean/format every cell:
@@ -166,53 +311,11 @@ class ProjectImportRowModel < ProjectRowModel
   class << self
     def format_cell(cell, column_name, column_index)
       cell = cell.strip
-      cell.to_i.to_s == cell ? cell.to_i : cell
+      cell.blank? ? nil : cell
     end
   end
 end
 ```
-
-#### Default
-Called when `format_cell` is `value_from_format_cell.blank?`, it sets the default value of the cell:
-```ruby
-class ProjectImportRowModel < ProjectRowModel
-  include CsvRowModel::Import
-
-  column :id, default: 1
-  column :name, default: -> { get_name }
-
-  def get_name; "John Doe" end
-end
-row_model = ProjectImportRowModel.new(["", ""])
-row_model.id # => 1
-row_model.name # => "John Doe"
-row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
-
-```
-
-`DefaultChangeValidator` is provided to allows to add warnings when defaults or set:
-
-```ruby
-class ProjectImportRowModel
-  include CsvRowModel::Model
-  include CsvRowModel::Input
-
-  column :id, default: 1
-
-  warnings do
-    validates :id, default_change: true
-    # validates :id, presence: true, works too. See ActiveWarnings gem for more.
-  end
-end
-
-row_model = ProjectImportRowModel.new([""])
-
-row_model.unsafe? # => true
-row_model.has_warnings? # => true, same as `#unsafe?`
-row_model.warnings.full_messages # => ["Id changed by default"]
-```
-
-See [Validations](#validations) for more.
 
 #### Type
 Automatic type parsing.
@@ -230,72 +333,99 @@ class ProjectImportRowModel < ProjectRowModel
 end
 ```
 
-## Validations
+There are validators for different types: `Boolean`, `Date`, `Float`, `Integer`. See [Validations](#validations) for more.
 
-Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html)
-on your `RowModel` or `Mapper`.
-
-Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Mapper` for warnings
-(such as setting defaults), but not errors (which by default results in a skip).
-
-`RowModel` has two validation layers on the `csv_string_model` (a model of `#mapped_row` with `::format_cell` applied) and itself:
-
+#### Default
+Sets the default value of the cell:
 ```ruby
-class ProjectRowModel
-  include CsvRowModel::Model
+class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
 
-  column :id, type: Integer
+  column :id, default: 1
+  column :name, default: -> { get_name }
 
-  # this is applied to the parsed CSV on the model
-  validates :id, numericality: { greater_than: 0 }
-
-  csv_string_model do
-    # this is applied before the parsed CSV on csv_string_model
-    validates :id, integer_format: true, allow_blank: true
-  end
+  def get_name; "John Doe" end
 end
-
-# Applied to the String
-ProjectRowModel.new(["not_a_number"])
-row_model.valid? # => false
-row_model.errors.full_messages # => ["Id is not a Integer format"]
-
-# Applied to the parsed Integer
-row_model = ProjectRowModel.new(["-1"])
-row_model.valid? # => false
-row_model.errors.full_messages # => ["Id must be greater than 0"]
+row_model = ProjectImportRowModel.new(["", ""])
+row_model.id # => 1
+row_model.name # => "John Doe"
+row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
 ```
 
+`DefaultChangeValidator` is provided to allows to add warnings when defaults are set. See [Validations](#default-changes) for more.
+
+### Validations
+
+Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html) the `RowModel`'s [Layers](#layers).
+Please read [Layers](#layers) for more information.
+
+Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Mapper` for warnings.
+
+
+#### Type Format
 Notice that there are validators given for different types: `Boolean`, `Date`, `Float`, `Integer`:
 
 ```ruby
 class ProjectRowModel
   include CsvRowModel::Model
 
-  # the :validate_type option does the commented code below.
   column :id, type: Integer, validate_type: true
 
+  # the :validate_type option is the same as:
   # csv_string_model do
   #   validates :id, integer_format: true, allow_blank: true
   # end
 end
+
+ProjectRowModel.new(["not_a_number"])
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id is not a Integer format"]
 ```
 
-
-## Callbacks
-`CsvRowModel::Import::File` can be subclassed to access
-[`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
-
-You can iterate through a file with the `#each` method, which calls `#next` internally:
+#### Default Changes
+[Default Changes](#default) are tracked within [`ActiveWarnings`](https://github.com/s12chung/active_warnings).
 
 ```ruby
+class ProjectImportRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Input
+
+  column :id, default: 1
+
+  warnings do
+    validates :id, default_change: true
+  end
+end
+
+row_model = ProjectImportRowModel.new([""])
+
+row_model.unsafe? # => true
+row_model.has_warnings? # => true, same as `#unsafe?`
+row_model.warnings.full_messages # => ["Id changed by default"]
+row_model.default_changes # => { id: ["", 1] }
+```
+
+### Skip and Abort
+You can iterate through a file with the `#each` method, which calls `#next` internally.
+`#next` will always return the next `RowModel` in the file. However, you can implement skips and
+abort logic:
+
+```ruby
+class ProjectImportRowModel
+  # always skip
+  def skip?
+    true # original implementation: !valid? || presenter.skip?
+  end
+end
+
 CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project_import_model|
+  # never yields here
 end
 ```
 
-Within `#each`, **Skips** and **Aborts** will be done via the `skip?` or `abort?` method on the row model,
-allowing the following callbacks:
+### Callbacks
+`CsvRowModel::Import::File` can be subclassed to access
+[`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
 
 * yield - `before`, `around`, or `after` the iteration yield (skips)
 * next - `before`, `around`, or `after` the each change in `current_row_model` (does not skip)
@@ -314,57 +444,6 @@ class ImportFile < CsvRowModel::Import::File
 
   def track_skip
     ...
-  end
-end
-```
-
-### Export RowModel
-
-Maps each attribute of the `RowModel` to a column of a CSV row.
-
-```ruby
-class ProjectExportRowModel < ProjectRowModel
-  include CsvRowModel::Export
-
-  # Optionally it's possible to override the attribute method, by default it
-  # does source_model.public_send(attribute)
-  def name
-    "#{source_model.id} - #{source_model.name}"
-  end
-end
-```
-
-### Export SingleModel
-
-Maps each attribute of the `RowModel` to a row on the CSV.
-
-```ruby
-class ProjectExportRowModel < ProjectRowModel
-  include CsvRowModel::Export
-  include CsvRowModel::Export::SingleModel
-
-
-end
-```
-
-And to export:
-
-```ruby
-export_csv = CsvRowModel::Export::Csv.new(ProjectExportRowModel)
-csv_string = export_csv.generate do |csv|
-               csv.append_model(project) #optional you can pass a context
-             end
-```
-
-#### Format Header
-Override the `format_header` method to format column header names:
-```ruby
-class ProjectExportRowModel < ProjectRowModel
-  include CsvRowModel::Export
-  class << self
-    def format_header(column_name)
-      column_name.to_s.titleize
-    end
   end
 end
 ```

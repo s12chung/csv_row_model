@@ -20,13 +20,16 @@ module CsvRowModel
       attr_reader :current_row_model
       # @return [Input, Mapper] the previous row model set by {#next}
       attr_reader :previous_row_model
+      # @return [Hash] context passed to the {Import}
+      attr_reader :context
 
       delegate :header, :size, :skipped_rows, :end_of_file?, to: :csv
 
       # @param [String] file_path path of csv file
       # @param [Import, Mapper] row_model_class model class returned for importing
-      def initialize(file_path, row_model_class)
-        @csv, @row_model_class = Csv.new(file_path), row_model_class
+      # @param context [Hash] context passed to the {Import}
+      def initialize(file_path, row_model_class, context={})
+        @csv, @row_model_class, @context = Csv.new(file_path), row_model_class, context.to_h
         reset
       end
 
@@ -38,11 +41,10 @@ module CsvRowModel
       end
 
       # Gets the next row model based on the context
-      #
-      # @param context [Hash] context passed to the {Import}
       def next(context={})
         return if end_of_file?
 
+        context = context.to_h.reverse_merge(self.context)
         run_callbacks :next do
           @previous_row_model = current_row_model
           @current_row_model = row_model_class.next(csv, context, previous_row_model)
@@ -55,10 +57,8 @@ module CsvRowModel
 
       # Iterates through the entire csv file and provides the `current_row_model` in a block, while handing aborts and skips
       # via. calling {Model#abort?} and {Model#skip?}
-      #
-      # @param context [Hash] context passed to the {Import}
       def each(context={})
-        return to_enum(__callee__, context) unless block_given?
+        return to_enum(__callee__) unless block_given?
         return false if _abort?
 
         while self.next(context)

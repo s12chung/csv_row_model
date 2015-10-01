@@ -109,7 +109,7 @@ module CsvRowModel
         csv.skip_header
         row_model = nil
 
-        loop do
+        loop do # loop until the next parent or end_of_file? (need to read children rows)
           csv.read_row
           row_model ||= new(csv.current_row, index: csv.index, context: context, previous: previous)
 
