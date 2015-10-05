@@ -31,8 +31,8 @@ module CsvRowModel
       # Open a block to generate a file
       # @param [Boolean] with_headers adds the header to the file if true
       def generate(with_headers: true)
-        @file = Tempfile.new("#{export_model_class}.csv")
-        CSV.open(file.path,"wb") do |csv|
+        @file = Tempfile.new([export_model_class.name, ".csv"])
+        CSV.open(file.path, "wb") do |csv|
           @csv = csv
           export_model_class.setup(csv, with_headers: with_headers)
           yield self

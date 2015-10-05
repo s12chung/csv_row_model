@@ -44,14 +44,14 @@ module CsvRowModel
       def next(context={})
         return if end_of_file?
 
-        context = context.to_h.reverse_merge(self.context)
         run_callbacks :next do
+          context = context.to_h.reverse_merge(self.context)
           @previous_row_model = current_row_model
           @current_row_model = row_model_class.next(csv, context, previous_row_model)
           @index += 1
           @current_row_model = @index = nil if end_of_file?
         end
-        
+
         current_row_model
       end
 
@@ -62,10 +62,10 @@ module CsvRowModel
         return false if _abort?
 
         while self.next(context)
-          return false if _abort?
-          next if _skip?
+          run_callbacks :each_iteration do
+            return false if _abort?
+            next if _skip?
 
-          run_callbacks :yield do
             yield current_row_model
           end
         end
