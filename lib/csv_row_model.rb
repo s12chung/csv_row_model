@@ -3,6 +3,8 @@ autoload = false
 
 class Boolean; end unless defined? Boolean
 
+require 'csv_row_model/version'
+
 require 'active_model'
 require 'active_support/all'
 require 'active_warnings'
@@ -11,8 +13,6 @@ require 'csv'
 if autoload && defined?(Rails)
   require 'csv_row_model/engine'
 else
-  require 'csv_row_model/version'
-
   require 'csv_row_model/concerns/inspect'
   require 'csv_row_model/concerns/deep_class_var'
 
