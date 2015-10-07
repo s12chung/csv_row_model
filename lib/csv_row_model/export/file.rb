@@ -6,7 +6,7 @@ module CsvRowModel
       # @param [Export] export_model export model class
       def initialize(export_model_class, context={})
         @export_model_class = export_model_class
-        @context = context.to_h
+        @context = context.to_h.symbolize_keys
       end
 
       def headers
@@ -31,8 +31,8 @@ module CsvRowModel
       # Open a block to generate a file
       # @param [Boolean] with_headers adds the header to the file if true
       def generate(with_headers: true)
-        @file = Tempfile.new("#{export_model_class}.csv")
-        CSV.open(file.path,"wb") do |csv|
+        @file = Tempfile.new([export_model_class.name, ".csv"])
+        CSV.open(file.path, "wb") do |csv|
           @csv = csv
           export_model_class.setup(csv, with_headers: with_headers)
           yield self

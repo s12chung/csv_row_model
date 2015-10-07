@@ -427,15 +427,17 @@ end
 `CsvRowModel::Import::File` can be subclassed to access
 [`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
 
-* yield - `before`, `around`, or `after` the iteration yield (skips)
-* next - `before`, `around`, or `after` the each change in `current_row_model` (does not skip)
+* each_iteration - `before`, `around`, or `after` the an iteration on `#each`.
+Use this to handle exceptions. `return` and `break` may be called within the callback for
+skips and aborts.
+* next - `before`, `around`, or `after` each change in `current_row_model`
 * skip - `before`
 * abort - `before`
 
 and implement the callbacks:
 ```ruby
 class ImportFile < CsvRowModel::Import::File
-  around_yield :logger_track
+  around_each_iteration :logger_track
   before_skip :track_skip
 
   def logger_track(&block)
