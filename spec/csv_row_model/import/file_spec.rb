@@ -4,7 +4,13 @@ describe CsvRowModel::Import::File do
 
   let(:file_path) { basic_1_row_path }
   let(:model_class) { BasicImportModel }
-  let(:instance) { described_class.new file_path, model_class, some_context: true }
+  let(:instance) { described_class.new file_path, model_class, 'some_context' => true }
+
+  describe "#context" do
+    it "symbolizes the context" do
+      expect(instance.context[:some_context]).to eql true
+    end
+  end
 
   describe "#reset" do
     subject { instance.reset }
@@ -26,9 +32,13 @@ describe CsvRowModel::Import::File do
     subject { instance.next }
 
     context "when passing a context" do
-      subject { instance.next(another_context: true) }
+      subject { instance.next('another_context' => true) }
       it "merges contexts" do
-        expect(subject.context).to eql(OpenStruct.new(some_context: true, another_context: true))
+        expect(subject.context).to eql OpenStruct.new(some_context: true, another_context: true)
+      end
+
+      it "symbolizes the context in an OpenStruct" do
+        expect(subject.context[:another_context]).to eql true
       end
     end
 

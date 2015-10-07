@@ -6,7 +6,7 @@ module CsvRowModel
       # @param [Export] export_model export model class
       def initialize(export_model_class, context={})
         @export_model_class = export_model_class
-        @context = context.to_h
+        @context = context.to_h.symbolize_keys
       end
 
       def headers

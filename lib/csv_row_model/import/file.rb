@@ -29,7 +29,7 @@ module CsvRowModel
       # @param [Import, Mapper] row_model_class model class returned for importing
       # @param context [Hash] context passed to the {Import}
       def initialize(file_path, row_model_class, context={})
-        @csv, @row_model_class, @context = Csv.new(file_path), row_model_class, context.to_h
+        @csv, @row_model_class, @context = Csv.new(file_path), row_model_class, context.to_h.symbolize_keys
         reset
       end
 
