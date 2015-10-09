@@ -5,13 +5,22 @@ module CsvRowModel
 
       # @return [Hash] a map of `column_name => public_send(column_name)`
       def attributes
-        self.class.column_names
-          .zip(self.class.column_names.map { |column_name| public_send(column_name) })
-          .to_h
+        attributes_from_column_names self.class.column_names
       end
 
       def to_json
         attributes.to_json
+      end
+
+      def headers
+        self.class.headers(context)
+      end
+
+      protected
+      def attributes_from_column_names(column_names)
+        column_names
+          .zip(column_names.map { |column_name| public_send(column_name) })
+          .to_h
       end
 
       class_methods do
@@ -43,13 +52,13 @@ module CsvRowModel
           column_name.is_a?(Symbol) && index(column_name)
         end
 
-
+        # @param [Hash, OpenStruct] context name of column to check
         # @return [Array] column headers for the row model
-        def headers
+        def headers(context={})
           @headers ||= begin
             columns.map do |name, options|
               options[:header] || format_header(name)
-            end
+            end + dynamic_columns_headers(context)
           end
         end
 

@@ -11,7 +11,7 @@ describe CsvRowModel::Import do
       subject { instance }
 
       context "should set the child" do
-        let(:parent_instance) { BasicModel.new }
+        let(:parent_instance) { BasicRowModel.new }
         let(:options) { { parent:  parent_instance } }
         specify { expect(subject.child?).to eql true }
       end

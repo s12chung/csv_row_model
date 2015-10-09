@@ -6,7 +6,7 @@ describe CsvRowModel::Export::File do
     let(:string1)    { "Test 1" }
     let(:string2)    { "Test 2" }
     let(:model)     { Model.new(string1, string2) }
-    let(:instance)   { described_class.new(BasicRowExportModel, some_context: true)  }
+    let(:instance)   { described_class.new(FileExportModel, some_context: true)  }
 
     describe "#generate" do
       let(:row1)        { ['string1', string1] }
@@ -17,7 +17,7 @@ describe CsvRowModel::Export::File do
       let(:csv_source) { [row1, row2] }
 
       it "returns csv string" do
-        expect(BasicRowExportModel).to receive(:new)
+        expect(FileExportModel).to receive(:new)
                                          .with(anything, { some_context: true, another_context: true })
                                          .and_call_original
 

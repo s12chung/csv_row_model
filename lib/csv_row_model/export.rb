@@ -1,9 +1,13 @@
+require 'csv_row_model/export/dynamic_columns'
+
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for exporting to CSVs.
   module Export
     extend ActiveSupport::Concern
 
     included do
+      include DynamicColumns
+
       attr_reader :source_model, :context
 
       self.column_names.each do |column_name|
@@ -37,8 +41,8 @@ module CsvRowModel
     end
 
     class_methods do
-      def setup(csv, with_headers: true)
-        csv << headers if with_headers
+      def setup(csv, context={}, with_headers: true)
+        csv << headers(context) if with_headers
       end
     end
   end

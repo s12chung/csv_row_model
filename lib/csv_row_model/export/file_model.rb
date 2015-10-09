@@ -31,7 +31,7 @@ module CsvRowModel
       end
 
       class_methods do
-        def setup(csv, with_headers: true); end
+        def setup(csv, context, with_headers: true); end
       end
     end
   end

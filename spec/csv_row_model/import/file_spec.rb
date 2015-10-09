@@ -83,9 +83,9 @@ describe CsvRowModel::Import::File do
       end
     end
 
-    context "single_model" do
+    context "file_model" do
       let(:file_path) { basic_1_model_path }
-      let(:instance) { described_class.new file_path, BasicRowImportModel }
+      let(:instance) { described_class.new file_path, FileImportModel }
 
       it "works" do
         expect(subject.source_row).to eql(['value 1', 'value 2'])
