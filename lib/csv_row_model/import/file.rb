@@ -3,22 +3,22 @@ require 'csv_row_model/import/file/validations'
 
 module CsvRowModel
   module Import
-    # Represents a csv file and handles parsing to return `Import` or `Mapper`
+    # Represents a csv file and handles parsing to return `Import`
     class File
       include Callbacks
       include Validations
 
       # @return [Csv]
       attr_reader :csv
-      # @return [Input,Mapper] model class returned for importing
+      # @return [Input] model class returned for importing
       attr_reader :row_model_class
 
       # Current index of the row model
       # @return [Integer] returns -1 = start of file, 0 to infinity = index of row_model, nil = end of file, no row_model
       attr_reader :index
-      # @return [Input, Mapper] the current row model set by {#next}
+      # @return [Input] the current row model set by {#next}
       attr_reader :current_row_model
-      # @return [Input, Mapper] the previous row model set by {#next}
+      # @return [Input] the previous row model set by {#next}
       attr_reader :previous_row_model
       # @return [Hash] context passed to the {Import}
       attr_reader :context
@@ -26,7 +26,7 @@ module CsvRowModel
       delegate :header, :size, :skipped_rows, :end_of_file?, to: :csv
 
       # @param [String] file_path path of csv file
-      # @param [Import, Mapper] row_model_class model class returned for importing
+      # @param [Import] row_model_class model class returned for importing
       # @param context [Hash] context passed to the {Import}
       def initialize(file_path, row_model_class, context={})
         @csv, @row_model_class, @context = Csv.new(file_path), row_model_class, context.to_h.symbolize_keys

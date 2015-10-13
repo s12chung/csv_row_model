@@ -332,7 +332,7 @@ row_model = import_file.next
 presenter = row_model.presenter
 
 presenter.row_model # gets the row model underneath
-import_mapper.project.name == presenter.row_model.name # => "SOME PROJECT NAME"
+presenter.project.name == presenter.row_model.name # => "SOME PROJECT NAME"
 ```
 
 The presenters are designed for another layer of validation---such as with the database.
@@ -344,14 +344,14 @@ Also, the `attribute` defines a dynamic `#project` method that:
 3. Handles dependencies. When any of the dependencies are `invalid?`:
   - The attribute block is not called and the attribute returns `nil`.
   - `presenter.errors` for dependencies are cleaned. For the example above, if `row_model.id/name` are `invalid?`, then
-the `:project` key is removed from the errors, so: `import_mapper.errors.keys # => [:id, :name]`
+the `:project` key is removed from the errors, so: `presenter.errors.keys # => [:id, :name]`
 
 ## Import Validations
 
 Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html) the `RowModel`'s [Layers](#layers).
 Please read [Layers](#layers) for more information.
 
-Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Mapper` for warnings.
+Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Presenter` for warnings.
 
 
 ### Type Format

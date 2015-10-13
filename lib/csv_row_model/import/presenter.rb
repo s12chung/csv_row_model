@@ -82,14 +82,14 @@ module CsvRowModel
           Presenter
         end
 
-        # @return [Array<Symbol>] attribute names for the Mapper
+        # @return [Array<Symbol>] attribute names for the Presenter
         def attribute_names
           attributes.keys
         end
 
         # @return [Hash{Symbol => Array}] map of `attribute_name => [options, block]`
         def attributes
-          inherited_class_var :@_mapper_attributes, {}, :merge
+          inherited_class_var :@_presenter_attributes, {}, :merge
         end
 
         # @param [Symbol] attribute_name name of attribute to find option
@@ -104,9 +104,9 @@ module CsvRowModel
           attributes[attribute_name].last
         end
 
-        # @return [Hash{Symbol => Array}] map of `dependency => [array of mapper attributes dependent on dependency]`
+        # @return [Hash{Symbol => Array}] map of `dependency => [array of presenter attributes dependent on dependency]`
         def dependencies
-          class_cache(:@_mapper_dependencies) do
+          class_cache(:@_presenter_dependencies) do
             dependencies = {}
             attribute_names.each do |attribute_name|
               options(attribute_name)[:dependencies].each do |dependency|
@@ -124,10 +124,10 @@ module CsvRowModel
         end
 
         def merge_attribute(attribute_hash)
-          @_mapper_attributes ||= {}
-          deep_clear_class_cache(:@_mapper_attributes)
-          deep_clear_class_cache(:@_mapper_dependencies)
-          @_mapper_attributes.merge! attribute_hash
+          @_presenter_attributes ||= {}
+          deep_clear_class_cache(:@_presenter_attributes)
+          deep_clear_class_cache(:@_presenter_dependencies)
+          @_presenter_attributes.merge! attribute_hash
         end
 
         # Adds column to the row model
