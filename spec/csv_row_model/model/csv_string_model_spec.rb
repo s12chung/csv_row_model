@@ -9,13 +9,6 @@ describe CsvRowModel::Model::CsvStringModel do
         expect(instance.string1).to eql "abc"
         expect(instance.string2).to eql "efg"
       end
-
-      context "when calling a undefined method" do
-        subject { instance.waka }
-        it "gives an exception" do
-          expect { subject }.to raise_error(NoMethodError)
-        end
-      end
     end
   end
 end
