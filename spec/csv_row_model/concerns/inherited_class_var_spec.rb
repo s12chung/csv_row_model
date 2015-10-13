@@ -12,19 +12,19 @@ module Child
 end
 class Parent < Grandparent
   include Child
-  include CsvRowModel::Concerns::DeepClassVar
+  include CsvRowModel::Concerns::InheritedClassVar
 end
 class ClassWithFamily < Parent; end
 
 class InheritedBaseClass; end
 
-describe CsvRowModel::Concerns::DeepClassVar do
+describe CsvRowModel::Concerns::InheritedClassVar do
   describe "class" do
     describe "::inherited_ancestors" do
       subject { ClassWithFamily.send(:inherited_ancestors) }
 
       it "returns the inherited ancestors" do
-        expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::DeepClassVar]
+        expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::InheritedClassVar]
       end
     end
 
@@ -117,10 +117,10 @@ describe CsvRowModel::Concerns::DeepClassVar do
       end
     end
 
-    context "with deep_deep_class_var set" do
-      let(:variable_name) { :@deep_class_var }
-      def deep_class_var
-        ClassWithFamily.send(:deep_class_var, variable_name, [], :+)
+    context "with deep_inherited_class_var set" do
+      let(:variable_name) { :@inherited_class_var }
+      def inherited_class_var
+        ClassWithFamily.send(:inherited_class_var, variable_name, [], :+)
       end
 
       before do
@@ -129,15 +129,15 @@ describe CsvRowModel::Concerns::DeepClassVar do
         end
       end
 
-      describe "::deep_class_var" do
-        subject { deep_class_var }
+      describe "::inherited_class_var" do
+        subject { inherited_class_var }
 
         it "returns a class variable merged across ancestors until deep_class_module" do
           expect(subject).to eql %w[Parent ClassWithFamily]
         end
 
         it "caches the result" do
-          expect(deep_class_var.object_id).to eql deep_class_var.object_id
+          expect(inherited_class_var.object_id).to eql inherited_class_var.object_id
         end
       end
 
@@ -145,32 +145,32 @@ describe CsvRowModel::Concerns::DeepClassVar do
         subject { ClassWithFamily.clear_class_cache(variable_name) }
 
         it "clears the cache" do
-          value = deep_class_var
-          expect(value.object_id).to eql deep_class_var.object_id
+          value = inherited_class_var
+          expect(value.object_id).to eql inherited_class_var.object_id
           subject
-          expect(value.object_id).to_not eql deep_class_var.object_id
+          expect(value.object_id).to_not eql inherited_class_var.object_id
         end
       end
 
-      describe "::clear_deep_class_cache" do
-        subject { Parent.send(:clear_deep_class_cache, variable_name) }
+      describe "::deep_clear_class_cache" do
+        subject { Parent.send(:deep_clear_class_cache, variable_name) }
 
-        def parent_deep_class_var
-          Parent.send(:deep_class_var, variable_name, [], :+)
+        def parent_inherited_class_var
+          Parent.send(:inherited_class_var, variable_name, [], :+)
         end
 
         it "clears the cache of self class" do
-          value = parent_deep_class_var
-          expect(value.object_id).to eql parent_deep_class_var.object_id
+          value = parent_inherited_class_var
+          expect(value.object_id).to eql parent_inherited_class_var.object_id
           subject
-          expect(value.object_id).to_not eql parent_deep_class_var.object_id
+          expect(value.object_id).to_not eql parent_inherited_class_var.object_id
         end
 
         it "clears the cache of children class" do
-          value = deep_class_var
-          expect(value.object_id).to eql deep_class_var.object_id
+          value = inherited_class_var
+          expect(value.object_id).to eql inherited_class_var.object_id
           subject
-          expect(value.object_id).to_not eql deep_class_var.object_id
+          expect(value.object_id).to_not eql inherited_class_var.object_id
         end
       end
     end

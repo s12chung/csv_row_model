@@ -1,7 +1,7 @@
 module CsvRowModel
   module Import
     class Presenter
-      include Concerns::DeepClassVar
+      include Concerns::InheritedClassVar
       include Concerns::Inspect
       include ActiveWarnings
 
@@ -89,7 +89,7 @@ module CsvRowModel
 
         # @return [Hash{Symbol => Array}] map of `attribute_name => [options, block]`
         def attributes
-          deep_class_var :@_mapper_attributes, {}, :merge
+          inherited_class_var :@_mapper_attributes, {}, :merge
         end
 
         # @param [Symbol] attribute_name name of attribute to find option
@@ -106,7 +106,7 @@ module CsvRowModel
 
         # @return [Hash{Symbol => Array}] map of `dependency => [array of mapper attributes dependent on dependency]`
         def dependencies
-          deep_class_cache(:@_mapper_dependencies) do
+          class_cache(:@_mapper_dependencies) do
             dependencies = {}
             attribute_names.each do |attribute_name|
               options(attribute_name)[:dependencies].each do |dependency|
@@ -125,8 +125,8 @@ module CsvRowModel
 
         def merge_attribute(attribute_hash)
           @_mapper_attributes ||= {}
-          clear_deep_class_cache(:@_mapper_attributes)
-          clear_deep_class_cache(:@_mapper_dependencies)
+          deep_clear_class_cache(:@_mapper_attributes)
+          deep_clear_class_cache(:@_mapper_dependencies)
           @_mapper_attributes.merge! attribute_hash
         end
 

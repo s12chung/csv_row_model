@@ -22,7 +22,7 @@ module CsvRowModel
 
         # @return [Hash] column names mapped to their options
         def columns
-          deep_class_var(:@_columns, {}, :merge)
+          inherited_class_var(:@_columns, {}, :merge)
         end
 
         # @param [Symbol] column_name name of column to find option
@@ -64,7 +64,7 @@ module CsvRowModel
 
         def merge_columns(column_hash)
           @_columns ||= {}
-          clear_deep_class_cache(:@_columns)
+          deep_clear_class_cache(:@_columns)
           @_columns.merge!(column_hash)
         end
 

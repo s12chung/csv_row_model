@@ -1,13 +1,13 @@
 module CsvRowModel
   module Concerns
-    module DeepClassVar
+    module InheritedClassVar
       extend ActiveSupport::Concern
 
       class_methods do
         # Clears the cache for a variable
         # @param variable_name [Symbol] variable_name to cache against
         def clear_class_cache(variable_name)
-          instance_variable_set deep_class_cache_variable_name(variable_name), nil
+          instance_variable_set inherited_class_variable_name(variable_name), nil
         end
 
         protected
@@ -44,8 +44,8 @@ module CsvRowModel
         # @param default_value [Object] default value of the class variable
         # @param merge_method [Symbol] method to merge values of the class variable
         # @return [Object] a class variable merged across ancestors until deep_class_module
-        def deep_class_var(variable_name, default_value, merge_method)
-          deep_class_cache(variable_name) do
+        def inherited_class_var(variable_name, default_value, merge_method)
+          class_cache(variable_name) do
             value = default_value
 
             inherited_ancestors.each do |ancestor|
@@ -59,25 +59,25 @@ module CsvRowModel
 
         # @param variable_name [Symbol] variable_name to cache against
         # @return [String] the cache variable name for the cache
-        def deep_class_cache_variable_name(variable_name)
-          "#{variable_name}_deep_class_cache"
+        def inherited_class_variable_name(variable_name)
+          "#{variable_name}_inherited_class_cache"
         end
 
         # Clears the cache for a variable and the same variable for all it's dependant descendants
         # @param variable_name [Symbol] variable_name to cache against
-        def clear_deep_class_cache(variable_name)
+        def deep_clear_class_cache(variable_name)
           ([self] + descendants).each do |descendant|
             descendant.try(:clear_class_cache, variable_name)
           end
         end
 
-        # Memozies a deep_class_cache_variable_name
+        # Memozies a inherited_class_variable_name
         # @param variable_name [Symbol] variable_name to cache against
-        def deep_class_cache(variable_name)
+        def class_cache(variable_name)
           #
-          # equal to: (has @)variable_name_deep_class_cache ||= Cache.new(klass, variable_name)
+          # equal to: (has @)inherited_class_variable_name ||= yield
           #
-          cache_variable_name = deep_class_cache_variable_name(variable_name)
+          cache_variable_name = inherited_class_variable_name(variable_name)
           instance_variable_get(cache_variable_name) || instance_variable_set(cache_variable_name, yield)
         end
       end

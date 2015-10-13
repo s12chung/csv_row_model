@@ -9,7 +9,7 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     included do
-      include Concerns::DeepClassVar
+      include Concerns::InheritedClassVar
 
       include ActiveWarnings
       include Validators::ValidateAttributes
