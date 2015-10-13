@@ -58,16 +58,6 @@ export_file.file # => <Tempfile>
 export_file.to_s # => export_file.file.read
 ```
 
-### FileModel
-Maps each attribute of the `RowModel` to a row on the CSV (a csv file is a now a model). More documentation is needed...
-
-```ruby
-class ProjectExportRowModel < ProjectRowModel
-  include CsvRowModel::Export
-  include CsvRowModel::Export::SingleModel
-end
-```
-
 ### Header Value
 To generate a header value, the following pseudocode is executed:
 ```ruby
@@ -139,6 +129,84 @@ row_model.previous.previous # => nil, save memory by avoiding a linked list
 ```
 
 See [Attribute Values](#attribute-values) for more on configuring and overriding Import attribute values.
+
+### Attribute Values
+To generate a attribute value, the following pseudocode is executed:
+
+```ruby
+def original_attribute(column_name)
+  # 1. Get the raw CSV string value for the column
+  value = mapped_row[column_name]
+
+  # 2. Clean or format each cell
+  value = self.class.format_cell(value)
+
+  if value.present?
+    # 3a. Parse the cell value (which does nothing if no parsing is specified)
+    parse(value)
+  elsif default_exists?
+    # 3b. Set the default
+    default_for_column(column_name)
+  end
+end
+
+def original_attributes; @original_attributes ||= { id: original_attribute(:id) } end
+
+def id; original_attribute[:id] end
+```
+
+#### Format Cell
+Override the `format_cell` method to clean/format every cell:
+```ruby
+class ProjectImportRowModel < ProjectRowModel
+  include CsvRowModel::Import
+  class << self
+    def format_cell(cell, column_name, column_index)
+      cell = cell.strip
+      cell.blank? ? nil : cell
+    end
+  end
+end
+```
+
+#### Type
+Automatic type parsing.
+
+```ruby
+class ProjectImportRowModel < ProjectRowModel
+  include CsvRowModel::Import
+
+  column :id, type: Integer
+  column :name, parse: ->(original_string) { parse(original_string) }
+
+  def parse(original_string)
+    "#{id} - #{original_string}"
+  end
+end
+```
+
+There are validators for different types: `Boolean`, `Date`, `Float`, `Integer`. See [Validations](#validations) for more.
+
+#### Default
+Sets the default value of the cell:
+```ruby
+class ProjectImportRowModel < ProjectRowModel
+  include CsvRowModel::Import
+
+  column :id, default: 1
+  column :name, default: -> { get_name }
+
+  def get_name; "John Doe" end
+end
+row_model = ProjectImportRowModel.new(["", ""])
+row_model.id # => 1
+row_model.name # => "John Doe"
+row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
+```
+
+`DefaultChangeValidator` is provided to allows to add warnings when defaults are set. See [Validations](#default-changes) for more.
+
+## Advanced Import
 
 ### Children
 
@@ -278,83 +346,7 @@ Also, the `attribute` defines a dynamic `#project` method that:
   - `presenter.errors` for dependencies are cleaned. For the example above, if `row_model.id/name` are `invalid?`, then
 the `:project` key is removed from the errors, so: `import_mapper.errors.keys # => [:id, :name]`
 
-### Attribute Values
-To generate a attribute value, the following pseudocode is executed:
-
-```ruby
-def original_attribute(column_name)
-  # 1. Get the raw CSV string value for the column
-  value = mapped_row[column_name]
-
-  # 2. Clean or format each cell
-  value = self.class.format_cell(value)
-
-  if value.present?
-    # 3a. Parse the cell value (which does nothing if no parsing is specified)
-    parse(value)
-  elsif default_exists?
-    # 3b. Set the default
-    default_for_column(column_name)
-  end
-end
-
-def original_attributes; @original_attributes ||= { id: original_attribute(:id) } end
-
-def id; original_attribute[:id] end
-```
-
-#### Format Cell
-Override the `format_cell` method to clean/format every cell:
-```ruby
-class ProjectImportRowModel < ProjectRowModel
-  include CsvRowModel::Import
-  class << self
-    def format_cell(cell, column_name, column_index)
-      cell = cell.strip
-      cell.blank? ? nil : cell
-    end
-  end
-end
-```
-
-#### Type
-Automatic type parsing.
-
-```ruby
-class ProjectImportRowModel < ProjectRowModel
-  include CsvRowModel::Import
-
-  column :id, type: Integer
-  column :name, parse: ->(original_string) { parse(original_string) }
-
-  def parse(original_string)
-    "#{id} - #{original_string}"
-  end
-end
-```
-
-There are validators for different types: `Boolean`, `Date`, `Float`, `Integer`. See [Validations](#validations) for more.
-
-#### Default
-Sets the default value of the cell:
-```ruby
-class ProjectImportRowModel < ProjectRowModel
-  include CsvRowModel::Import
-
-  column :id, default: 1
-  column :name, default: -> { get_name }
-
-  def get_name; "John Doe" end
-end
-row_model = ProjectImportRowModel.new(["", ""])
-row_model.id # => 1
-row_model.name # => "John Doe"
-row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
-```
-
-`DefaultChangeValidator` is provided to allows to add warnings when defaults are set. See [Validations](#default-changes) for more.
-
-### Validations
+## Import Validations
 
 Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html) the `RowModel`'s [Layers](#layers).
 Please read [Layers](#layers) for more information.
@@ -362,7 +354,7 @@ Please read [Layers](#layers) for more information.
 Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Mapper` for warnings.
 
 
-#### Type Format
+### Type Format
 Notice that there are validators given for different types: `Boolean`, `Date`, `Float`, `Integer`:
 
 ```ruby
@@ -382,7 +374,7 @@ row_model.valid? # => false
 row_model.errors.full_messages # => ["Id is not a Integer format"]
 ```
 
-#### Default Changes
+### Default Changes
 [Default Changes](#default) are tracked within [`ActiveWarnings`](https://github.com/s12chung/active_warnings).
 
 ```ruby
@@ -423,7 +415,7 @@ CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project
 end
 ```
 
-### Callbacks
+### Import Callbacks
 `CsvRowModel::Import::File` can be subclassed to access
 [`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
 
