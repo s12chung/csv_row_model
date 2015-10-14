@@ -1,4 +1,4 @@
-class Skill
+class Skill < Struct.new(:name, :have)
 
   class << self
     def all

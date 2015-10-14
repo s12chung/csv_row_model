@@ -26,8 +26,8 @@ module CsvRowModel
 
       # @return [Object] the column's attribute before override
       def original_attribute(column_name)
-        @original_attributes ||= {}
-        @default_changes ||= {}
+        @original_attributes ||= {}.with_indifferent_access
+        @default_changes     ||= {}.with_indifferent_access
 
         return @original_attributes[column_name] if @original_attributes.has_key? column_name
 

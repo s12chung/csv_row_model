@@ -1,4 +1,5 @@
 require 'csv_row_model/export/dynamic_columns'
+require 'csv_row_model/export/attributes'
 
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for exporting to CSVs.
@@ -7,20 +8,8 @@ module CsvRowModel
 
     included do
       include DynamicColumns
-
       attr_reader :source_model, :context
-
-      self.column_names.each do |column_name|
-
-        # Safe to override
-        #
-        #
-        # @return [String] a string of public_send(column_name) of the CSV model
-        define_method(column_name) do
-          source_model.public_send(column_name)
-        end
-      end
-
+      include Attributes
       validates :source_model, presence: true
     end
 
@@ -28,7 +17,7 @@ module CsvRowModel
     # @param [Hash]  context
     def initialize(source_model, context={})
       @source_model = source_model
-      @context = OpenStruct.new(context)
+      @context      = OpenStruct.new(context)
     end
 
     def to_rows
@@ -41,8 +30,27 @@ module CsvRowModel
     end
 
     class_methods do
+      # See {Model#column}
+      def column(column_name, options={})
+        super
+        define_attribute_method(column_name)
+      end
+
+      # See {Model#dynamic_column}
+      def dynamic_column(column_name, options={})
+        super
+        define_dynamic_attribute_method(column_name)
+      end
+
       def setup(csv, context={}, with_headers: true)
         csv << headers(context) if with_headers
+      end
+
+      # Safe to override. Method applied to each cell by default
+      #
+      # @param cell [Object] the cell's value
+      def format_cell(cell, column_name, column_index)
+        cell
       end
     end
   end

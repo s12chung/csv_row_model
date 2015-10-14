@@ -2,6 +2,7 @@ module CsvRowModel
   module Model
     module DynamicColumns
       extend ActiveSupport::Concern
+
       def attributes
         super.merge(attributes_from_column_names(self.class.dynamic_column_names))
       end
@@ -15,7 +16,7 @@ module CsvRowModel
           end.flatten
         end
 
-        VALID_OPTIONS_KEYS = %i[request]
+        VALID_OPTIONS_KEYS = [].freeze
         # @return [Array<Symbol>] column names for the row model
         def dynamic_column_names
           dynamic_columns.keys

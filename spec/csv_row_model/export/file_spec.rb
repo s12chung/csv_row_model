@@ -3,14 +3,14 @@ require 'spec_helper'
 describe CsvRowModel::Export::File do
 
   describe "instance" do
-    let(:string1)    { "Test 1" }
-    let(:string2)    { "Test 2" }
-    let(:model)     { Model.new(string1, string2) }
-    let(:instance)   { described_class.new(FileExportModel, some_context: true)  }
+    let(:string1)  { "Test 1" }
+    let(:string2)  { "Test 2" }
+    let(:model)    { Model.new(string1, string2) }
+    let(:instance) { described_class.new(FileExportModel, some_context: true)  }
 
     describe "#generate" do
-      let(:row1)        { ['string1', string1] }
-      let(:row2)        { ['String 2', string2] }
+      let(:row1) { ['string1', string1] }
+      let(:row2) { ['String 2', string2] }
 
       include_context 'csv file'
 

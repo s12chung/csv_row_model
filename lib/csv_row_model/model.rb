@@ -56,10 +56,14 @@ module CsvRowModel
         @csv_string_model_class ||= inherited_custom_class(:csv_string_model_class, CsvStringModel)
       end
 
+      def dynamic_index(column_name)
+        column_count + dynamic_column_names.index(column_name)
+      end
+
       protected
       # Called to add validations to the csv_string_model_class
       def csv_string_model(&block)
-        csv_string_model_class.class_eval &block
+        csv_string_model_class.class_eval(&block)
       end
 
       def deep_class_module

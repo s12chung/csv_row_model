@@ -29,6 +29,10 @@ module CsvRowModel
           columns.keys
         end
 
+        def column_count
+          columns.keys.size
+        end
+
         # @return [Hash] column names mapped to their options
         def columns
           inherited_class_var(:@_columns, {}, :merge)

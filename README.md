@@ -100,6 +100,7 @@ class ProjectRowModel
 end
 ```
 
+
 #### Format Header
 Override the `format_header` method to format column header names:
 ```ruby
@@ -124,7 +125,7 @@ def original_attribute(column_name)
   value = mapped_row[column_name]
 
   # 2. Clean or format each cell
-  value = self.class.format_cell(value)
+  value = self.class.format_cell(cell, column_name, column_index)
 
   if value.present?
     # 3a. Parse the cell value (which does nothing if no parsing is specified)
@@ -192,6 +193,78 @@ row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
 ```
 
 `DefaultChangeValidator` is provided to allows to add warnings when defaults are set. See [Validations](#default-changes) for more.
+
+### Dynamic columns
+
+Limitation, currently we can set only one dynamic column, this column must be a this end of the columns
+
+Sets one dynamic column:
+```ruby
+class DynamicColumnModel
+  include CsvRowModel::Model
+
+  column :first_name, header: 'First Name'
+  column :last_name,  header: 'Last Name'
+  dynamic_column :skills
+end
+```
+
+Import
+
+Value is define by the singular method of name of dynamic_column, so here => def skill(value, header) ; end
+
+```ruby
+#
+# Import
+#
+class DynamicColumnImportModel < DynamicColumnModel
+  include CsvRowModel::Import
+
+  def skill(value, skill_name)
+    value == 'No' ? nil : skill_name
+  end
+
+  class << self
+    def format_cell(cell, column_name, column_index)
+      cell.strip
+    end
+
+    def format_dynamic_column_cells(cells, column_name)
+      cells.compact
+    end
+  end
+end
+```
+
+Export
+
+Value is define by the singular method of name of dynamic_column, so here => def skill(model) ; end
+
+```ruby
+#
+# Export
+#
+class DynamicColumnExportModel < DynamicColumnModel
+  include CsvRowModel::Export
+
+  def skill(skill)
+    source_model.skills.include?(skill)
+  end
+
+  class << self
+    def skill_header(skill)
+      skill
+    end
+
+    def format_cell(cell, column_name, column_index)
+      return 'No'  if cell.nil?
+      return 'Yes' if cell == true
+      return 'No'  if cell == false
+      cell
+    end
+  end
+end
+```
 
 ## Advanced Import
 
