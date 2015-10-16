@@ -2,6 +2,65 @@
 
 Import and export your custom CSVs with a intuitive shared Ruby interface.
 
+First define your schema:
+
+```ruby
+class ProjectRowModel
+  include CsvRowModel::Model
+  
+  column :id
+  column :name
+end
+```
+
+To export, define your export model like [`ActiveModel::Serializer`](https://github.com/rails-api/active_model_serializers)
+and generate the file:
+
+```ruby
+class ProjectExportRowModel < ProjectRowModel
+  include CsvRowModel::Export
+
+  # this is an override with the default implementation
+  def id
+    source_model.id
+  end
+end
+
+export_file = CsvRowModel::Export::File.new(ProjectExportRowModel)
+export_file.generate { |csv| csv << project }
+export_file.file # => <Tempfile>
+export_file.to_s # => export_file.file.read
+```
+
+To import, define your import model, which works like [`ActiveRecord`](http://guides.rubyonrails.org/active_record_querying.html),
+and iterate through a file:
+
+```ruby
+class ProjectImportRowModel < ProjectRowModel
+  include CsvRowModel::Import
+
+  # this is an override with the default implementation
+  def id
+    original_attribute(:id)
+  end
+end
+
+import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
+row_model = import_file.next
+
+row_model.header # => ["id", "name"]
+
+row_model.source_row # => ["1", "Some Project Name"]
+row_model.mapped_row # => { id: "1", name: "Some Project Name" }, this is `source_row` mapped to `column_names`
+row_model.attributes # => { id: "1", name: "Some Project Name" }, this is final attribute values mapped to `column_names` 
+
+row_model.id # => 1
+row_model.name # => "Some Project Name"
+
+row_model.previous # => <ProjectImportRowModel instance>
+row_model.previous.previous # => nil, save memory by avoiding a linked list
+```
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -18,45 +77,7 @@ Or install it yourself as:
 
     $ gem install csv_row_model
 
-## RowModel
-
-Define your `RowModel`'s schema.
-
-```ruby
-class ProjectRowModel
-  include CsvRowModel::Model
-
-  # column indices are tracked with each call
-  column :id, type: Integer
-  column :name
-end
-```
-
-This schema can be used for both Import and Export.
-
 ## Export
-
-Maps each attribute of the `RowModel` to a column of a CSV row.
-
-```ruby
-class ProjectExportRowModel < ProjectRowModel
-  include CsvRowModel::Export
-
-  # Optional Override
-  def name
-    "#{source_model.id} - #{source_model.name}" # default implementation: source_model.name
-  end
-end
-```
-
-And to export:
-
-```ruby
-export_file = CsvRowModel::Export::File.new(ProjectExportRowModel)
-export_file.generate { |csv| csv.append_model(project) }
-export_file.file # => <Tempfile>
-export_file.to_s # => export_file.file.read
-```
 
 ### Header Value
 To generate a header value, the following pseudocode is executed:
@@ -93,42 +114,6 @@ end
 ```
 
 ## Import
-
-Maps each column of a CSV row to an attribute of the `RowModel`.
-
-```ruby
-class ProjectImportRowModel < ProjectRowModel
-  include CsvRowModel::Import
-
-  def name
-    mapped_row[:name].upcase
-  end
-end
-```
-
-And to import:
-
-```ruby
-import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
-row_model = import_file.next
-
-row_model.header # => ["id", "name"]
-
-row_model.source_row # => ["1", "Some Project Name"]
-row_model.mapped_row # => { id: "1", name: "Some Project Name" }
-
-row_model.id # => 1
-row_model.name # => "SOME PROJECT NAME"
-```
-
-`Import::File` also provides the `RowModel` with the previous `RowModel` instance:
-
-```ruby
-row_model.previous # => <ProjectImportRowModel instance>
-row_model.previous.previous # => nil, save memory by avoiding a linked list
-```
-
-See [Attribute Values](#attribute-values) for more on configuring and overriding Import attribute values.
 
 ### Attribute Values
 To generate a attribute value, the following pseudocode is executed:
@@ -173,7 +158,8 @@ end
 Automatic type parsing.
 
 ```ruby
-class ProjectImportRowModel < ProjectRowModel
+class ProjectImportRowModel
+  include CsvRowModel::Model
   include CsvRowModel::Import
 
   column :id, type: Integer
@@ -190,7 +176,8 @@ There are validators for different types: `Boolean`, `Date`, `Float`, `Integer`.
 #### Default
 Sets the default value of the cell:
 ```ruby
-class ProjectImportRowModel < ProjectRowModel
+class ProjectImportRowModel
+  include CsvRowModel::Model
   include CsvRowModel::Import
 
   column :id, default: 1
@@ -251,7 +238,7 @@ row_model.presenter
 The `CsvStringModel` represents a row before parsing to add parsing validations.
 
 ```ruby
-class ProjectRowModel
+class ProjectImportRowModel
   include CsvRowModel::Model
   include CsvRowModel::Import
 
@@ -272,7 +259,7 @@ class ProjectRowModel
 end
 
 # Applied to the String
-ProjectRowModel.new([""])
+ProjectImportRowModel.new([""])
 csv_string_model = row_model.csv_string_model
 csv_string_model.random_method => "Hihi"
 csv_string_model.valid? => false
@@ -332,7 +319,7 @@ row_model = import_file.next
 presenter = row_model.presenter
 
 presenter.row_model # gets the row model underneath
-presenter.project.name == presenter.row_model.name # => "SOME PROJECT NAME"
+presenter.project.name == presenter.row_model.name # => "Some Project Name"
 ```
 
 The presenters are designed for another layer of validation---such as with the database.
@@ -358,8 +345,9 @@ Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `
 Notice that there are validators given for different types: `Boolean`, `Date`, `Float`, `Integer`:
 
 ```ruby
-class ProjectRowModel
+class ProjectImportRowModel
   include CsvRowModel::Model
+  include CsvRowModel::Import
 
   column :id, type: Integer, validate_type: true
 
