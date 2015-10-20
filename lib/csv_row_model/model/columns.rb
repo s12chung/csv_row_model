@@ -29,10 +29,6 @@ module CsvRowModel
           columns.keys
         end
 
-        def column_count
-          columns.keys.size
-        end
-
         # @return [Hash] column names mapped to their options
         def columns
           inherited_class_var(:@_columns, {}, :merge)
@@ -59,11 +55,7 @@ module CsvRowModel
         # @param [Hash, OpenStruct] context name of column to check
         # @return [Array] column headers for the row model
         def headers(context={})
-          @headers ||= begin
-            columns.map do |name, options|
-              options[:header] || format_header(name)
-            end + dynamic_columns_headers(context)
-          end
+          @headers ||= columns.map { |name, options| options[:header] || format_header(name) }
         end
 
         # Safe to override

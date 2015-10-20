@@ -38,7 +38,7 @@ module CsvRowModel
     # @return [Hash] a map of `column_name => source_row[index_of_column_name]`
     def mapped_row
       return {} unless source_row
-      @mapped_row ||= self.class.column_names.zip(source_row).to_h.with_indifferent_access
+      @mapped_row ||= self.class.column_names.zip(source_row).to_h
     end
 
     # Free `previous` from memory to avoid making a linked list
@@ -60,9 +60,9 @@ module CsvRowModel
             column_names.map.with_index do |column_name, index|
               self.class.format_cell(source_row[index], column_name, index)
             end
-          ).to_h.with_indifferent_access
+          ).to_h
         else
-          hash = {}.with_indifferent_access
+          hash = {}
         end
 
         self.class.csv_string_model_class.new(hash)
@@ -104,12 +104,6 @@ module CsvRowModel
       def column(column_name, options={})
         super
         define_attribute_method(column_name)
-      end
-
-      # See {Model#dynamic_column}
-      def dynamic_column(column_name, options={})
-        super
-        define_dynamic_attribute_method(column_name)
       end
 
       # @param [Import::Csv] csv to read from

@@ -100,7 +100,6 @@ class ProjectRowModel
 end
 ```
 
-
 #### Format Header
 Override the `format_header` method to format column header names:
 ```ruby
@@ -193,78 +192,6 @@ row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
 ```
 
 `DefaultChangeValidator` is provided to allows to add warnings when defaults are set. See [Validations](#default-changes) for more.
-
-### Dynamic columns
-
-Limitation, currently we can set only one dynamic column, this column must be a this end of the columns
-
-Sets one dynamic column:
-```ruby
-class DynamicColumnModel
-  include CsvRowModel::Model
-
-  column :first_name, header: 'First Name'
-  column :last_name,  header: 'Last Name'
-  dynamic_column :skills
-end
-```
-
-Import
-
-Value is define by the singular method of name of dynamic_column, so here => def skill(value, header) ; end
-
-```ruby
-#
-# Import
-#
-class DynamicColumnImportModel < DynamicColumnModel
-  include CsvRowModel::Import
-
-  def skill(value, skill_name)
-    value == 'No' ? nil : skill_name
-  end
-
-  class << self
-    def format_cell(cell, column_name, column_index)
-      cell.strip
-    end
-
-    def format_dynamic_column_cells(cells, column_name)
-      cells.compact
-    end
-  end
-end
-```
-
-Export
-
-Value is define by the singular method of name of dynamic_column, so here => def skill(model) ; end
-
-```ruby
-#
-# Export
-#
-class DynamicColumnExportModel < DynamicColumnModel
-  include CsvRowModel::Export
-
-  def skill(skill)
-    source_model.skills.include?(skill)
-  end
-
-  class << self
-    def skill_header(skill)
-      skill
-    end
-
-    def format_cell(cell, column_name, column_index)
-      return 'No'  if cell.nil?
-      return 'Yes' if cell == true
-      return 'No'  if cell == false
-      cell
-    end
-  end
-end
-```
 
 ## Advanced Import
 
@@ -501,4 +428,87 @@ class ImportFile < CsvRowModel::Import::File
     ...
   end
 end
+```
+
+## Dynamic columns
+Dynamic columns are columns that can expand to many columns. Currently, we can only one dynamic column after all other standard columns.
+The following:
+
+```ruby
+class DynamicColumnModel
+  include CsvRowModel::Model
+
+  column :first_name
+  column :last_name
+  dynamic_column :skills
+end
+```
+
+represents this table:
+
+| first_name | last_name  | skill1 | skill2 |
+| ---------- |----------- | ------ | ------ |
+| John       | Doe        |   No   |   Yes  |
+| Mario      | Super      |   Yes  |   No   |
+| Mike       | Jackson    |   Yes  |   Yes  |
+
+
+### Export
+Dynamic column attributes are arrays, but each item in the array is defined via singular attribute method like
+normal columns:
+
+```ruby
+class DynamicColumnExportModel < DynamicColumnModel
+  include CsvRowModel::Export
+
+  def skill(skill_name)
+    source_model.skills.include?(skill_name)
+  end
+
+  class << self
+    def skill_header(skill_name)
+      skill_name
+    end
+
+    def format_cell(cell, column_name, column_index)
+      return 'No'  if cell.nil?
+      return 'Yes' if cell == true
+      return 'No'  if cell == false
+      cell
+    end
+  end
+end
+
+# the `skills` context is mapped to generate an array
+export_file = CsvRowModel::Export::File.new(DynamicColumnExportModel, { skills: Skill.all  })
+export_file.generate do |csv|
+  User.all.each { |user| csv << user }
+end
+```
+
+### Import
+Like Export above, each item of the array is defined via singular attribute method like
+normal columns:
+
+```ruby
+class DynamicColumnImportModel < DynamicColumnModel
+  include CsvRowModel::Import
+
+  def skill(value, skill_name)
+    value == 'No' ? nil : skill_name
+  end
+
+  class << self
+    def format_cell(cell, column_name, column_index)
+      cell.strip
+    end
+
+    # remove nil from `skills` attribute
+    def format_dynamic_column_cells(cells, column_name)
+      cells.compact
+    end
+  end
+end
+row_model = CsvRowModel::Import::File.new(file_path, DynamicColumnImportModel).next
+row_model.skills # => ['skill1', 'skill2'] if "Yes" is the value of the cell
 ```

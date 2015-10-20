@@ -15,7 +15,7 @@ describe CsvRowModel::Import::Attributes do
       it "returns them and memoizes the result" do
         # 2 attributes * (1 for csv_string_model + 1 for original_attributes)
         expect(import_model_klass).to receive(:format_cell).exactly(4).times.and_call_original
-        5.times { expect(instance.original_attributes).to eql('string1' => '1.01', 'string2' => 'b') }
+        5.times { expect(instance.original_attributes).to eql(string1: '1.01', string2: 'b') }
       end
     end
 
@@ -110,7 +110,7 @@ describe CsvRowModel::Import::Attributes do
       end
 
       it "sets the default" do
-        expect(subject).to eql('string1' => [nil, 123])
+        expect(subject).to eql(string1: [nil, 123])
       end
     end
   end

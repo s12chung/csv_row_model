@@ -14,7 +14,7 @@ module CsvRowModel
 
         # @param included_module [Module] module to search for
         # @return [Array<Module>] inherited_ancestors of included_module (including self)
-        def inherited_ancestors(included_module=deep_class_module)
+        def inherited_ancestors(included_module=inherited_class_module)
           included_model_index = ancestors.index(included_module)
           included_model_index == 0 ? [included_module] : ancestors[0..(included_model_index - 1)]
         end
@@ -43,7 +43,7 @@ module CsvRowModel
         # @param variable_name [Symbol] class variable name (recommend :@_variable_name)
         # @param default_value [Object] default value of the class variable
         # @param merge_method [Symbol] method to merge values of the class variable
-        # @return [Object] a class variable merged across ancestors until deep_class_module
+        # @return [Object] a class variable merged across ancestors until inherited_class_module
         def inherited_class_var(variable_name, default_value, merge_method)
           class_cache(variable_name) do
             value = default_value

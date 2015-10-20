@@ -78,7 +78,7 @@ module CsvRowModel
       end
 
       class << self
-        def deep_class_module
+        def inherited_class_module
           Presenter
         end
 

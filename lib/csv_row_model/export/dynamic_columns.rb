@@ -7,16 +7,21 @@ module CsvRowModel
         self.dynamic_column_names.each { |*args| define_dynamic_attribute_method(*args) }
       end
 
-      class_methods do
-        # Define default attribute method for a column
-        # @param column_name [Symbol] the cell's column_name
-        # @param index [Integer] the index's column_name
-        def define_dynamic_attribute_method(column_name)
+      # @return [Array] an array of public_send(column_name) of the CSV model
+      def to_row
+        super.flatten
+      end
 
-          # Safe to override
-          #
-          #
-          # @return [String] a string of public_send(column_name) of the CSV model
+      class_methods do
+        # See {Model#dynamic_column}
+        def dynamic_column(column_name, options={})
+          super
+          define_dynamic_attribute_method(column_name)
+        end
+
+        # Define default attribute method for a dynamic_column
+        # @param column_name [Symbol] the cell's column_name
+        def define_dynamic_attribute_method(column_name)
           define_method(column_name) do
             context.public_send(column_name).map do |header_model|
               self.class.format_cell(
@@ -27,11 +32,6 @@ module CsvRowModel
             end
           end
         end
-      end
-
-      # @return [Array] an array of public_send(column_name) of the CSV model
-      def to_row
-        super.flatten
       end
     end
   end

@@ -27,11 +27,7 @@ module CsvRowModel
       # @return [Object] the column's attribute before override
       def original_attribute(column_name)
         return super if self.class.column_names.include?(column_name)
-
-        @original_attributes ||= {}.with_indifferent_access
-        @default_changes     ||= {}.with_indifferent_access
-
-        return @original_attributes[column_name] if @original_attributes.has_key? column_name
+        return @original_attributes[column_name] if original_attribute_memoized? column_name
 
         values = dynamic_source_headers.map.with_index do |source_header, index|
           value = self.class.format_cell(
@@ -45,6 +41,11 @@ module CsvRowModel
       end
 
       class_methods do
+        # See {Model#dynamic_column}
+        def dynamic_column(column_name, options={})
+          super
+          define_dynamic_attribute_method(column_name)
+        end
 
         # Safe to override. Method applied to each cell by default
         #
@@ -62,7 +63,6 @@ module CsvRowModel
           define_method(column_name) { original_attribute(column_name) }
         end
       end
-
     end
   end
 end

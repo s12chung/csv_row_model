@@ -5,7 +5,7 @@ module Child
   extend ActiveSupport::Concern
 
   class_methods do
-    def deep_class_module
+    def inherited_class_module
       Child
     end
   end
@@ -40,7 +40,7 @@ describe CsvRowModel::Concerns::InheritedClassVar do
         let(:klass) do
           Class.new do
             include CsvRowModel::Model
-            def self.deep_class_module; CsvRowModel::Model end
+            def self.inherited_class_module; CsvRowModel::Model end
 
             csv_string_model { validates :string1, presence: true }
           end
@@ -73,7 +73,7 @@ describe CsvRowModel::Concerns::InheritedClassVar do
             include CsvRowModel::Model
             include CsvRowModel::Import
             def self.name; "TestRowModel" end
-            def self.deep_class_module; CsvRowModel::Import end
+            def self.inherited_class_module; CsvRowModel::Import end
 
             presenter do
               validates :attr2, presence: true
@@ -132,7 +132,7 @@ describe CsvRowModel::Concerns::InheritedClassVar do
       describe "::inherited_class_var" do
         subject { inherited_class_var }
 
-        it "returns a class variable merged across ancestors until deep_class_module" do
+        it "returns a class variable merged across ancestors until inherited_class_module" do
           expect(subject).to eql %w[Parent ClassWithFamily]
         end
 
