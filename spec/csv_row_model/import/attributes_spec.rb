@@ -8,8 +8,27 @@ describe CsvRowModel::Import::Attributes do
     let(:import_model_klass) { BasicImportModel }
     let(:instance)           { import_model_klass.new(source_row, options) }
 
-    describe "#original_attributes" do
+    describe "attribute methods" do
+      subject { instance.string1 }
 
+      context "when included before and after #column call" do
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+            column :string1
+            include CsvRowModel::Import
+            column :string2
+          end
+        end
+
+        it "works" do
+          expect(instance.string1).to eql "1.01"
+          expect(instance.string2).to eql "b"
+        end
+      end
+    end
+
+    describe "#original_attributes" do
       subject { instance.original_attributes }
 
       it "returns them and memoizes the result" do
@@ -32,6 +51,13 @@ describe CsvRowModel::Import::Attributes do
         expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return("waka").twice
         expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil).once
         expect(subject).to eql("waka")
+      end
+
+      context "invalid column_name" do
+        subject { instance.original_attribute(:not_a_column) }
+        it "works" do
+          expect(subject).to eql nil
+        end
       end
 
       context "with all options" do

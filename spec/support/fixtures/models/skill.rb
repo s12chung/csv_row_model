@@ -1,8 +1,7 @@
-class Skill < Struct.new(:name, :have)
-
+class Skill
   class << self
     def all
-      ['Organize', 'Clean', 'Punctual', 'Strong', 'Crazy', 'Flexible']
+      ['Organized', 'Clean', 'Punctual', 'Strong', 'Crazy', 'Flexible']
     end
   end
 end

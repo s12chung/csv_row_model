@@ -462,19 +462,14 @@ class DynamicColumnExportModel < DynamicColumnModel
   include CsvRowModel::Export
 
   def skill(skill_name)
-    source_model.skills.include?(skill_name)
+    # below is an override, this is the default implementation: skill_name # => "skill1", then "skill2"
+    source_model.skills.include?(skill_name) ? "Yes" : "No"
   end
 
   class << self
+    # this is an override with the default implementation
     def skill_header(skill_name)
       skill_name
-    end
-
-    def format_cell(cell, column_name, column_index)
-      return 'No'  if cell.nil?
-      return 'Yes' if cell == true
-      return 'No'  if cell == false
-      cell
     end
   end
 end
@@ -494,21 +489,21 @@ normal columns:
 class DynamicColumnImportModel < DynamicColumnModel
   include CsvRowModel::Import
 
+  # this is an override with the default implementation (override highly recommended)
   def skill(value, skill_name)
-    value == 'No' ? nil : skill_name
+    value
   end
 
   class << self
-    def format_cell(cell, column_name, column_index)
-      cell.strip
-    end
-
-    # remove nil from `skills` attribute
+    # Clean/format every dynamic_column attribute array
+    #
+    # this is an override with the default implementation
     def format_dynamic_column_cells(cells, column_name)
-      cells.compact
+      cells
     end
   end
 end
 row_model = CsvRowModel::Import::File.new(file_path, DynamicColumnImportModel).next
-row_model.skills # => ['skill1', 'skill2'] if "Yes" is the value of the cell
+row_model.attributes # => { first_name: "John", last_name: "Doe", skills: ['No', 'Yes'] }
+row_model.skills # => ['No', 'Yes']
 ```

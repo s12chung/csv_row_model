@@ -13,7 +13,9 @@ module CsvRowModel
       end
 
       class_methods do
-        # See {Model#dynamic_column}
+        protected
+
+        # See {Model::DynamicColumns#dynamic_column}
         def dynamic_column(column_name, options={})
           super
           define_dynamic_attribute_method(column_name)
@@ -25,12 +27,14 @@ module CsvRowModel
           define_method(column_name) do
             context.public_send(column_name).map do |header_model|
               self.class.format_cell(
-                public_send(column_name.to_s.singularize, header_model),
+                public_send(self.class.singular_dynamic_attribute_method_name(column_name), header_model),
                 column_name,
                 self.class.dynamic_index(column_name)
               )
             end
           end
+
+          define_method(singular_dynamic_attribute_method_name(column_name)) { |header_model| header_model }
         end
       end
     end

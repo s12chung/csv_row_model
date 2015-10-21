@@ -1,25 +1,70 @@
 require 'spec_helper'
 
 describe CsvRowModel::Export::DynamicColumns do
+  let(:skills) { Skill.all }
 
-  subject do
-    CsvRowModel::Export::File.new(DynamicColumnExportModel, { skills: Skill.all  })
-  end
+  let(:instance) { export_model_class.new(User.new("Mario", "Doe"), skills: skills) }
+  let(:export_model_class) { DynamicColumnExportModel }
 
-  let(:models) do
-    [ User.new('Josie', 'Herman', Skill.all - ['Clean']) ]
-  end
+  describe "instance" do
+    describe "#to_row" do
+      subject { instance.to_row }
 
-  before do
-    subject.generate do |csv|
-      models.each do |model| csv << model end
+      it "returns a row representation of the row_model" do
+        expect(subject).to eql ["Mario", "Doe"] + skills
+      end
     end
   end
 
-  it 'Should generate right headers and values' do
-    expect(subject.to_s).to eql(
-      "First Name,Last Name,Organize,Clean,Punctual,Strong,Crazy,Flexible\n" \
-      "Josie,Herman,Yes,No,Yes,Yes,Yes,Yes\n"
-    )
+  describe "class" do
+    describe "attribute methods" do
+      let(:export_model_base_class) do
+        Class.new do
+          include CsvRowModel::Model
+        end
+      end
+      let(:export_model_class) do
+        Class.new(export_model_base_class) do
+          include CsvRowModel::Export
+          dynamic_column :skills
+        end
+      end
+
+      subject { instance.skills }
+
+      it 'works' do
+        expect(subject).to eql(skills)
+      end
+
+      context "when defined before Export" do
+        let(:export_model_class) do
+          Class.new(export_model_base_class) do
+            dynamic_column :skills
+            include CsvRowModel::Export
+          end
+        end
+
+        it "works" do
+          expect(subject).to eql(skills)
+        end
+      end
+
+      context 'with overwritten singular method' do
+        let(:export_model_class) do
+          Class.new(export_model_base_class) do
+            dynamic_column :skills
+            include CsvRowModel::Export
+
+            def skill(header_model)
+              header_model.upcase
+            end
+          end
+        end
+
+        it "works" do
+          expect(subject).to eql(skills.map(&:upcase))
+        end
+      end
+    end
   end
 end
