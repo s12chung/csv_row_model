@@ -153,11 +153,14 @@ module CsvRowModel
         def define_attribute_method(attribute_name)
           define_method("__#{attribute_name}", &block(attribute_name))
 
-          define_method(attribute_name) do
+          define_method(attribute_name) do |*args|
             return unless valid_dependencies?(attribute_name)
-            self.class.options(attribute_name)[:memoize] ?
-              memoize(attribute_name) { public_send("__#{attribute_name}") } :
-              public_send("__#{attribute_name}")
+
+            if self.class.options(attribute_name)[:memoize] and args.empty?
+              memoize(attribute_name) { public_send("__#{attribute_name}") }
+            else
+              public_send("__#{attribute_name}", *args)
+            end
           end
         end
       end
