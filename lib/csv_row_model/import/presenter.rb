@@ -63,10 +63,16 @@ module CsvRowModel
         errors.messages.reverse_merge!(row_model.errors.messages)
       end
 
+      # @param [Array] Array of column_names to check
+      # @return [Boolean] if column_names are valid
+      def row_model_valid?(*column_names)
+        row_model.valid? || (row_model.errors.keys & column_names).empty?
+      end
+
       # @param [Symbol] attribute_name the attribute to check
       # @return [Boolean] if the dependencies are valid
       def valid_dependencies?(attribute_name)
-        row_model.valid? || (row_model.errors.keys & self.class.options(attribute_name)[:dependencies]).empty?
+        row_model_valid?(*self.class.options(attribute_name)[:dependencies])
       end
 
       # equal to: @method_name ||= yield
