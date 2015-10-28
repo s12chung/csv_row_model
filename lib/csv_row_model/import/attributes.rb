@@ -26,10 +26,7 @@ module CsvRowModel
 
       # @return [Object] the column's attribute before override
       def original_attribute(column_name)
-        @original_attributes ||= {}
-        @default_changes ||= {}
-
-        return @original_attributes[column_name] if @original_attributes.has_key? column_name
+        return @original_attributes[column_name] if original_attribute_memoized? column_name
 
         csv_string_model.valid?
         return nil unless csv_string_model.errors[column_name].blank?
@@ -49,6 +46,13 @@ module CsvRowModel
       def default_changes
         original_attributes
         @default_changes
+      end
+
+      protected
+      def original_attribute_memoized?(column_name)
+        @original_attributes ||= {}
+        @default_changes     ||= {}
+        @original_attributes.has_key? column_name
       end
 
       class_methods do

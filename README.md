@@ -124,7 +124,7 @@ def original_attribute(column_name)
   value = mapped_row[column_name]
 
   # 2. Clean or format each cell
-  value = self.class.format_cell(value)
+  value = self.class.format_cell(cell, column_name, column_index)
 
   if value.present?
     # 3a. Parse the cell value (which does nothing if no parsing is specified)
@@ -428,4 +428,82 @@ class ImportFile < CsvRowModel::Import::File
     ...
   end
 end
+```
+
+## Dynamic columns
+Dynamic columns are columns that can expand to many columns. Currently, we can only one dynamic column after all other standard columns.
+The following:
+
+```ruby
+class DynamicColumnModel
+  include CsvRowModel::Model
+
+  column :first_name
+  column :last_name
+  dynamic_column :skills
+end
+```
+
+represents this table:
+
+| first_name | last_name  | skill1 | skill2 |
+| ---------- |----------- | ------ | ------ |
+| John       | Doe        |   No   |   Yes  |
+| Mario      | Super      |   Yes  |   No   |
+| Mike       | Jackson    |   Yes  |   Yes  |
+
+
+### Export
+Dynamic column attributes are arrays, but each item in the array is defined via singular attribute method like
+normal columns:
+
+```ruby
+class DynamicColumnExportModel < DynamicColumnModel
+  include CsvRowModel::Export
+
+  def skill(skill_name)
+    # below is an override, this is the default implementation: skill_name # => "skill1", then "skill2"
+    source_model.skills.include?(skill_name) ? "Yes" : "No"
+  end
+
+  class << self
+    # this is an override with the default implementation
+    def skill_header(skill_name)
+      skill_name
+    end
+  end
+end
+
+# the `skills` context is mapped to generate an array
+export_file = CsvRowModel::Export::File.new(DynamicColumnExportModel, { skills: Skill.all  })
+export_file.generate do |csv|
+  User.all.each { |user| csv << user }
+end
+```
+
+### Import
+Like Export above, each item of the array is defined via singular attribute method like
+normal columns:
+
+```ruby
+class DynamicColumnImportModel < DynamicColumnModel
+  include CsvRowModel::Import
+
+  # this is an override with the default implementation (override highly recommended)
+  def skill(value, skill_name)
+    value
+  end
+
+  class << self
+    # Clean/format every dynamic_column attribute array
+    #
+    # this is an override with the default implementation
+    def format_dynamic_column_cells(cells, column_name)
+      cells
+    end
+  end
+end
+row_model = CsvRowModel::Import::File.new(file_path, DynamicColumnImportModel).next
+row_model.attributes # => { first_name: "John", last_name: "Doe", skills: ['No', 'Yes'] }
+row_model.skills # => ['No', 'Yes']
 ```

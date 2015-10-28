@@ -1,11 +1,32 @@
 require 'spec_helper'
 
 describe CsvRowModel::Import::Attributes do
+
   describe "instance" do
-    let(:source_row) { %w[1.01 b] }
-    let(:options) { {} }
+    let(:source_row)         { %w[1.01 b] }
+    let(:options)            { {} }
     let(:import_model_klass) { BasicImportModel }
-    let(:instance) { import_model_klass.new(source_row, options) }
+    let(:instance)           { import_model_klass.new(source_row, options) }
+
+    describe "attribute methods" do
+      subject { instance.string1 }
+
+      context "when included before and after #column call" do
+        let(:import_model_klass) do
+          Class.new do
+            include CsvRowModel::Model
+            column :string1
+            include CsvRowModel::Import
+            column :string2
+          end
+        end
+
+        it "works" do
+          expect(instance.string1).to eql "1.01"
+          expect(instance.string2).to eql "b"
+        end
+      end
+    end
 
     describe "#original_attributes" do
       subject { instance.original_attributes }
@@ -13,7 +34,7 @@ describe CsvRowModel::Import::Attributes do
       it "returns them and memoizes the result" do
         # 2 attributes * (1 for csv_string_model + 1 for original_attributes)
         expect(import_model_klass).to receive(:format_cell).exactly(4).times.and_call_original
-        5.times { expect(instance.original_attributes).to eql(string1: "1.01", string2: "b") }
+        5.times { expect(instance.original_attributes).to eql(string1: '1.01', string2: 'b') }
       end
     end
 
@@ -30,6 +51,13 @@ describe CsvRowModel::Import::Attributes do
         expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return("waka").twice
         expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil).once
         expect(subject).to eql("waka")
+      end
+
+      context "invalid column_name" do
+        subject { instance.original_attribute(:not_a_column) }
+        it "works" do
+          expect(subject).to eql nil
+        end
       end
 
       context "with all options" do
@@ -89,29 +117,6 @@ describe CsvRowModel::Import::Attributes do
           it "returns nil" do
             expect(subject).to eql(nil)
           end
-        end
-      end
-    end
-
-    describe "attribute methods" do
-      subject { instance.string1 }
-
-      context "when included before and after #column call" do
-        let(:import_model_klass) do
-          Class.new do
-            include CsvRowModel::Model
-
-            column :string1
-
-            include CsvRowModel::Import
-
-            column :string2
-          end
-        end
-
-        it "works" do
-          expect(instance.string1).to eql "1.01"
-          expect(instance.string2).to eql "b"
         end
       end
     end

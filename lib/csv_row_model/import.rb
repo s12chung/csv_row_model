@@ -1,5 +1,6 @@
 require 'csv_row_model/import/attributes'
 require 'csv_row_model/import/presenter'
+require 'csv_row_model/import/dynamic_columns'
 
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for importing csvs.
@@ -9,6 +10,7 @@ module CsvRowModel
     included do
       include Concerns::Inspect
       include Attributes
+      include DynamicColumns
 
       attr_reader :attr_reader, :source_header, :source_row, :context, :index, :previous
 
@@ -54,12 +56,15 @@ module CsvRowModel
       @csv_string_model ||= begin
         if source_row
           column_names = self.class.column_names
-          hash = column_names.zip(column_names.map.with_index do |column_name, index|
-                                    self.class.format_cell(source_row[index], column_name, index)
-                                  end).to_h
+          hash = column_names.zip(
+            column_names.map.with_index do |column_name, index|
+              self.class.format_cell(source_row[index], column_name, index)
+            end
+          ).to_h
         else
           hash = {}
         end
+
         self.class.csv_string_model_class.new(hash)
       end
     end
@@ -88,7 +93,7 @@ module CsvRowModel
       end
 
       if using_warnings?
-        csv_string_model.using_warnings &proc
+        csv_string_model.using_warnings(&proc)
       else
         proc.call
       end
@@ -105,13 +110,17 @@ module CsvRowModel
       # @param [Hash] context extra data you want to work with the model
       # @param [Import] prevuous the previous row model
       # @return [Import] the next model instance from the csv
-      def next(csv, context={}, previous=nil)
+      def next(csv, source_header, context={}, previous=nil)
         csv.skip_header
         row_model = nil
 
         loop do # loop until the next parent or end_of_file? (need to read children rows)
           csv.read_row
-          row_model ||= new(csv.current_row, index: csv.index, context: context, previous: previous)
+          row_model ||= new(csv.current_row,
+                            index: csv.index,
+                            source_header: source_header,
+                            context: context,
+                            previous: previous)
 
           return row_model if csv.end_of_file?
 
@@ -132,7 +141,7 @@ module CsvRowModel
 
       # Call to define the presenter
       def presenter(&block)
-        presenter_class.class_eval &block
+        presenter_class.class_eval(&block)
       end
     end
   end

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe CsvRowModel::Model::Children do
   describe "instance" do
     let(:options) { {} }
-    let(:instance) { BasicModel.new(nil, options) }
+    let(:instance) { BasicRowModel.new(nil, options) }
 
     describe "#child?" do
       subject { instance.child? }
@@ -11,7 +11,7 @@ describe CsvRowModel::Model::Children do
       specify { expect(subject).to eql false }
 
       context "with a parent" do
-        let(:parent_instance) { BasicModel.new }
+        let(:parent_instance) { BasicRowModel.new }
         let(:options) { { parent:  parent_instance } }
         specify { expect(subject).to eql true }
       end
@@ -24,7 +24,7 @@ describe CsvRowModel::Model::Children do
 
       let(:parent_instance) { ParentImportModel.new(source_row) }
       before do
-        allow(BasicModel).to receive(:new).with(source_row, options).and_return instance
+        allow(BasicRowModel).to receive(:new).with(source_row, options).and_return instance
         parent_instance.append_child(source_row, options)
       end
 
@@ -34,7 +34,7 @@ describe CsvRowModel::Model::Children do
         subject { parent_instance.append_child(source_row) }
 
         before do
-          expect(BasicModel).to receive(:new).with(source_row, options).and_return another_instance
+          expect(BasicRowModel).to receive(:new).with(source_row, options).and_return another_instance
         end
 
         it "appends the child and returns it" do

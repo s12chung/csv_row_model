@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe CsvRowModel::Import::FileModel do
   describe "class" do
-    let(:import_model_klass) { BasicRowImportModel }
+    let(:import_model_klass) { FileImportModel }
 
     describe "#header_matchers" do
       let(:header_matchers) { [/string1/i, /String 2|string two/i] }

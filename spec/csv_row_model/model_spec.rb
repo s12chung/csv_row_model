@@ -3,11 +3,11 @@ require 'spec_helper'
 describe CsvRowModel::Model do
   describe "instance" do
     let(:options) { {} }
-    let(:instance) { BasicModel.new(nil, options) }
+    let(:instance) { BasicRowModel.new(nil, options) }
 
     describe "#initialize" do
       subject { instance }
-      let(:parent) { BasicModel.new }
+      let(:parent) { BasicRowModel.new }
       let(:options) { { parent: parent } }
 
       it "sets the parent" do  expect(subject.parent).to eql parent  end

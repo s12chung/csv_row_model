@@ -34,7 +34,7 @@ module CsvRowModel
         @file = Tempfile.new([export_model_class.name, ".csv"])
         CSV.open(file.path, "wb") do |csv|
           @csv = csv
-          export_model_class.setup(csv, with_headers: with_headers)
+          export_model_class.setup(csv, context, with_headers: with_headers)
           yield self
         end
       ensure

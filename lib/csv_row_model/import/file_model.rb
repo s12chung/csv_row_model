@@ -28,7 +28,7 @@ module CsvRowModel
           end
         end
 
-        def next(csv, context={}, previous=nil)
+        def next(csv, source_header, context={}, previous=nil)
           return csv.read_row unless csv.next_row
 
           source_row = Array.new(header_matchers.size)
@@ -44,7 +44,7 @@ module CsvRowModel
             end
           end
 
-          new(source_row, context: context, previous: previous)
+          new(source_row, source_header: source_header, context: context, previous: previous)
         end
       end
     end

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe CsvRowModel::Model::Columns do
   describe "instance" do
     let(:options) { {} }
-    let(:instance) { BasicModel.new(options) }
+    let(:instance) { BasicRowModel.new(options) }
 
     before do
       instance.define_singleton_method(:string1) { "haha" }
@@ -28,7 +28,7 @@ describe CsvRowModel::Model::Columns do
   end
 
   describe "class" do
-    let(:klass) { BasicModel }
+    let(:klass) { BasicRowModel }
 
     describe "::column_names" do
       subject { klass.column_names }
@@ -69,7 +69,7 @@ describe CsvRowModel::Model::Columns do
 
     describe "::format_header" do
       let(:header) { 'user_name' }
-      subject { BasicModel.format_header(header) }
+      subject { BasicRowModel.format_header(header) }
 
       it "returns the header" do
         expect(subject).to eql header
@@ -78,7 +78,7 @@ describe CsvRowModel::Model::Columns do
 
     describe "::headers" do
       let(:headers) { [:string1, 'String 2'] }
-      subject { BasicModel.headers }
+      subject { BasicRowModel.headers }
 
       it "returns an array with header column names" do
         expect(subject).to eql headers
