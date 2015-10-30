@@ -17,10 +17,18 @@ module CsvRowModel
       end
 
       protected
+
       def attributes_from_column_names(column_names)
+        hash_convert(column_names) { |column_name| public_send(column_name) }
+      end
+
+      private
+
+      def hash_convert(column_names)
         column_names
-          .zip(column_names.map { |column_name| public_send(column_name) })
-          .to_h
+          .zip(
+            column_names.map { |column_name| yield(column_name) }
+          ).to_h
       end
 
       class_methods do

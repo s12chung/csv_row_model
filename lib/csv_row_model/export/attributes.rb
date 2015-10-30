@@ -7,8 +7,25 @@ module CsvRowModel
         self.column_names.each { |*args| define_attribute_method(*args) }
       end
 
-      class_methods do
+      def formatted_attributes
+        formatted_attributes_from_column_names self.class.column_names
+      end
 
+      def formatted_attribute(column_name)
+        self.class.format_cell(
+          public_send(column_name),
+          column_name,
+          self.class.index(column_name)
+        )
+      end
+
+      protected
+
+      def formatted_attributes_from_column_names(column_names)
+        hash_convert(column_names) { |column_name| formatted_attribute(column_name) }
+      end
+
+      class_methods do
         # See {Model#column}
         def column(column_name, options={})
           super
@@ -19,7 +36,7 @@ module CsvRowModel
         # @param column_name [Symbol] the cell's column_name
         def define_attribute_method(column_name)
           define_method(column_name) do
-            self.class.format_cell(source_model.public_send(column_name), column_name, self.class.index(column_name))
+            source_model.public_send(column_name)
           end
         end
 
