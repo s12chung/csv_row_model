@@ -1,4 +1,5 @@
 require 'csv_row_model/export/dynamic_columns'
+require 'csv_row_model/export/attributes'
 
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for exporting to CSVs.
@@ -8,9 +9,7 @@ module CsvRowModel
     included do
       include DynamicColumns
       attr_reader :source_model, :context
-
-      self.column_names.each { |*args| define_attribute_method(*args) }
-
+      include Attributes
       validates :source_model, presence: true
     end
 
@@ -33,27 +32,6 @@ module CsvRowModel
     class_methods do
       def setup(csv, context={}, with_headers: true)
         csv << headers(context) if with_headers
-      end
-
-      # See {Model#column}
-      def column(column_name, options={})
-        super
-        define_attribute_method(column_name)
-      end
-
-      # Define default attribute method for a column
-      # @param column_name [Symbol] the cell's column_name
-      def define_attribute_method(column_name)
-        define_method(column_name) do
-          self.class.format_cell(source_model.public_send(column_name), column_name, self.class.index(column_name))
-        end
-      end
-
-      # Safe to override. Method applied to each cell by default
-      #
-      # @param cell [Object] the cell's value
-      def format_cell(cell, column_name, column_index)
-        cell
       end
     end
   end
