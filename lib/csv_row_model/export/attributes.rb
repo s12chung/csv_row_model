@@ -22,7 +22,7 @@ module CsvRowModel
       protected
 
       def formatted_attributes_from_column_names(column_names)
-        hash_convert(column_names) { |column_name| formatted_attribute(column_name) }
+        map_array_to_block(column_names) { |column_name| formatted_attribute(column_name) }
       end
 
       class_methods do
