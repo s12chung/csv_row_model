@@ -29,18 +29,18 @@ module CsvRowModel
       end
 
       protected
-      
+
       def formatted_attributes_from_column_names(column_names)
-        map_array_to_block(column_names) { |column_name| formatted_attribute(column_name) }
+        array_to_block_hash(column_names) { |column_name| formatted_attribute(column_name) }
       end
 
       def attributes_from_column_names(column_names)
-        map_array_to_block(column_names) { |column_name| public_send(column_name) }
+        array_to_block_hash(column_names) { |column_name| public_send(column_name) }
       end
 
       private
 
-      def map_array_to_block(array, &block)
+      def array_to_block_hash(array, &block)
         array
           .zip(
             array.map { |column_name| block.call(column_name) }
