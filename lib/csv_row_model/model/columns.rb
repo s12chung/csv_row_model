@@ -8,6 +8,18 @@ module CsvRowModel
         attributes_from_column_names self.class.column_names
       end
 
+      def formatted_attributes
+        formatted_attributes_from_column_names self.class.column_names
+      end
+
+      def formatted_attribute(column_name)
+        self.class.format_cell(
+          public_send(column_name),
+          column_name,
+          self.class.index(column_name)
+        )
+      end
+
       def to_json
         attributes.to_json
       end
@@ -17,6 +29,10 @@ module CsvRowModel
       end
 
       protected
+      
+      def formatted_attributes_from_column_names(column_names)
+        map_array_to_block(column_names) { |column_name| formatted_attribute(column_name) }
+      end
 
       def attributes_from_column_names(column_names)
         map_array_to_block(column_names) { |column_name| public_send(column_name) }
@@ -25,9 +41,9 @@ module CsvRowModel
       private
 
       def map_array_to_block(array, &block)
-        column_names
+        array
           .zip(
-            column_names.map { |column_name| block.call(column_name) }
+            array.map { |column_name| block.call(column_name) }
           ).to_h
       end
 

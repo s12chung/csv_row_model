@@ -16,6 +16,10 @@ describe CsvRowModel::Model::Columns do
       it "returns the map of column_name => public_send(column_name)" do
         expect(instance.attributes).to eql( string1: "haha", string2: "baka" )
       end
+
+      it "returns the map of column_name => format_cell(public_send(column_name))" do
+        expect(instance.formatted_attributes).to eql( string1: "HAHA", string2: "BAKA" )
+      end
     end
 
     describe "#to_json" do

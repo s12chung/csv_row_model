@@ -3,6 +3,11 @@ class BasicRowModel
 
   column :string1
   column :string2, header: 'String 2'
+
+  def self.format_cell(cell, _column_name, _column_index)
+    cell.upcase
+  end
+
 end
 
 #

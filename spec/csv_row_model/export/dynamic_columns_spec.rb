@@ -1,23 +1,22 @@
 require 'spec_helper'
 
 describe CsvRowModel::Export::DynamicColumns do
-  let(:skills) { Skill.all }
-
-  let(:instance) { export_model_class.new(User.new("Mario", "Doe"), skills: skills) }
+  let(:skills)             { Skill.all }
+  let(:instance)           { export_model_class.new(User.new('Mario', 'Doe'), skills: skills) }
   let(:export_model_class) { DynamicColumnExportModel }
 
-  describe "instance" do
-    describe "#to_row" do
+  describe 'instance' do
+    describe '#to_row' do
       subject { instance.to_row }
 
-      it "returns a row representation of the row_model" do
-        expect(subject).to eql ["Mario", "Doe"] + skills
+      it 'returns a row representation of the row_model' do
+        expect(subject).to eql ['Mario', 'Doe'] + skills
       end
     end
   end
 
-  describe "class" do
-    describe "attribute methods" do
+  describe 'class' do
+    describe 'attribute methods' do
       let(:export_model_base_class) do
         Class.new do
           include CsvRowModel::Model
@@ -36,7 +35,7 @@ describe CsvRowModel::Export::DynamicColumns do
         expect(subject).to eql(skills)
       end
 
-      context "when defined before Export" do
+      context 'when defined before Export' do
         let(:export_model_class) do
           Class.new(export_model_base_class) do
             dynamic_column :skills
@@ -44,7 +43,7 @@ describe CsvRowModel::Export::DynamicColumns do
           end
         end
 
-        it "works" do
+        it 'works' do
           expect(subject).to eql(skills)
         end
       end
@@ -61,7 +60,7 @@ describe CsvRowModel::Export::DynamicColumns do
           end
         end
 
-        it "works" do
+        it 'works' do
           expect(subject).to eql(skills.map(&:upcase))
         end
       end
