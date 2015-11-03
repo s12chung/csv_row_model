@@ -61,10 +61,6 @@ module CsvRowModel
       def csv_string_model(&block)
         csv_string_model_class.class_eval(&block)
       end
-
-      def inherited_class_module
-        Model
-      end
     end
   end
 end

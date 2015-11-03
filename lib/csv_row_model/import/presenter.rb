@@ -86,10 +86,6 @@ module CsvRowModel
       end
 
       class << self
-        def inherited_class_module
-          Presenter
-        end
-
         # @return [Array<Symbol>] attribute names for the Presenter
         def attribute_names
           attributes.keys

@@ -52,7 +52,7 @@ module CsvRowModel
 
         # @param included_module [Module] module to search for
         # @return [Array<Module>] inherited_ancestors of included_module (including self)
-        def inherited_ancestors(included_module=inherited_class_module)
+        def inherited_ancestors(included_module=CsvRowModel::Concerns::InheritedClassVar)
           included_model_index = ancestors.index(included_module)
           included_model_index == 0 ? [included_module] : ancestors[0..(included_model_index - 1)]
         end
