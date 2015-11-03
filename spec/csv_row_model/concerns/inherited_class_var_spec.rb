@@ -13,6 +13,8 @@ end
 class Parent < Grandparent
   include Child
   include CsvRowModel::Concerns::InheritedClassVar
+
+  inherited_class_hash :inherited_hash
 end
 class ClassWithFamily < Parent; end
 
@@ -20,6 +22,28 @@ class InheritedBaseClass; end
 
 describe CsvRowModel::Concerns::InheritedClassVar do
   describe "class" do
+    describe "::inherited_class_hash" do
+      describe "getter" do
+        it "calls inherited_class_var" do
+          expect(Parent).to receive(:inherited_class_var).with(:@_inherited_hash, {}, :merge)
+          Parent.inherited_hash
+        end
+      end
+
+      describe "merger" do
+        it "continuously merges the new variable value" do
+          expect(Parent.inherited_hash).to eql({})
+
+          Parent.merge_inherited_hash(test1: "test1")
+          expect(Parent.inherited_hash).to eql(test1: "test1")
+
+          Parent.merge_inherited_hash(test2: "test2")
+          expect(Parent.inherited_hash).to eql(test1: "test1", test2: "test2")
+          expect(Parent.inherited_hash.object_id).to eql Parent.inherited_hash.object_id
+        end
+      end
+    end
+
     describe "::inherited_ancestors" do
       subject { ClassWithFamily.send(:inherited_ancestors) }
 

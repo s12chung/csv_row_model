@@ -3,6 +3,10 @@ module CsvRowModel
     module DynamicColumns
       extend ActiveSupport::Concern
 
+      included do
+        inherited_class_hash :dynamic_columns
+      end
+
       # See Model::Columns#attributes
       def attributes
         super.merge(attributes_from_column_names(self.class.dynamic_column_names))
@@ -34,11 +38,6 @@ module CsvRowModel
           dynamic_columns.keys
         end
 
-        # @return [Hash] column names mapped to their options
-        def dynamic_columns
-          inherited_class_var(:@_dynamic_columns, {}, :merge)
-        end
-
         def header_method_name(column_name)
           "#{column_name.to_s.singularize}_header"
         end
@@ -47,12 +46,6 @@ module CsvRowModel
         end
 
         protected
-
-        def merge_dynamic_columns(column_hash)
-          @_dynamic_columns ||= {}
-          deep_clear_class_cache(:@_dynamic_columns)
-          @_dynamic_columns.merge!(column_hash)
-        end
 
         VALID_OPTIONS_KEYS = [].freeze
 

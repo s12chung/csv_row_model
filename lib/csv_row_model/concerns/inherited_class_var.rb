@@ -12,6 +12,25 @@ module CsvRowModel
 
         protected
 
+        # @param variable_name [Symbol] class variable name
+        def inherited_class_hash(variable_name)
+          hidden_variable_name = hidden_variable_name(variable_name)
+
+          define_singleton_method variable_name do
+            inherited_class_var(hidden_variable_name, {}, :merge)
+          end
+
+          define_singleton_method "merge_#{variable_name}" do |merge_value|
+            value = instance_variable_get(hidden_variable_name) || instance_variable_set(hidden_variable_name, {})
+            deep_clear_class_cache(hidden_variable_name)
+            value.merge!(merge_value)
+          end
+        end
+
+        def hidden_variable_name(variable_name)
+          "@_#{variable_name}".to_sym
+        end
+
         # @param included_module [Module] module to search for
         # @return [Array<Module>] inherited_ancestors of included_module (including self)
         def inherited_ancestors(included_module=inherited_class_module)
