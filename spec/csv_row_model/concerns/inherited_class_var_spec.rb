@@ -15,6 +15,12 @@ class Parent < Grandparent
   include CsvRowModel::Concerns::InheritedClassVar
 
   inherited_class_hash :inherited_hash
+
+  inherited_class_hash :inherited_hash_with_dependencies, dependencies: %i[somethings]
+  class << self
+    protected
+    def _somethings; inherited_hash_with_dependencies.to_json end
+  end
 end
 class ClassWithFamily < Parent; end
 
@@ -41,6 +47,17 @@ describe CsvRowModel::Concerns::InheritedClassVar do
           expect(Parent.inherited_hash).to eql(test1: "test1", test2: "test2")
           expect(Parent.inherited_hash.object_id).to eql Parent.inherited_hash.object_id
         end
+
+        context "with dependency" do
+          it "recalculates and caches the dependency" do
+            expect(Parent.inherited_hash_with_dependencies).to eql({})
+            expect(Parent.somethings).to eql("{}")
+
+            Parent.merge_inherited_hash_with_dependencies(test1: "test1")
+            expect(Parent.somethings).to eql('{"test1":"test1"}')
+            expect(Parent.somethings.object_id).to eql Parent.somethings.object_id
+          end
+        end
       end
     end
 
@@ -48,7 +65,7 @@ describe CsvRowModel::Concerns::InheritedClassVar do
       subject { ClassWithFamily.send(:inherited_ancestors) }
 
       it "returns the inherited ancestors" do
-        expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::InheritedClassVar]
+        expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::InvalidOptions, CsvRowModel::Concerns::InheritedClassVar]
       end
     end
 

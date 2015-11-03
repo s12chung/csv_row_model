@@ -1,7 +1,13 @@
+require 'csv_row_model/concerns/invalid_options'
+
 module CsvRowModel
   module Concerns
     module InheritedClassVar
       extend ActiveSupport::Concern
+
+      included do
+        include InvalidOptions
+      end
 
       class_methods do
         # Clears the cache for a variable
@@ -13,20 +19,33 @@ module CsvRowModel
         protected
 
         # @param variable_name [Symbol] class variable name
-        def inherited_class_hash(variable_name)
-          hidden_variable_name = hidden_variable_name(variable_name)
+        def inherited_class_hash(variable_name, options={})
+          options = check_and_merge_options(options, dependencies: [])
 
+          options[:dependencies].each do |dependency_name|
+            define_singleton_method dependency_name do
+              class_cache(hidden_variable_name(dependency_name)) do
+                send("_#{dependency_name}")
+              end
+            end
+          end
+
+          hidden_variable_name = hidden_variable_name(variable_name)
           define_singleton_method variable_name do
             inherited_class_var(hidden_variable_name, {}, :merge)
           end
-
           define_singleton_method "merge_#{variable_name}" do |merge_value|
             value = instance_variable_get(hidden_variable_name) || instance_variable_set(hidden_variable_name, {})
+
             deep_clear_class_cache(hidden_variable_name)
+            options[:dependencies].each {|dependency_name| deep_clear_class_cache(hidden_variable_name(dependency_name)) }
+
             value.merge!(merge_value)
           end
         end
 
+        # @param variable_name [Symbol] class variable name based on
+        # @return [Symbol] the hidden variable name for class_cache
         def hidden_variable_name(variable_name)
           "@_#{variable_name}".to_sym
         end
