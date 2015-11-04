@@ -5,6 +5,8 @@ module CsvRowModel
       include Concerns::Inspect
       include ActiveWarnings
 
+      inherited_class_hash :attributes, dependencies: %i[dependencies]
+
       attr_reader :row_model
 
       delegate :context, to: :row_model
@@ -84,18 +86,9 @@ module CsvRowModel
       end
 
       class << self
-        def inherited_class_module
-          Presenter
-        end
-
         # @return [Array<Symbol>] attribute names for the Presenter
         def attribute_names
           attributes.keys
-        end
-
-        # @return [Hash{Symbol => Array}] map of `attribute_name => [options, block]`
-        def attributes
-          inherited_class_var :@_presenter_attributes, {}, :merge
         end
 
         # @param [Symbol] attribute_name name of attribute to find option
@@ -110,30 +103,21 @@ module CsvRowModel
           attributes[attribute_name].last
         end
 
+        protected
         # @return [Hash{Symbol => Array}] map of `dependency => [array of presenter attributes dependent on dependency]`
-        def dependencies
-          class_cache(:@_presenter_dependencies) do
-            dependencies = {}
-            attribute_names.each do |attribute_name|
-              options(attribute_name)[:dependencies].each do |dependency|
-                dependencies[dependency] ||= []
-                dependencies[dependency] << attribute_name
-              end
+        def _dependencies
+          dependencies = {}
+          attribute_names.each do |attribute_name|
+            options(attribute_name)[:dependencies].each do |dependency|
+              dependencies[dependency] ||= []
+              dependencies[dependency] << attribute_name
             end
-            dependencies
           end
+          dependencies
         end
 
-        protected
         def inspect_methods
           @inspect_methods ||= %i[row_model].freeze
-        end
-
-        def merge_attribute(attribute_hash)
-          @_presenter_attributes ||= {}
-          deep_clear_class_cache(:@_presenter_attributes)
-          deep_clear_class_cache(:@_presenter_dependencies)
-          @_presenter_attributes.merge! attribute_hash
         end
 
         # Adds column to the row model
@@ -144,13 +128,9 @@ module CsvRowModel
         # @option options [Hash] :memoize whether to memoize the attribute (default: true)
         # @option options [Hash] :dependencies the dependcies it has with the underlying row_model (default: [])
         def attribute(attribute_name, options={}, &block)
-          default_options = { memoize: true, dependencies: [] }
-          invalid_options = options.keys - default_options.keys
-          raise ArgumentError.new("Invalid option(s): #{invalid_options}") if invalid_options.present?
+          options = check_and_merge_options(options, memoize: true, dependencies: [])
 
-          options = options.reverse_merge(default_options)
-
-          merge_attribute(attribute_name.to_sym => [options, block])
+          merge_attributes(attribute_name.to_sym => [options, block])
           define_attribute_method(attribute_name)
         end
 

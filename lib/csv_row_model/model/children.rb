@@ -2,6 +2,9 @@ module CsvRowModel
   module Model
     module Children
       extend ActiveSupport::Concern
+      included do
+        inherited_class_hash :has_many_relationships
+      end
 
       # @return [Boolean] returns true, if the instance is a child
       def child?
@@ -40,20 +43,6 @@ module CsvRowModel
       end
 
       class_methods do
-        # Won't work for Export right now
-        #
-        # @return [Hash] map of `relation_name => CsvRowModel::Import or CsvRowModel::Export class`
-        def has_many_relationships
-          inherited_class_var :@_has_many_relationships, {}, :merge
-        end
-
-        protected
-        def merge_has_many_relationships(relation_hash)
-          @_has_many_relationships ||= {}
-          deep_clear_class_cache(:@_has_many_relationships)
-          @_has_many_relationships.merge! relation_hash
-        end
-
         # Defines a relationship between a row model (only one relation per model for now).
         #
         # @param [Symbol] relation_name the name of the relation

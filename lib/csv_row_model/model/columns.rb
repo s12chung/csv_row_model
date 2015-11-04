@@ -2,6 +2,9 @@ module CsvRowModel
   module Model
     module Columns
       extend ActiveSupport::Concern
+      included do
+        inherited_class_hash :columns
+      end
 
       # @return [Hash] a map of `column_name => public_send(column_name)`
       def attributes
@@ -33,11 +36,6 @@ module CsvRowModel
         # @return [Array<Symbol>] column names for the row model
         def column_names
           columns.keys
-        end
-
-        # @return [Hash] column names mapped to their options
-        def columns
-          inherited_class_var(:@_columns, {}, :merge)
         end
 
         # @param [Symbol] column_name name of column to find option
@@ -72,12 +70,6 @@ module CsvRowModel
         end
 
         protected
-
-        def merge_columns(column_hash)
-          @_columns ||= {}
-          deep_clear_class_cache(:@_columns)
-          @_columns.merge!(column_hash)
-        end
 
         VALID_OPTIONS_KEYS = %i[type parse validate_type default header header_matchs].freeze
 
