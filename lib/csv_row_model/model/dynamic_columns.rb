@@ -8,11 +8,6 @@ module CsvRowModel
         super.merge(attributes_from_column_names(self.class.dynamic_column_names))
       end
 
-      # See Model::Columns#formatted_attributes
-      def formatted_attributes
-        super.merge(formatted_attributes_from_column_names(self.class.dynamic_column_names))
-      end
-
       class_methods do
         # See Model::Columns::headers
         def headers(context={})

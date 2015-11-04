@@ -7,9 +7,10 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     included do
-      include DynamicColumns
-      attr_reader :source_model, :context
       include Attributes
+      include DynamicColumns
+
+      attr_reader :source_model, :context
       validates :source_model, presence: true
     end
 
