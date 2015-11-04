@@ -17,7 +17,7 @@ module CsvRowModel
       # @param [] source_model the source model of the export row model
       # @param [Hash] context the extra context given to the instance of the row model
       def append_model(source_model, context={})
-        export_model_class.new(source_model, context.to_h.reverse_merge(self.context)).to_rows.each do |row|
+        export_model_class.new(source_model, context.reverse_merge(self.context)).to_rows.each do |row|
           csv << row
         end
       end
