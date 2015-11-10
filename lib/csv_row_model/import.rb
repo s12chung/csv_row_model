@@ -12,7 +12,7 @@ module CsvRowModel
       include Attributes
       include DynamicColumns
 
-      attr_reader :attr_reader, :source_header, :source_row, :context, :index, :previous
+      attr_reader :source_header, :source_row, :context, :index, :previous
 
       self.column_names.each { |*args| define_attribute_method(*args) }
 
