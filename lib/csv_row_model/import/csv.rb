@@ -102,16 +102,13 @@ module CsvRowModel
       def _read_row(skipped_rows={}, index=@index, ruby_csv=@ruby_csv)
         return unless valid?
 
-        loop do
-          row = ruby_csv.readline
+        row = ruby_csv.readline
+        raise "empty?" if row.try(:empty?)
 
-          raise "empty?" if row.try(:empty?)
+        index += 1 if index
 
-          index += 1 if index
-
-          yield row if block_given?
-          return row
-        end
+        yield row if block_given?
+        row
       rescue Exception => e
         index += 1 if index
         yield [] if block_given?
