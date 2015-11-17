@@ -19,8 +19,6 @@ describe CsvRowModel::Model::Columns do
     end
 
     describe "#to_json" do
-      subject { instance.attributes }
-
       it "returns the attributes json" do
         expect(instance.to_json).to eql(instance.attributes.to_json)
       end

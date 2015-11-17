@@ -3,16 +3,18 @@ require 'spec_helper'
 class Grandparent; end
 module Child
   extend ActiveSupport::Concern
-
-  class_methods do
-    def inherited_class_module
-      Child
-    end
-  end
 end
 class Parent < Grandparent
   include Child
   include CsvRowModel::Concerns::InheritedClassVar
+
+  inherited_class_hash :inherited_hash
+
+  inherited_class_hash :inherited_hash_with_dependencies, dependencies: %i[somethings]
+  class << self
+    protected
+    def _somethings; inherited_hash_with_dependencies.to_json end
+  end
 end
 class ClassWithFamily < Parent; end
 
@@ -20,11 +22,44 @@ class InheritedBaseClass; end
 
 describe CsvRowModel::Concerns::InheritedClassVar do
   describe "class" do
+    describe "::inherited_class_hash" do
+      describe "getter" do
+        it "calls inherited_class_var" do
+          expect(Parent).to receive(:inherited_class_var).with(:@_inherited_hash, {}, :merge)
+          Parent.inherited_hash
+        end
+      end
+
+      describe "merger" do
+        it "continuously merges the new variable value" do
+          expect(Parent.inherited_hash).to eql({})
+
+          Parent.merge_inherited_hash(test1: "test1")
+          expect(Parent.inherited_hash).to eql(test1: "test1")
+
+          Parent.merge_inherited_hash(test2: "test2")
+          expect(Parent.inherited_hash).to eql(test1: "test1", test2: "test2")
+          expect(Parent.inherited_hash.object_id).to eql Parent.inherited_hash.object_id
+        end
+
+        context "with dependency" do
+          it "recalculates and caches the dependency" do
+            expect(Parent.inherited_hash_with_dependencies).to eql({})
+            expect(Parent.somethings).to eql("{}")
+
+            Parent.merge_inherited_hash_with_dependencies(test1: "test1")
+            expect(Parent.somethings).to eql('{"test1":"test1"}')
+            expect(Parent.somethings.object_id).to eql Parent.somethings.object_id
+          end
+        end
+      end
+    end
+
     describe "::inherited_ancestors" do
       subject { ClassWithFamily.send(:inherited_ancestors) }
 
       it "returns the inherited ancestors" do
-        expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::InheritedClassVar]
+        expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::InvalidOptions]
       end
     end
 
@@ -40,7 +75,6 @@ describe CsvRowModel::Concerns::InheritedClassVar do
         let(:klass) do
           Class.new do
             include CsvRowModel::Model
-            def self.inherited_class_module; CsvRowModel::Model end
 
             csv_string_model { validates :string1, presence: true }
           end
@@ -73,7 +107,6 @@ describe CsvRowModel::Concerns::InheritedClassVar do
             include CsvRowModel::Model
             include CsvRowModel::Import
             def self.name; "TestRowModel" end
-            def self.inherited_class_module; CsvRowModel::Import end
 
             presenter do
               validates :attr2, presence: true
@@ -132,7 +165,7 @@ describe CsvRowModel::Concerns::InheritedClassVar do
       describe "::inherited_class_var" do
         subject { inherited_class_var }
 
-        it "returns a class variable merged across ancestors until inherited_class_module" do
+        it "returns a class variable merged across ancestors until #{described_class}" do
           expect(subject).to eql %w[Parent ClassWithFamily]
         end
 
