@@ -16,10 +16,13 @@ module CsvRowModel
       # Add a row_model to the
       # @param [] source_model the source model of the export row model
       # @param [Hash] context the extra context given to the instance of the row model
+      # @return [CsvRowModel::Export] the row model appended
       def append_model(source_model, context={})
-        export_model_class.new(source_model, context.reverse_merge(self.context)).to_rows.each do |row|
+        row_model = export_model_class.new(source_model, context.reverse_merge(self.context))
+        row_model.to_rows.each do |row|
           csv << row
         end
+        row_model
       end
       alias_method :<<, :append_model
 
