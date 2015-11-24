@@ -440,7 +440,8 @@ class DynamicColumnModel
 
   column :first_name
   column :last_name
-  dynamic_column :skills
+  # header is optional, below is the default_implementation
+  dynamic_column :skills, header: ->(skill_name) { skill_name } 
 end
 ```
 
@@ -464,13 +465,6 @@ class DynamicColumnExportModel < DynamicColumnModel
   def skill(skill_name)
     # below is an override, this is the default implementation: skill_name # => "skill1", then "skill2"
     source_model.skills.include?(skill_name) ? "Yes" : "No"
-  end
-
-  class << self
-    # this is an override with the default implementation
-    def skill_header(skill_name)
-      skill_name
-    end
   end
 end
 

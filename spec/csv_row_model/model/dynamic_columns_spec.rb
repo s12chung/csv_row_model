@@ -4,8 +4,8 @@ describe CsvRowModel::Model::DynamicColumns do
   let(:skills) { %w[skill1 skill2] }
 
   describe "instance" do
-    let(:options) { {} }
-    let(:instance) { DynamicColumnModel.new(options) }
+    let(:source) { {} }
+    let(:instance) { DynamicColumnModel.new(source) }
 
     before do
       instance.define_singleton_method(:first_name) { "haha" }
@@ -23,8 +23,8 @@ describe CsvRowModel::Model::DynamicColumns do
   end
 
   describe "class" do
-    describe "header_methods" do
-      subject { klass.skill_header("Original Skill") }
+    describe "::dynamic_column_headers" do
+      subject { klass.dynamic_column_headers(skills: skills) }
 
       let(:klass) do
         Class.new do
@@ -33,26 +33,20 @@ describe CsvRowModel::Model::DynamicColumns do
         end
       end
 
-      it "header_method is defined" do
-        expect(subject).to eql "Original Skill"
+      it "the header is the header_model" do
+        expect(subject).to eql skills
       end
 
       context "when the method is overwritten" do
         let(:klass) do
           Class.new do
             include CsvRowModel::Model
-            dynamic_column :skills
-
-            class << self
-              def skill_header(skill_name)
-                "Waka"
-              end
-            end
+            dynamic_column :skills, header: ->(skill_name) { skill_name + "_changed" }
           end
         end
 
-        it "works" do
-          expect(subject).to eql "Waka"
+        it "overrides the original" do
+          expect(subject).to eql skills(&->(skill_name) { skill_name + "_changed" })
         end
       end
     end
