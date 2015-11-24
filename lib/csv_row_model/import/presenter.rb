@@ -72,12 +72,6 @@ module CsvRowModel
         true
       end
 
-      # @param [Symbol] attribute_name the attribute to check
-      # @return [Boolean] if the dependencies are valid
-      def valid_dependencies?(attribute_name)
-        row_model_present?(*self.class.options(attribute_name)[:dependencies])
-      end
-
       # equal to: @method_name ||= yield
       # @param [Symbol] method_name method_name in description
       # @return [Object] the memoized result
@@ -141,7 +135,6 @@ module CsvRowModel
           define_method("__#{attribute_name}", &block(attribute_name))
 
           define_method(attribute_name) do
-            return unless valid_dependencies?(attribute_name)
             self.class.options(attribute_name)[:memoize] ?
               memoize(attribute_name) { public_send("__#{attribute_name}") } :
               public_send("__#{attribute_name}")
