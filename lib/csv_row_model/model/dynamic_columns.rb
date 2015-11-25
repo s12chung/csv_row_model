@@ -15,9 +15,14 @@ module CsvRowModel
       class_methods do
         # See Model::Columns::headers
         def headers(context={})
-          @headers ||= super + dynamic_column_names.map do |column_name|
+          super + dynamic_column_headers(context)
+        end
+
+        def dynamic_column_headers(context={})
+          dynamic_column_names.map do |column_name|
             OpenStruct.new(context).public_send(column_name).each do |header_model|
-              public_send(header_method_name(column_name), header_model)
+              header_proc = dynamic_column_options(column_name)[:header] || ->(header_model) { header_model }
+              instance_exec(header_model, &header_proc)
             end
           end.flatten
         end
@@ -28,21 +33,22 @@ module CsvRowModel
           offset ? columns.size + offset : nil
         end
 
+        def dynamic_column_options(column_name)
+          dynamic_columns[column_name]
+        end
+
         # @return [Array<Symbol>] column names for the row model
         def dynamic_column_names
           dynamic_columns.keys
         end
 
-        def header_method_name(column_name)
-          "#{column_name.to_s.singularize}_header"
-        end
         def singular_dynamic_attribute_method_name(column_name)
           column_name.to_s.singularize
         end
 
         protected
 
-        VALID_OPTIONS_KEYS = [].freeze
+        VALID_OPTIONS_KEYS = %i[header].freeze
 
         # define a dynamic_column, must be after all normal columns
         #
@@ -53,13 +59,7 @@ module CsvRowModel
           extra_keys = options.keys - VALID_OPTIONS_KEYS
           raise ArgumentError.new("invalid options #{extra_keys}") unless extra_keys.empty?
 
-          define_header_method(column_name)
-
           merge_dynamic_columns(column_name.to_sym => options)
-        end
-
-        def define_header_method(column_name)
-          define_singleton_method(header_method_name(column_name)) { |header_model| header_model }
         end
       end
     end
