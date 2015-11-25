@@ -328,10 +328,10 @@ Also, the `attribute` defines a dynamic `#project` method that:
 
 1. Memoizes by default, turn off with `memoize: false` option
 2. All errors of `row_model` are propagated to the presenter when calling `presenter.valid?`
-3. When any of the dependencies are `invalid?`, `presenter.errors` for dependencies are cleaned. For the example above, if `row_model.id/name` are `invalid?`, then
+3. Handles dependencies:
+  - When any of the dependencies are `blank?`, the attribute block is not called and the attribute returns `nil`.
+  - When any of the dependencies are `invalid?`, `presenter.errors` for dependencies are cleaned. For the example above, if `row_model.id/name` are `invalid?`, then
 the `:project` key is removed from the errors, so: `presenter.errors.keys # => [:id, :name]`
-
-What happens to errors also happens to [`ActiveWarnings`](https://github.com/s12chung/active_warnings).
 
 ## Import Validations
 

@@ -50,6 +50,15 @@ describe CsvRowModel::Import::Presenter do
           expect(instance.attribute2).to eql nil
         end
       end
+
+      context "with row_model errors" do
+        let(:source_row) {["", ""] }
+
+        it "should just return nil" do
+          expect(Random).to_not receive(:rand)
+          expect(subject).to eql nil
+        end
+      end
     end
 
     describe "#valid?" do
@@ -88,17 +97,18 @@ describe CsvRowModel::Import::Presenter do
       end
     end
 
-    describe "#row_model_present?" do
-      subject { instance.send :row_model_present?, :string1, :string2 }
+    describe "#valid_dependencies?" do
+      subject { instance.send :valid_dependencies?, :attribute1 }
+      before { instance.errors.add(:attribute1) }
 
       it "returns true" do
         expect(subject).to eql true
       end
 
-      context "with blank attributes" do
-        let(:source_row) { ["", ""] }
+      context "returns false" do
+        let(:source_row) {["", ""] }
 
-        it "returns false" do
+        it "only has row_model errors" do
           expect(subject).to eql false
         end
       end
