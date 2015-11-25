@@ -66,15 +66,16 @@ module CsvRowModel
       end
 
       # @param [Array] Array of column_names to check
-      # @return [Boolean] if column_names are valid
-      def row_model_valid?(*column_names)
-        row_model.valid? || (row_model.errors.keys & column_names).empty?
+      # @return [Boolean] if column_names are present
+      def row_model_present?(*column_names)
+        column_names.each { |column_name| return false if row_model.public_send(column_name).blank? }
+        true
       end
 
       # @param [Symbol] attribute_name the attribute to check
       # @return [Boolean] if the dependencies are valid
       def valid_dependencies?(attribute_name)
-        row_model_valid?(*self.class.options(attribute_name)[:dependencies])
+        row_model_present?(*self.class.options(attribute_name)[:dependencies])
       end
 
       # equal to: @method_name ||= yield

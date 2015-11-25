@@ -289,7 +289,7 @@ class ProjectImportRowModel < ProjectRowModel
 
     # this is shorthand for the psuedo_code:
     # def project
-    #  return if row_model.id.invalid? || row_model.name.invalid?
+    #  return if row_model.id.blank? || row_model.name.blank?
     #
     #  # turn off memoziation with `memoize: false` option
     #  @project ||= __the_code_inside_the_block__
@@ -328,9 +328,9 @@ Also, the `attribute` defines a dynamic `#project` method that:
 
 1. Memoizes by default, turn off with `memoize: false` option
 2. All errors of `row_model` are propagated to the presenter when calling `presenter.valid?`
-3. Handles dependencies. When any of the dependencies are `invalid?`:
-  - The attribute block is not called and the attribute returns `nil`.
-  - `presenter.errors` for dependencies are cleaned. For the example above, if `row_model.id/name` are `invalid?`, then
+3. Handles dependencies:
+  - When any of the dependencies are `blank?`, the attribute block is not called and the attribute returns `nil`.
+  - When any of the dependencies are `invalid?`, `presenter.errors` for dependencies are cleaned. For the example above, if `row_model.id/name` are `invalid?`, then
 the `:project` key is removed from the errors, so: `presenter.errors.keys # => [:id, :name]`
 
 ## Import Validations
