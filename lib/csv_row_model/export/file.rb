@@ -38,7 +38,7 @@ module CsvRowModel
         CSV.open(file.path, "wb") do |csv|
           @csv = csv
           export_model_class.setup(csv, context, with_headers: with_headers)
-          yield self
+          yield Proxy.new(self)
         end
       ensure
         @csv = nil
@@ -46,6 +46,17 @@ module CsvRowModel
 
       def to_s
         file.read
+      end
+
+      class Proxy
+        def initialize(file)
+          @file = file
+        end
+
+        def append_model(*args)
+          @file.append_model(*args)
+        end
+        alias_method :<<, :append_model
       end
     end
   end

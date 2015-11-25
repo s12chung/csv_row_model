@@ -24,6 +24,7 @@ describe CsvRowModel::Export::File do
         expect(instance.generated?).to eql false
 
         instance.generate do |csv|
+          expect(csv.class).to_not eql described_class
           csv.append_model(model, another_context: true)
         end
         expect(instance.generated?).to eql true
