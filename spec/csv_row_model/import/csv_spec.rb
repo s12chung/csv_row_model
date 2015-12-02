@@ -77,6 +77,7 @@ describe CsvRowModel::Import::Csv do
 
     it "sets the state back to reset" do
       expect(instance.read_row).to eql ["string1", "string2"]
+      expect(instance.next_row).to eql ["lang1", "lang2"]
       second_row? instance
       expect(subject).to eql true
       start_of_file? instance

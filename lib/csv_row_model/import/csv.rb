@@ -52,7 +52,7 @@ module CsvRowModel
         return unless valid?
 
         @index = -1
-        @current_row = nil
+        @current_row = @next_row = @skipped_rows = @next_skipped_rows = nil
         @ruby_csv = _ruby_csv
         true
       end
