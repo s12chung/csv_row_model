@@ -27,7 +27,7 @@ module CsvRowModel
       #                        can have strings and row_name (column_name). By default,
       #                        returns a row_name for every row
       def rows_template
-        @rows_template ||= self.class.row_names.map{ |row_name| [row_name]}
+        @rows_template ||= self.class.row_names.map { |row_name| [row_name] }
       end
 
       class_methods do

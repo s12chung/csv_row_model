@@ -20,4 +20,18 @@ end
 class FileExportModel < FileRowModel
   include CsvRowModel::Export
   include CsvRowModel::Export::FileModel
+
+  def rows_template
+    @rows_template ||= begin
+      [
+        [ 'String 1', '', string_value(1)     ],
+        [ 'String 2', '', '', ''              ],
+        [ ''        , '', '', string_value(2) ],
+      ]
+    end
+  end
+
+  def string_value(number)
+    source_model.string_value(number)
+  end
 end
