@@ -3,8 +3,8 @@ require 'spec_helper'
 describe CsvRowModel::Export::File do
 
   describe "instance" do
-    let(:string1)  { "Test 1" }
-    let(:string2)  { "Test 2" }
+    let(:string1)  { "Value Of String 1" }
+    let(:string2)  { "Value Of String 2" }
     let(:model)    { Model.new(string1, string2) }
     let(:instance) { described_class.new(FileExportModel, some_context: true)  }
 
@@ -14,7 +14,13 @@ describe CsvRowModel::Export::File do
 
       include_context 'csv file'
 
-      let(:csv_source) { [row1, row2] }
+      let(:csv_source) do
+        [
+          [ 'String 1','','Value Of String 1'],
+          [ 'String 2','','',''],
+          ['','','','Value Of String 2'],
+        ]
+      end
 
       it "returns csv string" do
         expect(FileExportModel).to receive(:new)
