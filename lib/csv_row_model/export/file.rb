@@ -10,7 +10,7 @@ module CsvRowModel
       end
 
       def headers
-        export_model_class.headers
+        export_model_class.headers(self.context)
       end
 
       # Add a row_model to the

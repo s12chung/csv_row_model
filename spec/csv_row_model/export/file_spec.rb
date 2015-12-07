@@ -38,5 +38,12 @@ describe CsvRowModel::Export::File do
         expect(instance.to_s).to eql csv_string
       end
     end
+
+    describe "#headers" do
+      it "returns headers passing context" do
+        expect(FileExportModel).to receive(:headers).with({ some_context: true})
+        instance.headers
+      end
+    end
   end
 end
