@@ -11,7 +11,7 @@ module CsvRowModel
           row.each do |cell|
             if self.class.is_row_name? cell
               header_matchs = self.class.options(cell)[:header_matchs]
-              result << "#{header_matchs ? header_matchs.first : self.class.format_header(cell)}"
+              result << "#{header_matchs ? header_matchs.first : self.class.format_header(cell, context)}"
               result << "#{attributes[cell]}"
             else
               result << cell.to_s

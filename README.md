@@ -124,7 +124,7 @@ def original_attribute(column_name)
   value = mapped_row[column_name]
 
   # 2. Clean or format each cell
-  value = self.class.format_cell(cell, column_name, column_index)
+  value = self.class.format_cell(cell, column_name, column_index, context)
 
   if value.present?
     # 3a. Parse the cell value (which does nothing if no parsing is specified)
@@ -146,7 +146,7 @@ Override the `format_cell` method to clean/format every cell:
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
   class << self
-    def format_cell(cell, column_name, column_index)
+    def format_cell(cell, column_name, column_index, context={})
       cell = cell.strip
       cell.blank? ? nil : cell
     end

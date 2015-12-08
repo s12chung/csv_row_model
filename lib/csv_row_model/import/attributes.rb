@@ -31,7 +31,7 @@ module CsvRowModel
         csv_string_model.valid?
         return nil unless csv_string_model.errors[column_name].blank?
 
-        value = self.class.format_cell(mapped_row[column_name], column_name, self.class.index(column_name))
+        value = self.class.format_cell(mapped_row[column_name], column_name, self.class.index(column_name), context)
         if value.present?
           value = instance_exec(value, &self.class.parse_lambda(column_name))
         elsif self.class.options(column_name)[:default]
@@ -61,7 +61,7 @@ module CsvRowModel
         # @param cell [String] the cell's string
         # @param column_name [Symbol] the cell's column_name
         # @param column_index [Integer] the column_name's index
-        def format_cell(cell, column_name, column_index)
+        def format_cell(cell, column_name, column_index, context={})
           cell
         end
 

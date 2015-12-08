@@ -58,7 +58,7 @@ module CsvRowModel
           column_names = self.class.column_names
           hash = column_names.zip(
             column_names.map.with_index do |column_name, index|
-              self.class.format_cell(source_row[index], column_name, index)
+              self.class.format_cell(source_row[index], column_name, index, context)
             end
           ).to_h
         else

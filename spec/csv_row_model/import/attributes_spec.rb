@@ -48,8 +48,8 @@ describe CsvRowModel::Import::Attributes do
       end
 
       it "calls format_cell and returns the result" do
-        expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0).and_return("waka").twice
-        expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1).and_return(nil).once
+        expect(import_model_klass).to receive(:format_cell).with("1.01", :string1, 0, kind_of(OpenStruct)).and_return("waka").twice
+        expect(import_model_klass).to receive(:format_cell).with("b", :string2, 1, kind_of(OpenStruct)).and_return(nil).once
         expect(subject).to eql("waka")
       end
 

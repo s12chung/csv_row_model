@@ -34,7 +34,8 @@ module CsvRowModel
               self.class.format_cell(
                 public_send(self.class.singular_dynamic_attribute_method_name(column_name), header_model),
                 column_name,
-                self.class.dynamic_index(column_name)
+                self.class.dynamic_index(column_name),
+                context
               )
             end
           end

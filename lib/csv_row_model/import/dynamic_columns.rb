@@ -34,7 +34,8 @@ module CsvRowModel
           value = self.class.format_cell(
             dynamic_source_row[index],
             source_header,
-            self.class.dynamic_index(column_name)
+            self.class.dynamic_index(column_name),
+            context
           )
           public_send(self.class.singular_dynamic_attribute_method_name(column_name), value, source_header)
         end

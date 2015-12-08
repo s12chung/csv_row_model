@@ -7,7 +7,7 @@ module CsvRowModel
         self.column_names.each { |*args| define_attribute_method(*args) }
       end
 
-      # @return [Hash] a map of `column_name => self.class.format_cell()public_send(column_name))`
+      # @return [Hash] a map of `column_name => self.class.format_cell(public_send(column_name))`
       def formatted_attributes
         formatted_attributes_from_column_names self.class.column_names
       end
@@ -16,7 +16,8 @@ module CsvRowModel
         self.class.format_cell(
           public_send(column_name),
           column_name,
-          self.class.index(column_name)
+          self.class.index(column_name),
+          context
         )
       end
 
@@ -43,7 +44,7 @@ module CsvRowModel
         # Safe to override. Method applied to each cell by default
         #
         # @param cell [Object] the cell's value
-        def format_cell(cell, column_name, column_index)
+        def format_cell(cell, column_name, column_index, context={})
           cell
         end
       end
