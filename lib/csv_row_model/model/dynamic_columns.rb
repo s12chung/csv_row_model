@@ -20,7 +20,7 @@ module CsvRowModel
 
         def dynamic_column_headers(context={})
           dynamic_column_names.map do |column_name|
-            OpenStruct.new(context).public_send(column_name).each do |header_model|
+            Array(OpenStruct.new(context).public_send(column_name)).each do |header_model|
               header_proc = dynamic_column_options(column_name)[:header] || ->(header_model) { header_model }
               instance_exec(header_model, &header_proc)
             end

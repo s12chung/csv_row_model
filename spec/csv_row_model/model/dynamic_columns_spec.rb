@@ -24,7 +24,8 @@ describe CsvRowModel::Model::DynamicColumns do
 
   describe "class" do
     describe "::dynamic_column_headers" do
-      subject { klass.dynamic_column_headers(skills: skills) }
+      let(:context) { { skills: skills } }
+      subject { klass.dynamic_column_headers(context) }
 
       let(:klass) do
         Class.new do
@@ -33,8 +34,16 @@ describe CsvRowModel::Model::DynamicColumns do
         end
       end
 
-      it "the header is the header_model" do
+      it "returns the header that is the header_model" do
         expect(subject).to eql skills
+      end
+
+      context "the context gives a nil model" do
+        let(:context) { {} }
+
+        it "returns an empty array" do
+          expect(subject).to eql []
+        end
       end
 
       context "when the method is overwritten" do
