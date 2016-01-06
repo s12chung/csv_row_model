@@ -1,9 +1,15 @@
 require 'csv_row_model/validators/boolean_format'
+require 'csv_row_model/model/comparison'
 
 module CsvRowModel
   module Import
     module Attributes
       extend ActiveSupport::Concern
+
+      included do
+        include Model::Comparison
+      end
+
       # Classes with a validations associated with them in csv_row_model/validators
       PARSE_VALIDATION_CLASSES = [Boolean, Integer, Float, Date].freeze
 
