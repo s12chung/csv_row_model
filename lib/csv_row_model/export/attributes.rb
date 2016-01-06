@@ -1,9 +1,12 @@
+require 'csv_row_model/model/comparison'
+
 module CsvRowModel
   module Export
     module Attributes
       extend ActiveSupport::Concern
 
       included do
+        include Model::Comparison
         self.column_names.each { |*args| define_attribute_method(*args) }
       end
 

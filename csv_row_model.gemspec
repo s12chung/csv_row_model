@@ -6,8 +6,8 @@ require 'csv_row_model/version'
 Gem::Specification.new do |spec|
   spec.name          = "csv_row_model"
   spec.version       = CsvRowModel::VERSION
-  spec.authors       = ["Steve Chung"]
-  spec.email         = ["hello@stevenchung.ca"]
+  spec.authors       = ["Steve Chung", 'Joel AZEMAR']
+  spec.email         = ["hello@stevenchung.ca", 'joel.azemar@gmail.com']
 
   spec.summary       = "Import and export your custom CSVs with a intuitive shared Ruby interface."
   spec.homepage      = "https://github.com/s12chung/csv_row_model"
