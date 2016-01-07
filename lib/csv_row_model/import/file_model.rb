@@ -39,6 +39,7 @@ module CsvRowModel
             current_row = csv.read_row
 
             current_row.each_with_index do |cell, position|
+              next if position == 0 # This is a hack to ignore the first column because of infos.csv have 'Compte' twice... 
               next if cell.blank?
               index = index_header_match(cell, context)
               next unless index
