@@ -4,6 +4,10 @@ class FileRowModel
 
   row :string1
   row :string2, header: 'String 2'
+
+  def self.format_header(column_name, context={})
+    ":: - #{column_name} - ::"
+  end
 end
 
 #

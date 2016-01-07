@@ -23,9 +23,10 @@ module CsvRowModel
         def header_matchers(context)
           @header_matchers ||= begin
             columns.map do |name, options|
-              matchers = options[:header_matchs] || [name.to_s]
-              Regexp.new(matchers.join('|'),Regexp::IGNORECASE)
-            end
+              if formatted_header = self.format_header(name, context)
+                Regexp.new("^#{formatted_header}$", Regexp::IGNORECASE)
+              end
+            end.compact
           end
         end
 
