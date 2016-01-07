@@ -11,15 +11,16 @@ module CsvRowModel
         #
         # @param cell [String] the cell's string
         # @return [Integer] returns index of the header_match that cell match
-        def index_header_match(cell)
-          match = header_matchers.each_with_index.select do |matcher, index|
+        def index_header_match(cell, context)
+          match = header_matchers(context).each_with_index.select do |matcher, index|
             cell.match(matcher)
           end.first
+
           match ? match[1] : nil
         end
 
         # @return [Array] header_matchs matchers for the row model
-        def header_matchers
+        def header_matchers(context)
           @header_matchers ||= begin
             columns.map do |name, options|
               matchers = options[:header_matchs] || [name.to_s]
@@ -31,13 +32,14 @@ module CsvRowModel
         def next(csv, source_header, context={}, previous=nil)
           return csv.read_row unless csv.next_row
 
-          source_row = Array.new(header_matchers.size)
+          source_row = Array.new(header_matchers(context).size)
 
           while csv.next_row
             current_row = csv.read_row
+
             current_row.each_with_index do |cell, position|
               next if cell.blank?
-              index = index_header_match(cell)
+              index = index_header_match(cell, context)
               next unless index
               source_row[index] = current_row[position + 1]
               break
@@ -50,5 +52,3 @@ module CsvRowModel
     end
   end
 end
-
-
