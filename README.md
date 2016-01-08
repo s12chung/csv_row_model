@@ -7,7 +7,7 @@ First define your schema:
 ```ruby
 class ProjectRowModel
   include CsvRowModel::Model
-  
+
   column :id
   column :name
 end
@@ -52,7 +52,7 @@ row_model.header # => ["id", "name"]
 
 row_model.source_row # => ["1", "Some Project Name"]
 row_model.mapped_row # => { id: "1", name: "Some Project Name" }, this is `source_row` mapped to `column_names`
-row_model.attributes # => { id: "1", name: "Some Project Name" }, this is final attribute values mapped to `column_names` 
+row_model.attributes # => { id: "1", name: "Some Project Name" }, this is final attribute values mapped to `column_names`
 
 row_model.id # => 1
 row_model.name # => "Some Project Name"
@@ -441,7 +441,7 @@ class DynamicColumnModel
   column :first_name
   column :last_name
   # header is optional, below is the default_implementation
-  dynamic_column :skills, header: ->(skill_name) { skill_name } 
+  dynamic_column :skills, header: ->(skill_name) { skill_name }
 end
 ```
 
@@ -500,4 +500,68 @@ end
 row_model = CsvRowModel::Import::File.new(file_path, DynamicColumnImportModel).next
 row_model.attributes # => { first_name: "John", last_name: "Doe", skills: ['No', 'Yes'] }
 row_model.skills # => ['No', 'Yes']
+```
+
+## File Model (Mapping)
+
+If you have to deal with a mapping on a csv you can use FileModel, isn't complete a this time and many cases isn't covered but can be helpful
+
+Here an example of FileRowModel
+
+```ruby
+class FileRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Model::FileModel
+
+  row :string1
+  row :string2, header: 'String 2'
+
+  def self.format_header(column_name, context={})
+    ":: - #{column_name} - ::"
+  end
+end
+```
+
+You can add `format_header` really helpful in case of I18n
+
+you can pass `header:` option but we doesn't use it a the moment.
+
+### Import
+
+In import mode we looking for the entries who match with the header, and we get the value in the same row in the right column.
+
+i.e [Project Name, My Project]
+
+If here `Project Name` is the header so value will be `My Project`
+
+```ruby
+class FileImportModel < FileRowModel
+  include CsvRowModel::Import
+  include CsvRowModel::Import::FileModel
+end
+```
+
+### Export
+
+In export mode you have to define template, this is more flexible than import. if you put and header, I mean in Symbol into the template, format_header will be call on it, so for I18n replacement is ok, for other cells you can ask the `source_model` or methods in the exporter
+
+```ruby
+class FileExportModel < FileRowModel
+  include CsvRowModel::Export
+  include CsvRowModel::Export::FileModel
+
+  def rows_template
+    @rows_template ||= begin
+      [
+        [ :string1, ''  , string_value(1)                  ],
+        [ 'String 2', '', ''             , ''              ],
+        [ ''        , '', ''             , string_value(2) ],
+      ]
+    end
+  end
+
+  def string_value(number)
+    source_model.string_value(number)
+  end
+end
 ```

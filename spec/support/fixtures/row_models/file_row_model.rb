@@ -3,7 +3,11 @@ class FileRowModel
   include CsvRowModel::Model::FileModel
 
   row :string1
-  row :string2, header_matchs: ['String 2', 'string two']
+  row :string2, header: 'String 2'
+
+  def self.format_header(column_name, context={})
+    ":: - #{column_name} - ::"
+  end
 end
 
 #
@@ -24,9 +28,9 @@ class FileExportModel < FileRowModel
   def rows_template
     @rows_template ||= begin
       [
-        [ 'String 1', '', string_value(1)     ],
-        [ 'String 2', '', '', ''              ],
-        [ ''        , '', '', string_value(2) ],
+        [ :string1, ''  , string_value(1)                  ],
+        [ 'String 2', '', ''             , ''              ],
+        [ ''        , '', ''             , string_value(2) ],
       ]
     end
   end

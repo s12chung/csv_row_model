@@ -7,17 +7,15 @@ module CsvRowModel
       #                 and everything else is return as is.
       def to_rows
         rows_template.map do |row|
-          result = []
-          row.each do |cell|
-            if self.class.is_row_name? cell
-              header_matchs = self.class.options(cell)[:header_matchs]
-              result << "#{header_matchs ? header_matchs.first : self.class.format_header(cell, context)}"
-              result << "#{attributes[cell]}"
-            else
-              result << cell.to_s
+          [].tap do |result|
+            row.each do |cell|
+              if header? cell
+                result << self.class.format_header(cell, context)
+              else
+                result << cell.to_s
+              end
             end
           end
-          result
         end
       end
 
@@ -33,6 +31,13 @@ module CsvRowModel
       class_methods do
         def setup(csv, context, with_headers: true); end
       end
+
+      private
+
+      def header?(cell)
+        self.class.is_row_name? cell
+      end
+
     end
   end
 end

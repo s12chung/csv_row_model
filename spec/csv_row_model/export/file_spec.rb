@@ -16,9 +16,9 @@ describe CsvRowModel::Export::File do
 
       let(:csv_source) do
         [
-          [ 'String 1','','Value Of String 1'],
-          [ 'String 2','','',''],
-          ['','','','Value Of String 2'],
+          [ ':: - string1 - ::', '', 'Value Of String 1'                      ],
+          [ 'String 2'         , '', ''                 , ''                  ],
+          [ ''                 , '', ''                 , 'Value Of String 2' ],
         ]
       end
 
