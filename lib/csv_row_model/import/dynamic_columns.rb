@@ -9,7 +9,7 @@ module CsvRowModel
 
       # @return [Array] dynamic_column headers
       def dynamic_source_headers
-        source_header[self.class.columns.size..-1]
+        self.class.dynamic_source_headers source_header
       end
 
       # @return [Array] dynamic_column row data
@@ -50,6 +50,10 @@ module CsvRowModel
         # @param column_name [Symbol] Dynamic column name
         def format_dynamic_column_cells(cells, column_name)
           cells
+        end
+        # @return [Array] dynamic_column headers
+        def dynamic_source_headers(source_header)
+          source_header[columns.size..-1]
         end
 
         protected

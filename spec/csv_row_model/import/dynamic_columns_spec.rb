@@ -73,7 +73,7 @@ describe CsvRowModel::Import::DynamicColumns do
     describe "#dynamic_source_headers" do
       subject { instance.dynamic_source_headers }
 
-      it "returns the headers" do
+      it "returns the dynamic part of the headers" do
         expect(subject).to eql dynamic_source_headers
       end
     end
@@ -108,6 +108,16 @@ describe CsvRowModel::Import::DynamicColumns do
                                     .with(dynamic_source_row, :skills)
                                     .and_return(%w[a b c])
         expect(instance.original_attribute(:skills)).to eql %w[a b c]
+      end
+    end
+
+    describe "class" do
+      describe "::dynamic_source_headers" do
+        subject { import_model_class.dynamic_source_headers headers }
+
+        it "returns dynamic part of the headers" do
+          expect(subject).to eql dynamic_source_headers
+        end
       end
     end
   end
