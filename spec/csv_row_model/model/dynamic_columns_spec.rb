@@ -92,5 +92,12 @@ describe CsvRowModel::Model::DynamicColumns do
         expect(subject).to eql(skills: {})
       end
     end
+
+    describe "::is_dynamic_column?" do
+      it "returns if the column is a part of the dynamic ones or not" do
+        expect(DynamicColumnModel.is_dynamic_column?(:skills)).to eql(true)
+        expect(DynamicColumnModel.is_dynamic_column?(:first_name)).to eql(false)
+      end
+    end
   end
 end

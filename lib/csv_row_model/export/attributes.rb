@@ -16,6 +16,8 @@ module CsvRowModel
       end
 
       def formatted_attribute(column_name)
+        return public_send(column_name) if self.class.is_dynamic_column?(column_name)
+
         self.class.format_cell(
           public_send(column_name),
           column_name,
