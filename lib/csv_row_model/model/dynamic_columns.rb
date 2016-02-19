@@ -13,6 +13,10 @@ module CsvRowModel
       end
 
       class_methods do
+        def is_dynamic_column?(column_name)
+          dynamic_columns.keys.include?(column_name)
+        end
+
         # See Model::Columns::headers
         def headers(context={})
           super + dynamic_column_headers(context)

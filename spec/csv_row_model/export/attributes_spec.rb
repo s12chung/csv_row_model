@@ -5,11 +5,20 @@ describe CsvRowModel::Export::Attributes do
   let(:instance)     { BasicExportModel.new(source_model) }
 
   describe 'instance' do
-    describe "#formatted_attributes" do
-      subject { instance.formatted_attributes }
-
-      it "returns the map of column_name => format_cell(public_send(column_name))" do
-        expect(subject).to eql( string1: "TEST 1", string2: "TEST 2" )
+    subject { instance.formatted_attributes }
+    context 'regular columns' do
+      describe "#formatted_attributes" do
+        it "returns the map of column_name => format_cell(public_send(column_name))" do
+          expect(subject).to eql( string1: "TEST 1", string2: "TEST 2" )
+        end
+      end
+    end
+    context 'dynamic olumns' do
+      describe "#formatted_attributes" do
+        let(:instance) { DynamicColumnExportWithFormattingModel.new(User.new('Mario', 'Doe'), skills: Skill.all) }
+        it "ensure CsvRowModel::Export::Attributes#formatted_attributes don't format dynamic columns" do
+          expect(subject).to eql(first_name: 'MARIO', last_name: 'DOE', skills: ['ORGANIZED', 'CLEAN', 'PUNCTUAL', 'STRONG', 'CRAZY', 'FLEXIBLE'])
+        end
       end
     end
   end
