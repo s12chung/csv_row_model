@@ -14,7 +14,7 @@ module CsvRowModel
 
       # @return [Array] dynamic_column row data
       def dynamic_source_row
-        source_row[self.class.columns.size..-1]
+        self.class.dynamic_columns? ? source_row[self.class.columns.size..-1] : []
       end
 
       # @return [Hash] a map of `column_name => original_attribute(column_name)`
@@ -53,7 +53,7 @@ module CsvRowModel
         end
         # @return [Array] dynamic_column headers
         def dynamic_source_headers(source_header)
-          source_header[columns.size..-1]
+          dynamic_columns? ? source_header[columns.size..-1] : []
         end
 
         protected

@@ -76,6 +76,13 @@ describe CsvRowModel::Import::DynamicColumns do
       it "returns the dynamic part of the headers" do
         expect(subject).to eql dynamic_source_headers
       end
+
+      context "for no dynamic classes" do
+        let(:import_model_class) { BasicImportModel }
+        it "returns empty arry" do
+          expect(subject).to eql []
+        end
+      end
     end
 
     describe "#dynamic_source_row" do
@@ -83,6 +90,13 @@ describe CsvRowModel::Import::DynamicColumns do
 
       it "returns the dynamic part of source row" do
         expect(subject).to eql dynamic_source_row
+      end
+
+      context "for no dynamic classes" do
+        let(:import_model_class) { BasicImportModel }
+        it "returns empty arry" do
+          expect(subject).to eql []
+        end
       end
     end
 
@@ -117,6 +131,13 @@ describe CsvRowModel::Import::DynamicColumns do
 
         it "returns dynamic part of the headers" do
           expect(subject).to eql dynamic_source_headers
+        end
+
+        context "for no dynamic classes" do
+          let(:import_model_class) { BasicImportModel }
+          it "returns empty arry" do
+            expect(subject).to eql []
+          end
         end
       end
     end

@@ -13,6 +13,10 @@ module CsvRowModel
       end
 
       class_methods do
+        def dynamic_columns?
+          dynamic_columns.present?
+        end
+
         def is_dynamic_column?(column_name)
           dynamic_columns.keys.include?(column_name)
         end
