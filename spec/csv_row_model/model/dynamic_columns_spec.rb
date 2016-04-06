@@ -23,6 +23,20 @@ describe CsvRowModel::Model::DynamicColumns do
   end
 
   describe "class" do
+    describe "::dynamic_columns?" do
+      it "returns true if class is a dynamic_column class" do
+        expect(DynamicColumnModel.dynamic_columns?).to eql(true)
+        expect(BasicRowModel.dynamic_columns?).to eql(false)
+      end
+    end
+
+    describe "::is_dynamic_column?" do
+      it "returns if the column is a part of the dynamic ones or not" do
+        expect(DynamicColumnModel.is_dynamic_column?(:skills)).to eql(true)
+        expect(DynamicColumnModel.is_dynamic_column?(:first_name)).to eql(false)
+      end
+    end
+
     describe "::dynamic_column_headers" do
       let(:context) { { skills: skills } }
       subject { klass.dynamic_column_headers(context) }
@@ -90,13 +104,6 @@ describe CsvRowModel::Model::DynamicColumns do
 
       it "returns the hash representing the dynamic columns" do
         expect(subject).to eql(skills: {})
-      end
-    end
-
-    describe "::is_dynamic_column?" do
-      it "returns if the column is a part of the dynamic ones or not" do
-        expect(DynamicColumnModel.is_dynamic_column?(:skills)).to eql(true)
-        expect(DynamicColumnModel.is_dynamic_column?(:first_name)).to eql(false)
       end
     end
   end
