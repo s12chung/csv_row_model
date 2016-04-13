@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CsvRowModel::Model do
+describe CsvRowModel::Model::Base do
   describe "instance" do
     let(:options) { {} }
     let(:instance) { BasicRowModel.new(nil, options) }

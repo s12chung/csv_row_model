@@ -1,5 +1,4 @@
 require 'csv_row_model/validators/boolean_format'
-require 'csv_row_model/model/comparison'
 
 module CsvRowModel
   module Import
@@ -7,7 +6,7 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       included do
-        include Model::Comparison
+        self.column_names.each { |*args| define_attribute_method(*args) }
       end
 
       # Classes with a validations associated with them in csv_row_model/validators

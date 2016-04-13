@@ -4,7 +4,6 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       included do
-
         class << self
           alias_method :row_names, :column_names
           alias_method :rows, :columns

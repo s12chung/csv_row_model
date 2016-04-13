@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CsvRowModel::Import do
+describe CsvRowModel::Import::Base do
   describe "instance" do
     let(:source_row) { %w[1.01 b] }
     let(:options) { {} }
