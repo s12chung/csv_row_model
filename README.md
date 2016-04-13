@@ -8,8 +8,10 @@ First define your schema:
 class ProjectRowModel
   include CsvRowModel::Model
 
-  column :id
+  column :id, options
   column :name
+  
+  merge_options :id, more_options # optional
 end
 ```
 

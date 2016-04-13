@@ -87,12 +87,18 @@ module CsvRowModel
         # @option options [String] :header human friendly string of the column name, by default format_header(column_name)
         # @option options [Hash] :header_matchs array with string to match cell to find in the row, by default column name
         def column(column_name, options={})
+          column_name = column_name.to_sym
+
           extra_keys = options.keys - VALID_OPTIONS_KEYS
           raise ArgumentError.new("invalid options #{extra_keys}") unless extra_keys.empty?
 
-          merge_columns(column_name.to_sym => options)
+          merge_columns(column_name => options)
         end
-        # alias_method :row, :column
+
+        def merge_options(column_name, options={})
+          column_name = column_name.to_sym
+          column(column_name, (options(column_name) || {}).merge(options))
+        end
       end
     end
   end

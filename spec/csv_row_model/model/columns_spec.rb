@@ -33,38 +33,6 @@ describe CsvRowModel::Model::Columns do
       specify { expect(subject).to eql %i[string1 string2] }
     end
 
-    describe "::options" do
-      let(:options) { { type: Integer, validate_type: true } }
-      let(:klass) do
-        o = options
-        Class.new do
-          include CsvRowModel::Model
-          column :blah, o
-        end
-      end
-
-      subject { klass.options(:blah) }
-
-      it "returns the options for the column" do
-        expect(subject).to eql options
-      end
-    end
-
-    describe "::column" do
-      context "with invalid option" do
-        subject do
-          Class.new do
-            include CsvRowModel::Model
-            column :blah, invalid_option: true
-          end
-        end
-
-        it "raises error" do
-          expect { subject }.to raise_error(ArgumentError)
-        end
-      end
-    end
-
     describe "::format_header" do
       let(:header) { 'user_name' }
       subject { BasicRowModel.format_header(header) }
@@ -80,6 +48,62 @@ describe CsvRowModel::Model::Columns do
 
       it "returns an array with header column names" do
         expect(subject).to eql headers
+      end
+    end
+
+    context "with custom class" do
+      let(:klass) { Class.new { include CsvRowModel::Model } }
+
+      describe "::options" do
+        let(:options) { { type: Integer, validate_type: true } }
+        before { klass.send(:column, :blah, options) }
+
+        subject { klass.options(:blah) }
+
+        it "returns the options for the column" do
+          expect(subject).to eql options
+        end
+      end
+
+      describe "::column" do
+        context "with invalid option" do
+          subject { klass.send(:column, :blah, invalid_option: true) }
+
+          it "raises error" do
+            expect { subject }.to raise_error(ArgumentError)
+          end
+        end
+      end
+
+      describe "::merge_options" do
+        before { klass.send(:column, :blah, type: Integer) }
+        subject { klass.send(:merge_options, :blah, default: 1) }
+
+        it "merges the option" do
+          expect { subject }.to change {
+            klass.options(:blah)
+          }.from(type: Integer).to(type: Integer, default: 1)
+        end
+
+        context "with child class class" do
+          let(:child_class) { Class.new(klass) }
+
+          subject do
+            klass.send(:merge_options, :blah, default: 1)
+            child_class.send(:merge_options, :blah, header: "Blah")
+          end
+
+
+          it "passes merged option to child, but not to parent" do
+            expect(klass.options(:blah)).to eql(type: Integer)
+            expect(child_class.options(:blah)).to eql(type: Integer)
+
+            subject
+
+            expect(klass.options(:blah)).to eql(type: Integer, default: 1)
+            expect(child_class.options(:blah)).to eql(type: Integer, default: 1, header: "Blah")
+          end
+        end
       end
     end
   end
