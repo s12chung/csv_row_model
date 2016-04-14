@@ -11,17 +11,18 @@ module CsvRowModel
       end
 
       # Classes with a validations associated with them in csv_row_model/validators
-      PARSE_VALIDATION_CLASSES = [Boolean, Integer, Float, Date].freeze
+      PARSE_VALIDATION_CLASSES = [Boolean, Integer, Float, Date, DateTime].freeze
 
       # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
       # Can pass custom Proc with :parse option.
       CLASS_TO_PARSE_LAMBDA = {
-        nil => ->(s) { s },
-        Boolean => ->(s) { s =~ BooleanFormatValidator::FALSE_BOOLEAN_REGEX ? false : true },
-        String  => ->(s) { s },
-        Integer => ->(s) { s.to_i },
-        Float   => ->(s) { s.to_f },
-        Date    => ->(s) { s.present? ? Date.parse(s) : s }
+        nil      => ->(s) { s },
+        Boolean  => ->(s) { s =~ BooleanFormatValidator::FALSE_BOOLEAN_REGEX ? false : true },
+        String   => ->(s) { s },
+        Integer  => ->(s) { s.to_i },
+        Float    => ->(s) { s.to_f },
+        DateTime => ->(s) { s.present? ? DateTime.parse(s) : s },
+        Date     => ->(s) { s.present? ? Date.parse(s) : s }
       }.freeze
 
       # @return [Hash] a map of `column_name => original_attribute(column_name)`
