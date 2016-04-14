@@ -89,9 +89,22 @@ module CsvRowModel
         end
 
         protected
+        # See {Model#column}
+        def column(column_name, options={})
+          super
+          define_attribute_method(column_name)
+        end
+
+        def merge_options(column_name, options={})
+          original_options = options(column_name)
+          add_type_validation(column_name) if !original_options[:validate_type] && options[:validate_type]
+          super
+        end
+
         # Define default attribute method for a column
         # @param column_name [Symbol] the cell's column_name
         def define_attribute_method(column_name)
+          return if method_defined? column_name
           add_type_validation(column_name)
           define_method(column_name) { original_attribute(column_name) }
         end

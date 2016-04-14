@@ -29,6 +29,14 @@ module CsvRowModel
       end
 
       class_methods do
+        # Safe to override. Method applied to each cell by default
+        #
+        # @param cell [Object] the cell's value
+        def format_cell(cell, column_name, column_index, context={})
+          cell
+        end
+
+        protected
         # See {Model#column}
         def column(column_name, options={})
           super
@@ -38,16 +46,8 @@ module CsvRowModel
         # Define default attribute method for a column
         # @param column_name [Symbol] the cell's column_name
         def define_attribute_method(column_name)
-          define_method(column_name) do
-            source_model.public_send(column_name)
-          end
-        end
-
-        # Safe to override. Method applied to each cell by default
-        #
-        # @param cell [Object] the cell's value
-        def format_cell(cell, column_name, column_index, context={})
-          cell
+          return if method_defined? column_name
+          define_method(column_name) { source_model.public_send(column_name) }
         end
       end
     end

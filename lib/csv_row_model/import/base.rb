@@ -93,12 +93,6 @@ module CsvRowModel
       end
 
       class_methods do
-        # See {Model#column}
-        def column(column_name, options={})
-          super
-          define_attribute_method(column_name)
-        end
-
         # @param [Import::Csv] csv to read from
         # @param [Hash] context extra data you want to work with the model
         # @param [Import] prevuous the previous row model
