@@ -6,7 +6,7 @@ describe DateTimeFormatValidator do
       include ActiveWarnings
       attr_accessor :string1
       warnings do
-        validates :string1, date_format: true
+        validates :string1, date_time_format: true
       end
 
       def self.name; "TestClass" end
