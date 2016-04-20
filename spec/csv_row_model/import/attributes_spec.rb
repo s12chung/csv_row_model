@@ -249,6 +249,15 @@ describe CsvRowModel::Import::Attributes do
         end
       end
 
+      context "with Date Time type" do
+        let(:source_cell) { "15/12/30 09:00:00" }
+        before { import_model_klass.class_eval { column :string1, type: DateTime }}
+
+        it "returns the correct date" do
+          expect(subject).to eql DateTime.new(2015,12,30,9,00,00)
+        end
+      end
+
       context "with invalid type" do
         before { import_model_klass.class_eval { column :string1, type: Object } }
 
