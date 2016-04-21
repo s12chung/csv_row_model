@@ -4,10 +4,10 @@ module CsvRowModel
       module Validations
         extend ActiveSupport::Concern
 
-        included do
-          include ActiveModel::Validations
-          include Validators::ValidateAttributes
+        include ActiveModel::Validations
+        include Validators::ValidateAttributes
 
+        included do
           validate_attributes :csv
         end
 

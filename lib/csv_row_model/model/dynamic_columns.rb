@@ -2,7 +2,6 @@ module CsvRowModel
   module Model
     module DynamicColumns
       extend ActiveSupport::Concern
-
       included do
         inherited_class_hash :dynamic_columns
       end

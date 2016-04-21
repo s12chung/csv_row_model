@@ -4,10 +4,7 @@ module CsvRowModel
   module Concerns
     module InheritedClassVar
       extend ActiveSupport::Concern
-
-      included do
-        include InvalidOptions
-      end
+      include InvalidOptions
 
       class_methods do
         # Clears the cache for a variable

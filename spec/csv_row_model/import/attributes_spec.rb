@@ -158,6 +158,44 @@ describe CsvRowModel::Import::Attributes do
       end
     end
 
+    describe "::define_attribute_method" do
+      it "does not do anything the second time" do
+        expect(import_model_klass).to receive(:define_method).with(:waka).once.and_call_original
+        expect(import_model_klass).to receive(:add_type_validation).with(:waka).once
+        expect(import_model_klass).to receive(:define_method).with(:waka2).once.and_call_original
+        expect(import_model_klass).to receive(:add_type_validation).with(:waka2).once
+
+        import_model_klass.send(:define_attribute_method, :waka)
+        import_model_klass.send(:define_attribute_method, :waka)
+        import_model_klass.send(:define_attribute_method, :waka2)
+        import_model_klass.send(:define_attribute_method, :waka2)
+      end
+    end
+
+    describe "::merge_options" do
+      subject { import_model_klass.send(:merge_options, :waka, { type: Integer, validate_type: true }) }
+
+      before { import_model_klass.send(:column, :waka, original_options) }
+      let(:original_options) { {} }
+
+      it "adds validations" do
+        expect(import_model_klass).to_not receive(:define_method)
+        expect(import_model_klass).to receive(:add_type_validation).once.and_call_original
+        subject
+      end
+
+      context "with original_options has validate_type" do
+        let(:original_options) { { type: Integer, validate_type: true } }
+
+        it "doesn't add validations" do
+          expect(import_model_klass).to_not receive(:define_method)
+          expect(import_model_klass).to_not receive(:add_type_validation)
+
+          subject
+        end
+      end
+    end
+
     describe "::default_lambda" do
       let(:instance) { import_model_klass.new(source_row) }
 

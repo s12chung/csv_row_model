@@ -59,7 +59,7 @@ describe CsvRowModel::Concerns::InheritedClassVar do
       subject { ClassWithFamily.send(:inherited_ancestors) }
 
       it "returns the inherited ancestors" do
-        expect(subject).to eql [ClassWithFamily, Parent, CsvRowModel::Concerns::InvalidOptions]
+        expect(subject).to eql [ClassWithFamily, Parent]
       end
     end
 

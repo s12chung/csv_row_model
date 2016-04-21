@@ -1,39 +1,17 @@
+require 'csv_row_model/export/base'
 require 'csv_row_model/export/dynamic_columns'
 require 'csv_row_model/export/attributes'
+require 'csv_row_model/model/comparison'
 
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for exporting to CSVs.
   module Export
     extend ActiveSupport::Concern
 
-    included do
-      include Attributes
-      include DynamicColumns
+    include Base
+    include Attributes
+    include DynamicColumns
 
-      attr_reader :source_model, :context
-      validates :source_model, presence: true
-    end
-
-    # @param [Model] source_model object to export to CSV
-    # @param [Hash]  context
-    def initialize(source_model, context={})
-      @source_model = source_model
-      @context      = OpenStruct.new(context)
-    end
-
-    def to_rows
-      [to_row]
-    end
-
-    # @return [Array] an array of public_send(column_name) of the CSV model
-    def to_row
-      formatted_attributes.values
-    end
-
-    class_methods do
-      def setup(csv, context={}, with_headers: true)
-        csv << headers(context) if with_headers
-      end
-    end
+    include Model::Comparison # can't be added on Model module because Model does not have attributes implemented
   end
 end

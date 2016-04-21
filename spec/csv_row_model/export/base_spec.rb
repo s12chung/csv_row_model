@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CsvRowModel::Export do
+describe CsvRowModel::Export::Base do
   let(:source_model) { Model.new('Test 1', 'Test 2') }
   let(:instance)     { BasicExportModel.new(source_model) }
 

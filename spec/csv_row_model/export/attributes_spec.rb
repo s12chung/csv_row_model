@@ -24,6 +24,25 @@ describe CsvRowModel::Export::Attributes do
   end
 
   describe 'class' do
+    let(:export_model_class) do
+      Class.new do
+        include CsvRowModel::Model
+        include CsvRowModel::Export
+      end
+    end
+
+    describe "::define_attribute_method" do
+      it "does not do anything the second time" do
+        expect(export_model_class).to receive(:define_method).with(:waka).once.and_call_original
+        expect(export_model_class).to receive(:define_method).with(:waka2).once.and_call_original
+
+        export_model_class.send(:define_attribute_method, :waka)
+        export_model_class.send(:define_attribute_method, :waka)
+        export_model_class.send(:define_attribute_method, :waka2)
+        export_model_class.send(:define_attribute_method, :waka2)
+      end
+    end
+
     context 'with column defined before and after Export module' do
       let(:export_model_class) do
         Class.new do
