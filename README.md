@@ -173,7 +173,7 @@ class ProjectImportRowModel
 end
 ```
 
-There are validators for different types: `Boolean`, `Date`, `Float`, `Integer`. See [Validations](#validations) for more.
+There are validators for different types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`. See [Validations](#validations) for more.
 
 #### Default
 Sets the default value of the cell:
@@ -344,7 +344,7 @@ Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `
 
 
 ### Type Format
-Notice that there are validators given for different types: `Boolean`, `Date`, `Float`, `Integer`:
+Notice that there are validators given for different types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`:
 
 ```ruby
 class ProjectImportRowModel
