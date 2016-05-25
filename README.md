@@ -197,47 +197,8 @@ row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
 
 ## Advanced Import
 
-### Children
-
-Child `RowModel` relationships can also be defined:
-
-```ruby
-class UserImportRowModel
-  include CsvRowModel::Model
-  include CsvRowModel::Import
-
-  column :id, type: Integer
-  column :name
-  column :email
-
-  # uses ProjectImportRowModel#valid? to detect the child row
-  has_many :projects, ProjectImportRowModel
-end
-
-import_file = CsvRowModel::Import::File.new(file_path, UserImportRowModel)
-row_model = import_file.next
-row_model.projects # => [<ProjectImportRowModel>, ...]
-```
-
-### Layers
-For complex `RowModel`s there are different layers you can work with:
-```ruby
-import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
-row_model = import_file.next
-
-# the three layers:
-# 1. csv_string_model - represents the row BEFORE parsing (attributes are always strings)
-row_model.csv_string_model
-
-# 2. RowModel - represents the row AFTER parsing
-row_model
-
-# 3. Presenter - an abstraction of a row
-row_model.presenter
-```
-
-#### CsvStringModel
-The `CsvStringModel` represents a row before parsing to add parsing validations.
+### CsvStringModel
+The `CsvStringModel` represents a row BEFORE parsing to add parsing validations.
 
 ```ruby
 class ProjectImportRowModel
@@ -279,61 +240,84 @@ row_model.errors.full_messages # => ["Id must be greater than 0"]
 
 Note that `CsvStringModel` validations are calculated after [Format Cell](#format-cell).
 
-#### Presenter
-For complex rows, you can wrap your `RowModel` with a presenter:
+### Represents
+A CSV is often a representation of database model(s), much like how JSON parameters represents models in requests.
+However, CSVs schemas are **flat** and **static** and JSON parameters are **tree structured** and **dynamic** (but often static).
+Because CSVs are flat, `RowModel`s are also flat, but they can represent various models. The `represents` interface attempts to simplify this for importing.
 
 ```ruby
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
 
-  presenter do
-    # define your presenter here
+  # this is shorthand for the psuedo_code:
+  # def project
+  #  return if id.blank? || name.blank?
+  #
+  #  # turn off memoziation with `memoize: false` option
+  #  @project ||= __the_code_inside_the_block__
+  # end
+  #
+  # and the psuedo_code:
+  # def valid?
+  #   super # calls ActiveModel::Errors code
+  #   errors.delete(:project) if id.invalid? || name.invalid?
+  #   errors.empty?
+  # end
+  represents_one :project, dependencies: [:id, :name] do
+     project = Project.where(id: id).first
+                           
+     # project not found, invalid.
+     return unless project
 
-    # this is shorthand for the psuedo_code:
-    # def project
-    #  return if row_model.id.blank? || row_model.name.blank?
-    #
-    #  # turn off memoziation with `memoize: false` option
-    #  @project ||= __the_code_inside_the_block__
-    # end
-    #
-    # and the psuedo_code:
-    # def valid?
-    #   super # calls ActiveModel::Errors code
-    #   errors.delete(:project) if row_model.id.invalid? || row_model.name.invalid?
-    #   errors.empty?
-    # end
-    attribute :project, dependencies: [:id, :name] do
-      project = Project.where(id: row_model.id).first
-
-      # project not found, invalid.
-      return unless project
-
-      project.name = row_model.name
-      project
-    end
-  end
+     project.name = name
+     project
+   end
+   
+   # same as above, but: returns [] if name.blank?
+   represents_many :projects, dependencies: [:name] do
+     Project.where(name: name)
+   end
 end
 
 # Importing is the same
 import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
-presenter = row_model.presenter
-
-presenter.row_model # gets the row model underneath
-presenter.project.name == presenter.row_model.name # => "Some Project Name"
+row_model.project.name == presenter.row_model.name # => "Some Project Name"
 ```
 
 The presenters are designed for another layer of validation---such as with the database.
 
-Also, the `attribute` defines a dynamic `#project` method that:
+Also, the `represents_one` method defines a dynamic `#project` method that:
 
 1. Memoizes by default, turn off with `memoize: false` option
-2. All errors of `row_model` are propagated to the presenter when calling `presenter.valid?`
-3. Handles dependencies:
-  - When any of the dependencies are `blank?`, the attribute block is not called and the attribute returns `nil`.
-  - When any of the dependencies are `invalid?`, `presenter.errors` for dependencies are cleaned. For the example above, if `row_model.id/name` are `invalid?`, then
-the `:project` key is removed from the errors, so: `presenter.errors.keys # => [:id, :name]`
+2. Handles dependencies:
+  - When any of the dependencies are `blank?`, the attribute block is not called and the representation returns `nil`.
+  - When any of the dependencies are `invalid?`, `row_model.errors` for dependencies are cleaned. For the example above, if `id/name` are `invalid?`, then
+the `:project` key is removed from the errors, so: `row_model.errors.keys # => [:id, :name]` (applies to warnings as well)
+
+`represents_many` is also available, except it returns `[]` when any of the dependencies are `blank?`.
+
+### Children
+
+Child `RowModel` relationships can also be defined:
+
+```ruby
+class UserImportRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Import
+
+  column :id, type: Integer
+  column :name
+  column :email
+
+  # uses ProjectImportRowModel#valid? to detect the child row
+  has_many :projects, ProjectImportRowModel
+end
+
+import_file = CsvRowModel::Import::File.new(file_path, UserImportRowModel)
+row_model = import_file.next
+row_model.projects # => [<ProjectImportRowModel>, ...]
+```
 
 ## Import Validations
 
