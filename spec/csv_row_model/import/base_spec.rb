@@ -28,19 +28,13 @@ describe CsvRowModel::Import::Base do
         expect(instance).to receive(:valid?).and_return(false)
         expect(subject).to eql true
       end
-
-      it "is true when presenter is invalid?" do
-        expect(instance.presenter).to receive(:valid?).and_return(false)
-        expect(subject).to eql true
-      end
     end
 
     describe "#abort?" do
       subject { instance.skip? }
 
-      it "is true when presenter is skip? is true" do
-        expect(instance.presenter).to receive(:skip?).and_return(true)
-        expect(subject).to eql true
+      it "is always false" do
+        expect(subject).to eql false
       end
     end
 
@@ -67,27 +61,6 @@ describe CsvRowModel::Import::Base do
         }.to change {
           instance.previous
         }.to(nil)
-      end
-    end
-
-    describe "#presenter" do
-      let(:klass) do
-        Class.new(BasicImportModel) do
-          presenter do
-            attribute(:both_strings) { row_model.string1 + row_model.string2 }
-            def test_method; "work!" end
-          end
-        end
-      end
-
-      subject { instance.presenter }
-
-      it "returns presenter with methods working" do
-        expect(subject.both_strings).to eql "1.01b"
-      end
-
-      it "can define methods" do
-        expect(subject.test_method).to eql "work!"
       end
     end
 

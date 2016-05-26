@@ -282,12 +282,10 @@ end
 # Importing is the same
 import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
-row_model.project.name == presenter.row_model.name # => "Some Project Name"
+row_model.project.name # => "Some Project Name"
 ```
 
-The presenters are designed for another layer of validation---such as with the database.
-
-Also, the `represents_one` method defines a dynamic `#project` method that:
+The `represents_one` method defines a dynamic `#project` method that:
 
 1. Memoizes by default, turn off with `memoize: false` option
 2. Handles dependencies:
@@ -324,7 +322,7 @@ row_model.projects # => [<ProjectImportRowModel>, ...]
 Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html) the `RowModel`'s [Layers](#layers).
 Please read [Layers](#layers) for more information.
 
-Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) on `Model` and `Presenter` for warnings.
+Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) for warnings.
 
 
 ### Type Format
@@ -380,7 +378,7 @@ abort logic:
 class ProjectImportRowModel
   # always skip
   def skip?
-    true # original implementation: !valid? || presenter.skip?
+    true # original implementation: !valid?
   end
 end
 

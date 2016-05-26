@@ -1,5 +1,3 @@
-require 'csv_row_model/import/presenter'
-
 module CsvRowModel
   module Import
     module Base
@@ -38,11 +36,6 @@ module CsvRowModel
         @previous = nil
       end
 
-      # @return [Presenter] the presenter of self
-      def presenter
-        @presenter ||= self.class.presenter_class.new(self)
-      end
-
       # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model (values are from format_cell)
       def csv_string_model
         @csv_string_model ||= begin
@@ -65,14 +58,14 @@ module CsvRowModel
       #
       # @return [Boolean] returns true, if this instance should be skipped
       def skip?
-        !valid? || presenter.skip?
+        !valid?
       end
 
       # Safe to override.
       #
       # @return [Boolean] returns true, if the entire csv file should stop reading
       def abort?
-        presenter.abort?
+        false
       end
 
       def valid?(*args)
@@ -115,20 +108,15 @@ module CsvRowModel
           end
         end
 
-        # @return [Class] the Class of the Presenter
-        def presenter_class
-          @presenter_class ||= inherited_custom_class(:presenter_class, Presenter)
-        end
-
         protected
         def inspect_methods
           @inspect_methods ||= %i[mapped_row initialized_at parent context previous].freeze
         end
 
-        # Call to define the presenter
-        def presenter(&block)
-          presenter_class.class_eval(&block)
-        end
+        #
+        # Call to define the Presenter (do nothing, will remove)
+        #
+        def presenter; end
       end
     end
   end
