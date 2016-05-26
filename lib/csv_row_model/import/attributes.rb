@@ -119,7 +119,7 @@ module CsvRowModel
 
           type = options[:type]
           raise ArgumentError.new("invalid :type given for :validate_type for column") unless PARSE_VALIDATION_CLASSES.include? type
-          validate_type = Proc.new { validates column_name, "#{type.name.underscore}_format".to_sym => true, allow_blank: true }
+          validate_type = Proc.new { validates column_name, :"#{type.name.underscore}_format" => true, allow_blank: true }
 
           csv_string_model(&validate_type)
         end
