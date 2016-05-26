@@ -11,7 +11,6 @@ module CsvRowModel
         validates :source_row, presence: true
       end
 
-
       # @param [Array] source_row the csv row
       # @param options [Hash]
       # @option options [Integer] :index index in the CSV file
@@ -19,7 +18,7 @@ module CsvRowModel
       # @option options [Array] :source_header the csv header row
       # @option options [CsvRowModel::Import] :previous the previous row model
       # @option options [CsvRowModel::Import] :parent if the instance is a child, pass the parent
-      def initialize(source_row, options={})
+      def initialize(source_row=[], options={})
         options = options.symbolize_keys.reverse_merge(context: {})
         @source_row, @context = source_row, OpenStruct.new(options[:context])
         @index, @source_header, @previous = options[:index], options[:source_header], options[:previous].try(:dup)
