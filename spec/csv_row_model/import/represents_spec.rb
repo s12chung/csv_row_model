@@ -5,6 +5,27 @@ describe CsvRowModel::Import::Represents do
   let(:instance) { klass.new }
 
   describe "instance" do
+    describe "#attributes" do
+      subject { instance.attributes }
+
+      let(:instance) { klass.new(%w[a b]) }
+      before { klass.send(:represents_one, :test_model, dependencies: %i[string1 string2]) { "test" } }
+
+      it "includes representations" do
+        expect(subject).to eql(string1: "a", string2: "b", test_model: "test")
+        expect(subject).to_not eql instance.column_attributes
+      end
+    end
+
+    describe "#representation_attributes" do
+      subject { instance.representation_attributes }
+      before { klass.send(:represents_one, :test_model) { "test" } }
+
+      it "includes representations" do
+        expect(subject).to eql(test_model: "test")
+      end
+    end
+
     describe "#valid?" do
       subject { instance.valid? }
 

@@ -7,6 +7,14 @@ module CsvRowModel
         inherited_class_hash :representations
       end
 
+      def attributes
+        super.merge!(representation_attributes)
+      end
+
+      def representation_attributes
+        attributes_from_method_names(self.class.representation_names)
+      end
+
       def valid?(*args)
         super
         filter_errors
