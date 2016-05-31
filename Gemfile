@@ -5,6 +5,8 @@ gemspec
 
 gem "bundler", "> 1.3"
 gem "rake", "~> 10.0"
+gem "inherited_class_var", github: 'FinalCAD/inherited_class_var', branch: 'handle_edge_cases'
+
 
 group :test do
   gem "rspec"
