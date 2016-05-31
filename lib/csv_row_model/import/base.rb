@@ -6,7 +6,8 @@ module CsvRowModel
       included do
         attr_reader :source_header, :source_row, :context, :index, :previous
 
-        validates :source_row, presence: true
+        # need to simplify children code
+        validate { errors.add(:source_row, "can't be nil") if source_row.nil? }
       end
 
       # @param [Array] source_row the csv row

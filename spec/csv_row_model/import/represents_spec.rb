@@ -29,9 +29,18 @@ describe CsvRowModel::Import::Represents do
     describe "#valid?" do
       subject { instance.valid? }
 
-      it "calls #filter_errors" do
+      it "calls #filter_errors and returns valid" do
         expect(instance).to receive(:filter_errors)
-        subject
+        expect(subject).to eql true
+      end
+
+      context "when invalid" do
+        before { klass.send(:validates, :string1, presence: true) }
+
+        it "returns invalid and has errors" do
+          expect(subject).to eql false
+          expect(instance.errors.full_messages).to eql ["String1 can't be blank"]
+        end
       end
     end
 
@@ -78,7 +87,7 @@ describe CsvRowModel::Import::Represents do
       subject { instance.send(:memoize, "test") { Random.rand } }
 
       it "memoizes the result" do
-        expect(subject).to_not eql nil
+        expect(subject).to be_present
         expect(subject).to eql instance.send(:memoize, "test")
       end
     end
