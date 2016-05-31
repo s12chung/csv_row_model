@@ -10,11 +10,19 @@ describe CsvRowModel::Model::Columns do
       instance.define_singleton_method(:string2) { "baka" }
     end
 
+    describe "#column_attributes" do
+      subject { instance.column_attributes }
+
+      it "returns the map of column_name => public_send(column_name)" do
+        expect(subject).to eql( string1: "haha", string2: "baka" )
+      end
+    end
+
     describe "#attributes" do
       subject { instance.attributes }
 
-      it "returns the map of column_name => public_send(column_name)" do
-        expect(instance.attributes).to eql( string1: "haha", string2: "baka" )
+      it "is same as column_attributes" do
+        expect(subject).to eql instance.column_attributes
       end
     end
 

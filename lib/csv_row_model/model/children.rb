@@ -58,7 +58,7 @@ module CsvRowModel
             #
             # equal to: @relation_name ||= []
             #
-            variable_name = "@#{relation_name}"
+            variable_name = :"@#{relation_name}"
             instance_variable_get(variable_name) || instance_variable_set(variable_name, [])
           end
         end

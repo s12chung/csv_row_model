@@ -8,7 +8,12 @@ module CsvRowModel
 
       # @return [Hash] a map of `column_name => public_send(column_name)`
       def attributes
-        attributes_from_column_names self.class.column_names
+        column_attributes
+      end
+
+      # @return [Hash] a map of `column_name => public_send(column_name)` (is not overwritten by represents)
+      def column_attributes
+        attributes_from_method_names self.class.column_names
       end
 
       def to_json
@@ -21,15 +26,12 @@ module CsvRowModel
 
       protected
 
-      def attributes_from_column_names(column_names)
+      def attributes_from_method_names(column_names)
         array_to_block_hash(column_names) { |column_name| public_send(column_name) }
       end
 
       def array_to_block_hash(array, &block)
-        array
-          .zip(
-            array.map { |column_name| block.call(column_name) }
-          ).to_h
+        array.zip(array.map { |column_name| block.call(column_name) }).to_h
       end
 
       class_methods do

@@ -1,6 +1,8 @@
 require 'csv_row_model/import/base'
 require 'csv_row_model/import/attributes'
 require 'csv_row_model/import/dynamic_columns'
+require 'csv_row_model/import/represents'
+
 require 'csv_row_model/model/comparison'
 
 module CsvRowModel
@@ -13,6 +15,7 @@ module CsvRowModel
     include Base
     include Attributes
     include DynamicColumns
+    include Represents
 
     include Model::Comparison # can't be added on Model module because Model does not have attributes implemented
   end

@@ -14,7 +14,7 @@ module CsvRowModel
 
       # See Model::Export#formatted_attributes
       def formatted_attributes
-        super.merge(formatted_attributes_from_column_names(self.class.dynamic_column_names))
+        super.merge!(formatted_attributes_from_column_names(self.class.dynamic_column_names))
       end
 
       class_methods do

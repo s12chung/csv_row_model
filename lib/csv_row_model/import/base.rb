@@ -1,5 +1,3 @@
-require 'csv_row_model/import/presenter'
-
 module CsvRowModel
   module Import
     module Base
@@ -8,9 +6,9 @@ module CsvRowModel
       included do
         attr_reader :source_header, :source_row, :context, :index, :previous
 
-        validates :source_row, presence: true
+        # need to simplify children code
+        validate { errors.add(:source_row, "can't be nil") if source_row.nil? }
       end
-
 
       # @param [Array] source_row the csv row
       # @param options [Hash]
@@ -19,7 +17,7 @@ module CsvRowModel
       # @option options [Array] :source_header the csv header row
       # @option options [CsvRowModel::Import] :previous the previous row model
       # @option options [CsvRowModel::Import] :parent if the instance is a child, pass the parent
-      def initialize(source_row, options={})
+      def initialize(source_row=[], options={})
         options = options.symbolize_keys.reverse_merge(context: {})
         @source_row, @context = source_row, OpenStruct.new(options[:context])
         @index, @source_header, @previous = options[:index], options[:source_header], options[:previous].try(:dup)
@@ -37,11 +35,6 @@ module CsvRowModel
       # Free `previous` from memory to avoid making a linked list
       def free_previous
         @previous = nil
-      end
-
-      # @return [Presenter] the presenter of self
-      def presenter
-        @presenter ||= self.class.presenter_class.new(self)
       end
 
       # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model (values are from format_cell)
@@ -66,14 +59,14 @@ module CsvRowModel
       #
       # @return [Boolean] returns true, if this instance should be skipped
       def skip?
-        !valid? || presenter.skip?
+        !valid?
       end
 
       # Safe to override.
       #
       # @return [Boolean] returns true, if the entire csv file should stop reading
       def abort?
-        presenter.abort?
+        false
       end
 
       def valid?(*args)
@@ -116,20 +109,15 @@ module CsvRowModel
           end
         end
 
-        # @return [Class] the Class of the Presenter
-        def presenter_class
-          @presenter_class ||= inherited_custom_class(:presenter_class, Presenter)
-        end
-
         protected
         def inspect_methods
           @inspect_methods ||= %i[mapped_row initialized_at parent context previous].freeze
         end
 
-        # Call to define the presenter
-        def presenter(&block)
-          presenter_class.class_eval(&block)
-        end
+        #
+        # Call to define the Presenter (do nothing, will remove)
+        #
+        def presenter; end
       end
     end
   end

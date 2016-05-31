@@ -100,54 +100,6 @@ describe CsvRowModel::Concerns::InheritedClassVar do
           end
         end
       end
-
-      describe "::presenter_class" do
-        let(:klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
-            def self.name; "TestRowModel" end
-
-            presenter do
-              validates :attr2, presence: true
-              attribute(:attr1) { "blah" }
-              attribute(:attr2) { nil }
-            end
-          end
-        end
-
-        let(:row_model) { klass.new([""]) }
-        let(:instance) { klass.presenter_class.new(row_model) }
-
-        it "works" do
-          expect(instance.attr1).to eql "blah"
-          expect(instance.attr2).to eql nil
-
-          expect(instance).to_not be_valid
-          expect(instance.errors.full_messages).to eql ["Attr2 can't be blank"]
-        end
-
-        context "with multiple subclasses" do
-          let(:klass2) { Class.new(klass) { presenter { attribute(:attr3) { "waka" } } } }
-          let(:instance2) { klass2.presenter_class.new(row_model) }
-          let(:klass3) { Class.new(klass2) { presenter { attribute(:attr2) { "override!" } } } }
-          let(:instance3) { klass3.presenter_class.new(row_model) }
-
-          it "just subclasses attributes fine" do
-            [instance2, instance3].each do |instance|
-              expect(instance.attr1).to eql "blah"
-              expect(instance.attr3).to eql "waka"
-            end
-
-            expect(instance2.attr2).to eql nil
-            expect(instance2).to_not be_valid
-            expect(instance2.errors.full_messages).to eql ["Attr2 can't be blank"]
-
-            expect(instance3.attr2).to eql "override!"
-            expect(instance3).to be_valid
-          end
-        end
-      end
     end
 
     context "with deep_inherited_class_var set" do
