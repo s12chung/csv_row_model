@@ -88,9 +88,10 @@ describe CsvRowModel::Model::Columns do
         subject { klass.send(:merge_options, :blah, default: 1) }
 
         it "merges the option" do
-          expect { subject }.to change {
-            klass.options(:blah)
-          }.from(type: Integer).to(type: Integer, default: 1)
+          result = { blah: { type: Integer, default: 1 }}
+
+          expect { subject }.to change { klass.columns }.from(blah: { type: Integer }).to(result)
+          expect(klass.send(:raw_columns)).to eql(result)
         end
 
         context "with child class class" do
@@ -103,13 +104,19 @@ describe CsvRowModel::Model::Columns do
 
 
           it "passes merged option to child, but not to parent" do
-            expect(klass.options(:blah)).to eql(type: Integer)
-            expect(child_class.options(:blah)).to eql(type: Integer)
+            expect(klass.columns).to eql(blah: { type: Integer })
+            expect(klass.raw_columns).to eql(blah: { type: Integer })
+
+            expect(child_class.columns).to eql(blah: { type: Integer })
+            expect(child_class.raw_columns).to eql({})
 
             subject
 
-            expect(klass.options(:blah)).to eql(type: Integer, default: 1)
-            expect(child_class.options(:blah)).to eql(type: Integer, default: 1, header: "Blah")
+            expect(klass.columns).to eql(blah: { type: Integer, default: 1 })
+            expect(klass.raw_columns).to eql(blah: { type: Integer, default: 1 })
+
+            expect(child_class.columns).to eql(blah: { type: Integer, default: 1, header: "Blah" })
+            expect(child_class.raw_columns).to eql(blah: { header: "Blah" })
           end
         end
       end

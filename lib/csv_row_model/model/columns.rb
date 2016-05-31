@@ -99,7 +99,7 @@ module CsvRowModel
 
         def merge_options(column_name, options={})
           column_name = column_name.to_sym
-          column(column_name, (options(column_name) || {}).merge(options))
+          column(column_name, options)
         end
       end
     end
