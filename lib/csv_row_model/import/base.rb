@@ -8,9 +8,10 @@ module CsvRowModel
 
         # need to simplify children code
         validate { errors.add(:source_row, "can't be nil") if source_row.nil? }
+        validate { errors.add(:csv, "has #{@csv_exception.message}") if @csv_exception }
       end
 
-      # @param [Array] source_row the csv row
+      # @param [Array] source_row_or_exception the csv row
       # @param options [Hash]
       # @option options [Integer] :index 1st row_model is 0, 2nd is 1, 3rd is 2, etc.
       # @option options [Integer] :line_number line_number in the CSV file
@@ -18,13 +19,18 @@ module CsvRowModel
       # @option options [Array] :source_header the csv header row
       # @option options [CsvRowModel::Import] :previous the previous row model
       # @option options [CsvRowModel::Import] :parent if the instance is a child, pass the parent
-      def initialize(source_row=[], options={})
+      def initialize(source_row_or_exception=[], options={})
+        unless source_row_or_exception.class == Array
+          @csv_exception = source_row_or_exception
+          source_row_or_exception = []
+        end
         options = options.symbolize_keys.reverse_merge(context: {})
-        @source_row, @context = source_row, OpenStruct.new(options[:context])
+
+        @source_row, @context = source_row_or_exception, OpenStruct.new(options[:context])
         @line_number, @index, @source_header, @previous = options[:line_number], options[:index], options[:source_header], options[:previous].try(:dup)
 
         previous.try(:free_previous)
-        super(source_row, options)
+        super(source_row_or_exception, options)
       end
 
       # @return [Hash] a map of `column_name => source_row[index_of_column_name]`

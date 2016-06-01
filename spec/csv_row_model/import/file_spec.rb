@@ -66,7 +66,7 @@ describe CsvRowModel::Import::File do
     end
 
     context "with children" do
-      let(:file_path) { parent_5_rows_path }
+      let(:file_path) { parent_6_rows_path }
       let(:model_class) { ParentImportModel }
 
       it "gets the rows until the end of file" do
@@ -95,6 +95,35 @@ describe CsvRowModel::Import::File do
           expect(instance.next).to eql nil
           expect(instance.end_of_file?).to eql true
         end
+      end
+    end
+
+    context "with badly formatted file" do
+      let(:file_path) { syntax_bad_quotes_5_rows_path }
+
+      it "gets headers and returns invalid row" do
+        row = instance.next
+        expect(row).to be_valid
+        expect(row.source_row).to eql ["string1", "string2"]
+
+        invalid_row = instance.next
+        expect(invalid_row).to be_invalid
+        expect(invalid_row.errors.full_messages).to eql ["Csv has Illegal quoting in line 3."]
+        expect(invalid_row.source_row).to eql []
+
+        row = instance.next
+        expect(row).to be_valid
+        expect(row.source_row).to eql ["lang1", "lang2"]
+
+        expect(instance.next).to be_invalid
+        expect(instance.next).to be_invalid
+        expect(instance.next).to be_nil
+      end
+
+      it "has header to be an empty array" do
+        expect(instance.header).to eql []
+        expect(instance).to be_unsafe
+        expect(instance.warnings.full_messages).to eql ["Csv has header with Illegal quoting in line 1."]
       end
     end
   end

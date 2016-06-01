@@ -23,7 +23,7 @@ module CsvRowModel
       # @return [Hash] context passed to the {Import}
       attr_reader :context
 
-      delegate :size, :end_of_file?, :line_number, :header, to: :csv
+      delegate :size, :end_of_file?, :line_number, to: :csv
 
       # @param [String] file_path path of csv file
       # @param [Import] row_model_class model class returned for importing
@@ -31,6 +31,11 @@ module CsvRowModel
       def initialize(file_path, row_model_class, context={})
         @csv, @row_model_class, @context = Csv.new(file_path), row_model_class, context.to_h.symbolize_keys
         reset
+      end
+
+      def header
+        h = csv.header
+        h.class == Array ? h : []
       end
 
       # Resets the file back to the top

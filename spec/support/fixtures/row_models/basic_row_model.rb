@@ -19,6 +19,7 @@ end
 
 class ChildImportModel < BasicImportModel
   validates :string1, absence: true
+  validates :source_row, presence: true # hack before changing how children work
 end
 
 class ParentImportModel < BasicImportModel
