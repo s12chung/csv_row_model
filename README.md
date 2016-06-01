@@ -295,28 +295,6 @@ the `:project` key is removed from the errors, so: `row_model.errors.keys # => [
 
 `represents_many` is also available, except it returns `[]` when any of the dependencies are `blank?`.
 
-### Children
-
-Child `RowModel` relationships can also be defined:
-
-```ruby
-class UserImportRowModel
-  include CsvRowModel::Model
-  include CsvRowModel::Import
-
-  column :id, type: Integer
-  column :name
-  column :email
-
-  # uses ProjectImportRowModel#valid? to detect the child row
-  has_many :projects, ProjectImportRowModel
-end
-
-import_file = CsvRowModel::Import::File.new(file_path, UserImportRowModel)
-row_model = import_file.next
-row_model.projects # => [<ProjectImportRowModel>, ...]
-```
-
 ## Import Validations
 
 Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html) the `RowModel`'s [Layers](#layers).
@@ -414,7 +392,100 @@ class ImportFile < CsvRowModel::Import::File
 end
 ```
 
-## Dynamic columns
+## Groupings
+Additional options that can be combined.
+
+### Grouped Columns
+Grouped columns have `Array` attribute values and where each element is amongst separate columns.
+
+```ruby
+class GroupedColumnModel
+  include CsvRowModel::Model
+  column :tags, grouped_columns: 3
+end
+```
+
+represents this table:
+
+| tag1 | tag2 | tag3 |
+| ---- |----- | ---- |
+| a    | b    | c    |
+| d    | e    |      |
+
+
+For export, implement the column as an array:
+
+```ruby
+class GroupedColumnExportModel < GroupedColumnModel
+  include CsvRowModel::Export
+
+  def tags
+    ['a', 'b', 'c', 'd', 'e']
+  end
+end
+```
+
+For import, the attribute is automatically an array:
+
+```ruby
+class GroupedColumnImportModel < GroupedColumnModel
+  include CsvRowModel::Import
+end
+
+row_model = CsvRowModel::Import::File.new(file_path, GroupedColumnImportModel).next
+row_model.attributes # => { tags: ['a', 'b', 'c', 'd', 'e'] }
+row_model.tags # => ['a', 'b', 'c', 'd', 'e']
+```
+
+### Group Rows
+This option allows grouping of rows into the same attribute. Row is only grouped if cells of other columns are empty.
+
+```ruby
+class GroupRowsModel
+  include CsvRowModel::Model
+
+  column :names, group_rows: true
+  column :standard
+  column :tags, group_rows: true
+end
+```
+
+represents this table:
+
+| names | standard    | tags |
+| ----- |------------ | -----|
+| abbey |             | a    |
+|       |             | b    |
+| bob   | not_empty   | c    |
+| chris | not_empty   | d    |
+| dave  |             | e    |
+
+For export, implement the column as an array:
+
+```ruby
+class GroupRowsExportModel < GroupRowsModel
+  include CsvRowModel::Export
+  
+  def names; ['abbey']
+  def standard; end
+  def tags; ['a', 'b'] end
+end
+```
+
+For import, the attribute is automatically an array:
+
+```ruby
+class GroupRowsImportModel < GroupRowsModel
+  include CsvRowModel::Import
+end
+
+file = CsvRowModel::Import::File.new(file_path, GroupedColumnImportModel)
+file.next.attributes # => {  names: ['abbey'], standard: '', tags: ['a', b'] }
+file.next.attributes # => {  names: ['bob'], standard: 'not_empty', tags: ['c'] } # does not group 'chris' because the `standard` cell is not empty
+file.next.attributes # => {  names: ['chris', 'dave'], standard: 'not_empty', tags: ['d', 'e'] }
+```
+
+## Dynamic Columns
 Dynamic columns are columns that can expand to many columns. Currently, we can only one dynamic column after all other standard columns.
 The following:
 
