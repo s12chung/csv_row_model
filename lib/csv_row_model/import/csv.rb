@@ -1,11 +1,11 @@
 module CsvRowModel
   module Import
-    # Abstraction of Ruby's CSV library. Keeps current row and index, skips empty rows, handles errors.
+    # Abstraction of Ruby's CSV library. Keeps current row and line_number, skips empty rows, handles errors.
     class Csv
       # @return [String] the file path of the CSV
       attr_reader :file_path
-      # @return [Integer, nil] return `-1` at start of file, `0 to infinity` is index of row_model, `nil` is end of file (row is also `nil`)
-      attr_reader :index
+      # @return [Integer, nil] return `0` at start of file, `1 to infinity` is line_number of row_model, `nil` is end of file (row is also `nil`)
+      attr_reader :line_number
       # @return [Array, nil] the current row, or nil at the beginning or end of file
       attr_reader :current_row
 
@@ -42,7 +42,7 @@ module CsvRowModel
       def reset
         return false unless valid?
 
-        @index = -1
+        @line_number = 0
         @current_row = @next_row = @skipped_rows = @next_skipped_rows = nil
 
         @ruby_csv.try(:close)
@@ -52,12 +52,12 @@ module CsvRowModel
 
       # @return [Boolean] true, if the current position is at the start of the file
       def start_of_file?
-        index == -1
+        line_number == 0
       end
 
       # @return [Boolean] true, if the current position is at the end of the file
       def end_of_file?
-        index.nil?
+        line_number.nil?
       end
 
       # Returns the next row __without__ changing the position of the CSV
@@ -72,8 +72,8 @@ module CsvRowModel
         return if end_of_file?
 
         @current_row = @next_row || _read_row
+        @line_number = current_row.nil? ? nil : @line_number + 1
         @next_row = nil
-        @index = current_row.nil? ? nil : @index + 1
 
         current_row
       end
@@ -87,7 +87,9 @@ module CsvRowModel
         return unless valid?
         ruby_csv.readline
       rescue Exception => e
-        return e
+        changed = e.exception(e.message.gsub(/line \d+\./, "line #{line_number + 1}.")) # line numbers are usually off
+        changed.set_backtrace(e.backtrace)
+        return changed
       end
     end
   end

@@ -21,6 +21,7 @@ describe CsvRowModel::Import::File do
       it "resets and starts at the first row" do
         subject
         expect(instance.index).to eql -1
+        expect(instance.line_number).to eql 0
         expect(instance.current_row_model).to eql nil
         expect(instance.next.source_row).to eql %w[lang1 lang2]
       end
@@ -52,8 +53,9 @@ describe CsvRowModel::Import::File do
         expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
 
         expect(row_model.previous.try(:source_row)).to eql previous_row_model.try(:source_row)
-        # + 1 due to header
-        expect(row_model.index).to eql index + 1
+        expect(row_model.index).to eql index
+        # header means +1, starts at 1 means +1 too--- 1 + 1 = 2
+        expect(row_model.line_number).to eql index + 2
         expect(row_model.context).to eql OpenStruct.new(some_context: true)
       end
 

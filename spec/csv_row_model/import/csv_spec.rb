@@ -29,12 +29,12 @@ describe CsvRowModel::Import::Csv do
   end
 
   def start_of_file?(instance)
-    expect(instance.index).to eql -1
+    expect(instance.line_number).to eql 0
     expect(instance.current_row).to eql nil
   end
 
-  def second_row?(instance)
-    expect(instance.index).to eql 0
+  def first_row?(instance)
+    expect(instance.line_number).to eql 1
     expect(instance.current_row).to eql ["string1", "string2"]
   end
 
@@ -47,7 +47,7 @@ describe CsvRowModel::Import::Csv do
       expect(instance.skip_header).to eql ["string1", "string2"]
       expect(instance.skip_header).to eql false
 
-      second_row? instance
+      first_row? instance
     end
 
     it "works when header is called" do
@@ -56,7 +56,7 @@ describe CsvRowModel::Import::Csv do
       instance.header
       expect(subject).to eql ["string1", "string2"]
 
-      second_row? instance
+      first_row? instance
     end
   end
 
@@ -78,7 +78,7 @@ describe CsvRowModel::Import::Csv do
     it "sets the state back to reset" do
       expect(instance.read_row).to eql ["string1", "string2"]
       expect(instance.next_row).to eql ["lang1", "lang2"]
-      second_row? instance
+      first_row? instance
       expect(subject).to eql true
       start_of_file? instance
       expect(instance.read_row).to eql ["string1", "string2"]
@@ -133,10 +133,10 @@ describe CsvRowModel::Import::Csv do
 
       it "just returns an empty array" do
         expect(instance.read_row).to eql []
-        expect(instance.index).to eql 0
+        expect(instance.line_number).to eql 1
 
         expect(instance.read_row).to eql ["string1", "string2"]
-        expect(instance.index).to eql 1
+        expect(instance.line_number).to eql 2
       end
     end
 
@@ -145,22 +145,22 @@ describe CsvRowModel::Import::Csv do
 
       it "returns the exception" do
         expect(instance.read_row.to_s).to eql "Illegal quoting in line 1."
-        expect(instance.index).to eql 0
+        expect(instance.line_number).to eql 1
 
         expect(instance.read_row).to eql ["string1", "string2"]
-        expect(instance.index).to eql 1
-
-        expect(instance.read_row.to_s).to eql "Illegal quoting in line 2."
-        expect(instance.index).to eql 2
-
-        expect(instance.read_row).to eql ["lang1", "lang2"]
-        expect(instance.index).to eql 3
+        expect(instance.line_number).to eql 2
 
         expect(instance.read_row.to_s).to eql "Illegal quoting in line 3."
-        expect(instance.index).to eql 4
+        expect(instance.line_number).to eql 3
 
-        expect(instance.read_row.to_s).to eql "Unclosed quoted field on line 3."
-        expect(instance.index).to eql 5
+        expect(instance.read_row).to eql ["lang1", "lang2"]
+        expect(instance.line_number).to eql 4
+
+        expect(instance.read_row.to_s).to eql "Illegal quoting in line 5."
+        expect(instance.line_number).to eql 5
+
+        expect(instance.read_row.to_s).to eql "Unclosed quoted field on line 6."
+        expect(instance.line_number).to eql 6
 
         expect(instance.read_row).to eql nil
       end

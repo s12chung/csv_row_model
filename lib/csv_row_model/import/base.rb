@@ -4,7 +4,7 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       included do
-        attr_reader :source_header, :source_row, :context, :index, :previous
+        attr_reader :source_header, :source_row, :context, :line_number, :index, :previous
 
         # need to simplify children code
         validate { errors.add(:source_row, "can't be nil") if source_row.nil? }
@@ -12,7 +12,8 @@ module CsvRowModel
 
       # @param [Array] source_row the csv row
       # @param options [Hash]
-      # @option options [Integer] :index index in the CSV file
+      # @option options [Integer] :index 1st row_model is 0, 2nd is 1, 3rd is 2, etc.
+      # @option options [Integer] :line_number line_number in the CSV file
       # @option options [Hash] :context extra data you want to work with the model
       # @option options [Array] :source_header the csv header row
       # @option options [CsvRowModel::Import] :previous the previous row model
@@ -20,7 +21,7 @@ module CsvRowModel
       def initialize(source_row=[], options={})
         options = options.symbolize_keys.reverse_merge(context: {})
         @source_row, @context = source_row, OpenStruct.new(options[:context])
-        @index, @source_header, @previous = options[:index], options[:source_header], options[:previous].try(:dup)
+        @line_number, @index, @source_header, @previous = options[:line_number], options[:index], options[:source_header], options[:previous].try(:dup)
 
         previous.try(:free_previous)
         super(source_row, options)
@@ -86,21 +87,26 @@ module CsvRowModel
       end
 
       class_methods do
-        # @param [Import::Csv] csv to read from
+        #
+        # Move to Import::File once FileModel is removed.
+        #
+        # @param [Import::File] file to read from
         # @param [Hash] context extra data you want to work with the model
         # @param [Import] prevuous the previous row model
         # @return [Import] the next model instance from the csv
-        def next(csv, source_header, context={}, previous=nil)
+        def next(file, context={})
+          csv = file.csv
           csv.skip_header
           row_model = nil
 
           loop do # loop until the next parent or end_of_file? (need to read children rows)
             csv.read_row
             row_model ||= new(csv.current_row,
-                              index: csv.index,
-                              source_header: source_header,
+                              line_number: csv.line_number,
+                              index: file.index,
+                              source_header: csv.header,
                               context: context,
-                              previous: previous)
+                              previous: file.previous_row_model)
 
             return row_model if csv.end_of_file?
 

@@ -13,7 +13,7 @@ module CsvRowModel
       # @return [Input] model class returned for importing
       attr_reader :row_model_class
 
-      # Current index of the row model
+      # Current index of the row model (not the same as number of rows)
       # @return [Integer] returns -1 = start of file, 0 to infinity = index of row_model, nil = end of file, no row_model
       attr_reader :index
       # @return [Input] the current row model set by {#next}
@@ -23,7 +23,7 @@ module CsvRowModel
       # @return [Hash] context passed to the {Import}
       attr_reader :context
 
-      delegate :header, :size, :skipped_rows, :end_of_file?, to: :csv
+      delegate :size, :end_of_file?, :line_number, :header, to: :csv
 
       # @param [String] file_path path of csv file
       # @param [Import] row_model_class model class returned for importing
@@ -47,8 +47,8 @@ module CsvRowModel
         run_callbacks :next do
           context = context.to_h.reverse_merge(self.context)
           @previous_row_model = current_row_model
-          @current_row_model = row_model_class.next(csv, header, context, previous_row_model)
           @index += 1
+          @current_row_model = row_model_class.next(self, context)
           @current_row_model = @index = nil if end_of_file?
         end
 
