@@ -78,17 +78,11 @@ module CsvRowModel
 
       def valid?(*args)
         super
-
-        proc = -> do
+        call_wrapper = using_warnings? ? csv_string_model.method(:using_warnings) : ->(&block) { block.call }
+        call_wrapper.call do
           csv_string_model.valid?(*args)
           errors.messages.merge!(csv_string_model.errors.messages.reject {|k, v| v.empty? })
           errors.empty?
-        end
-
-        if using_warnings?
-          csv_string_model.using_warnings(&proc)
-        else
-          proc.call
         end
       end
 
