@@ -191,7 +191,7 @@ describe CsvRowModel::Import::Represents do
         expect(instance.test_model).to eql "test"
         expect(instance.test_model.object_id).to eql instance.test_model.object_id
         expect(instance.__test_model).to eql "test"
-        expect(instance.__test_model).to_not eql instance.__test_model.object_id
+        expect(instance.__test_model.object_id).to_not eql instance.__test_model.object_id
       end
 
       it "works with subclassing and overriding" do

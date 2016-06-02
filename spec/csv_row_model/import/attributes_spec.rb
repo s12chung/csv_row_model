@@ -173,7 +173,7 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe "::merge_options" do
-      subject { import_model_klass.send(:merge_options, :waka, { type: Integer, validate_type: true }) }
+      subject { import_model_klass.send(:merge_options, :waka, type: Integer, validate_type: true) }
 
       before { import_model_klass.send(:column, :waka, original_options) }
       let(:original_options) { {} }
