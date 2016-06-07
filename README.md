@@ -29,7 +29,7 @@ class ProjectExportRowModel < ProjectRowModel
 end
 
 export_file = CsvRowModel::Export::File.new(ProjectExportRowModel)
-export_file.generate { |csv| csv << project }
+export_file.generate { |csv| csv << project } # `project` is the `source_model` in `ProjectExportRowModel`
 export_file.file # => <Tempfile>
 export_file.to_s # => export_file.file.read
 ```
@@ -173,7 +173,7 @@ class ProjectImportRowModel
 end
 ```
 
-There are validators for different types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`. See [Validations](#validations) for more.
+There are validators for different types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`. See [Type Format](#type-format) for more.
 
 #### Default
 Sets the default value of the cell:
@@ -193,12 +193,125 @@ row_model.name # => "John Doe"
 row_model.default_changes # => { id: ["", 1], name: ["", "John Doe"] }
 ```
 
-`DefaultChangeValidator` is provided to allows to add warnings when defaults are set. See [Validations](#default-changes) for more.
+`DefaultChangeValidator` is provided to allows to add warnings when defaults are set. See [Default Changes](#default-changes) for more.
+
+### Validations
+
+[`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html) and [`ActiveWarnings`](https://github.com/s12chung/active_warnings)
+are included for errors and warnings.
+
+There are layers to validations.
+
+```ruby
+class ProjectImportRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Import
+  
+  # Errors - by default, an Error will make the row skip
+  validates :id, numericality: { greater_than: 0 } # ActiveModel::Validations
+  
+  # Warnings - a message you want the user to see, but will not make the row skip
+  warnings do # ActiveWarnings, see: https://github.com/s12chung/active_warnings
+    validates :some_custom_string, presence: true
+  end
+  
+  # This is for validation of the strings before parsing. See: https://github.com/FinalCAD/csv_row_model#csvstringmodel
+  csv_string_model do
+    validates :id, presence: true
+    # can do warnings too
+  end
+end
+```
+
+#### Type Format
+Notice that there are validators given for different types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`:
+
+```ruby
+class ProjectImportRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Import
+
+  column :id, type: Integer, validate_type: true
+
+  # the :validate_type option is the same as:
+  # csv_string_model do
+  #   validates :id, integer_format: true, allow_blank: true
+  # end
+end
+
+ProjectRowModel.new(["not_a_number"])
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id is not a Integer format"]
+```
+
+#### Default Changes
+A custom validator for [Default Changes](#default).
+
+```ruby
+class ProjectImportRowModel
+  include CsvRowModel::Model
+  include CsvRowModel::Input
+
+  column :id, default: 1
+  validates :id, default_change: true
+end
+
+row_model = ProjectImportRowModel.new([""])
+
+row_model.valid? # => false
+row_model.errors.full_messages # => ["Id changed by default"]
+row_model.default_changes # => { id: ["", 1] }
+```
+
+### Skip and Abort
+You can iterate through a file with the `#each` method, which calls `#next` internally.
+`#next` will always return the next `RowModel` in the file. However, you can implement skips and
+abort logic:
+
+```ruby
+class ProjectImportRowModel
+  # always skip
+  def skip?
+    true # original implementation: !valid?
+  end
+end
+
+import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
+import_file.each { |project_import_model| puts "does not yield here" }
+import_file.next # does not skip or abort
+```
+
+### Import Callbacks
+`CsvRowModel::Import::File` can be subclassed to access
+[`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
+
+* each_iteration - `before`, `around`, or `after` the an iteration on `#each`.
+Use this to handle exceptions. `return` and `break` may be called within the callback for
+skips and aborts.
+* next - `before`, `around`, or `after` each change in `current_row_model`
+* skip - `before`
+* abort - `before`
+
+and implement the callbacks:
+```ruby
+class ImportFile < CsvRowModel::Import::File
+  around_each_iteration :logger_track
+  before_skip :track_skip
+
+  def logger_track(&block)
+    ...
+  end
+
+  def track_skip
+    ...
+  end
+end
+```
 
 ## Advanced Import
 
 ### CsvStringModel
-The `CsvStringModel` represents a row BEFORE parsing to add parsing validations.
+The `CsvStringModel` represents a row BEFORE parsing to add validations.
 
 ```ruby
 class ProjectImportRowModel
@@ -215,7 +328,7 @@ class ProjectImportRowModel
     # define your csv_string_model here
 
     # this is applied BEFORE the parsed CSV on csv_string_model
-    validates :id, presense: true
+    validates :id, presence: true
 
     def random_method; "Hihi" end
   end
@@ -315,103 +428,6 @@ end
 import_file = CsvRowModel::Import::File.new(file_path, UserImportRowModel)
 row_model = import_file.next
 row_model.projects # => [<ProjectImportRowModel>, ...]
-```
-
-## Import Validations
-
-Use [`ActiveModel::Validations`](http://api.rubyonrails.org/classes/ActiveModel/Validations.html) the `RowModel`'s [Layers](#layers).
-Please read [Layers](#layers) for more information.
-
-Included is [`ActiveWarnings`](https://github.com/s12chung/active_warnings) for warnings.
-
-
-### Type Format
-Notice that there are validators given for different types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`:
-
-```ruby
-class ProjectImportRowModel
-  include CsvRowModel::Model
-  include CsvRowModel::Import
-
-  column :id, type: Integer, validate_type: true
-
-  # the :validate_type option is the same as:
-  # csv_string_model do
-  #   validates :id, integer_format: true, allow_blank: true
-  # end
-end
-
-ProjectRowModel.new(["not_a_number"])
-row_model.valid? # => false
-row_model.errors.full_messages # => ["Id is not a Integer format"]
-```
-
-### Default Changes
-[Default Changes](#default) are tracked within [`ActiveWarnings`](https://github.com/s12chung/active_warnings).
-
-```ruby
-class ProjectImportRowModel
-  include CsvRowModel::Model
-  include CsvRowModel::Input
-
-  column :id, default: 1
-
-  warnings do
-    validates :id, default_change: true
-  end
-end
-
-row_model = ProjectImportRowModel.new([""])
-
-row_model.unsafe? # => true
-row_model.has_warnings? # => true, same as `#unsafe?`
-row_model.warnings.full_messages # => ["Id changed by default"]
-row_model.default_changes # => { id: ["", 1] }
-```
-
-### Skip and Abort
-You can iterate through a file with the `#each` method, which calls `#next` internally.
-`#next` will always return the next `RowModel` in the file. However, you can implement skips and
-abort logic:
-
-```ruby
-class ProjectImportRowModel
-  # always skip
-  def skip?
-    true # original implementation: !valid?
-  end
-end
-
-CsvRowModel::Import::File.new(file_path, ProjectImportRowModel).each do |project_import_model|
-  # never yields here
-end
-```
-
-### Import Callbacks
-`CsvRowModel::Import::File` can be subclassed to access
-[`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
-
-* each_iteration - `before`, `around`, or `after` the an iteration on `#each`.
-Use this to handle exceptions. `return` and `break` may be called within the callback for
-skips and aborts.
-* next - `before`, `around`, or `after` each change in `current_row_model`
-* skip - `before`
-* abort - `before`
-
-and implement the callbacks:
-```ruby
-class ImportFile < CsvRowModel::Import::File
-  around_each_iteration :logger_track
-  before_skip :track_skip
-
-  def logger_track(&block)
-    ...
-  end
-
-  def track_skip
-    ...
-  end
-end
 ```
 
 ## Dynamic columns
