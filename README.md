@@ -89,7 +89,7 @@ def header(column_name)
   header = options(column_name)[:header]
 
   # 2. format_header
-  header || format_header(column_name)
+  header || format_header(column_name, column_index, context)
 end
 ```
 
@@ -108,7 +108,7 @@ Override the `format_header` method to format column header names:
 class ProjectExportRowModel < ProjectRowModel
   include CsvRowModel::Export
   class << self
-    def format_header(column_name)
+    def format_header(column_name, column_index, context)
       column_name.to_s.titleize
     end
   end
@@ -454,6 +454,9 @@ represents this table:
 | Mike       | Jackson    |   Yes  |   Yes  |
 
 
+The `format_dynamic_column_header(header_model, column_name, dynamic_index, index_of_column, context)` can
+be used to defined like `format_header`. Defined in both import and export due to headers being used for both.
+
 ### Export
 Dynamic column attributes are arrays, but each item in the array is defined via singular attribute method like
 normal columns:
@@ -516,7 +519,7 @@ class FileRowModel
   row :string1
   row :string2, header: 'String 2'
 
-  def self.format_header(column_name, context)
+  def self.format_header(column_name, column_index, context)
     ":: - #{column_name} - ::"
   end
 end

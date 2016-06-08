@@ -20,15 +20,25 @@ module CsvRowModel
           dynamic_columns.keys.include?(column_name)
         end
 
+        # Safe to override
+        #
+        # @return [String] formatted header
+        def format_dynamic_column_header(header_model, column_name, dynamic_index, index_of_column, context)
+          header_model
+        end
+
         # See Model::Columns::headers
         def headers(context={})
           super + dynamic_column_headers(context)
         end
 
         def dynamic_column_headers(context={})
-          dynamic_column_names.map do |column_name|
-            Array(OpenStruct.new(context).public_send(column_name)).each do |header_model|
-              header_proc = dynamic_column_options(column_name)[:header] || ->(header_model) { header_model }
+          context = OpenStruct.new(context)
+
+          dynamic_columns.map do |column_name, options|
+            Array(context.public_send(column_name)).map.with_index do |header_model, index_of_column|
+              header_proc = options[:header] ||
+                ->(header_model) { format_dynamic_column_header(header_model, column_name, dynamic_index(column_name), index_of_column, context) }
               instance_exec(header_model, &header_proc)
             end
           end.flatten
