@@ -61,13 +61,16 @@ module CsvRowModel
         # @param [Hash, OpenStruct] context name of column to check
         # @return [Array] column headers for the row model
         def headers(context={})
-          columns.map { |name, options| options[:header] || format_header(name, context) }
+          context = OpenStruct.new(context)
+          columns.map.with_index do |(column_name, options), index|
+            options[:header] || format_header(column_name, index, context)
+          end
         end
 
         # Safe to override
         #
         # @return [String] formatted header
-        def format_header(column_name, context)
+        def format_header(column_name, column_index, context)
           column_name
         end
 
