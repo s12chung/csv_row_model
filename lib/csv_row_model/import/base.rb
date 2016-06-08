@@ -44,24 +44,6 @@ module CsvRowModel
         @previous = nil
       end
 
-      # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model (values are from format_cell)
-      def csv_string_model
-        @csv_string_model ||= begin
-          if source_row
-            column_names = self.class.column_names
-            hash = column_names.zip(
-              column_names.map.with_index do |column_name, index|
-                self.class.format_cell(source_row[index], column_name, index, context)
-              end
-            ).to_h
-          else
-            hash = {}
-          end
-
-          self.class.csv_string_model_class.new(hash)
-        end
-      end
-
       # Safe to override.
       #
       # @return [Boolean] returns true, if this instance should be skipped
@@ -74,16 +56,6 @@ module CsvRowModel
       # @return [Boolean] returns true, if the entire csv file should stop reading
       def abort?
         false
-      end
-
-      def valid?(*args)
-        super
-        call_wrapper = using_warnings? ? csv_string_model.method(:using_warnings) : ->(&block) { block.call }
-        call_wrapper.call do
-          csv_string_model.valid?(*args)
-          errors.messages.merge!(csv_string_model.errors.messages.reject {|k, v| v.empty? })
-          errors.empty?
-        end
       end
 
       class_methods do

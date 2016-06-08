@@ -1,4 +1,5 @@
 require 'csv_row_model/import/base'
+require 'csv_row_model/import/csv_string_model'
 require 'csv_row_model/import/attributes'
 require 'csv_row_model/import/dynamic_columns'
 require 'csv_row_model/import/represents'
@@ -14,6 +15,7 @@ module CsvRowModel
     include Concerns::InvalidOptions
 
     include Base
+    include CsvStringModel
     include Attributes
     include DynamicColumns
     include Represents

@@ -207,7 +207,7 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe "::add_type_validation" do
-      described_class::PARSE_VALIDATION_CLASSES.each do |type|
+      CsvRowModel::Import::CsvStringModel::PARSE_VALIDATION_CLASSES.each do |type|
         context "with #{type} type" do
           subject { import_model_klass.class_eval { column :string1, type: type, validate_type: true } }
 

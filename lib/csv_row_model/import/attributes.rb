@@ -9,9 +9,6 @@ module CsvRowModel
         self.column_names.each { |*args| define_attribute_method(*args) }
       end
 
-      # Classes with a validations associated with them in csv_row_model/validators
-      PARSE_VALIDATION_CLASSES = [Boolean, Integer, Float, Date, DateTime].freeze
-
       # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
       # Can pass custom Proc with :parse option.
       CLASS_TO_PARSE_LAMBDA = {
@@ -99,20 +96,6 @@ module CsvRowModel
           return if method_defined? column_name
           add_type_validation(column_name)
           define_method(column_name) { original_attribute(column_name) }
-        end
-
-        # Adds the type validation based on :validate_type option
-        def add_type_validation(column_name)
-          options = options(column_name)
-          validate_type = options[:validate_type]
-
-          return unless validate_type
-
-          type = options[:type]
-          raise ArgumentError.new("invalid :type given for :validate_type for column") unless PARSE_VALIDATION_CLASSES.include? type
-          validate_type = Proc.new { validates column_name, :"#{type.name.underscore}_format" => true, allow_blank: true }
-
-          csv_string_model(&validate_type)
         end
       end
     end

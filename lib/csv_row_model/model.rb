@@ -1,5 +1,3 @@
-require 'csv_row_model/model/csv_string_model'
-
 require 'csv_row_model/model/base'
 require 'csv_row_model/model/columns'
 require 'csv_row_model/model/children'
