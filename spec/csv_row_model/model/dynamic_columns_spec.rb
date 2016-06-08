@@ -45,6 +45,14 @@ describe CsvRowModel::Model::DynamicColumns do
       end
     end
 
+    describe "::format_dynamic_column_header" do
+      subject { DynamicColumnModel.format_dynamic_column_header("blah", nil, nil, nil, nil) }
+
+      it "returns the header_model" do
+        expect(subject).to eql "blah"
+      end
+    end
+
     describe "::dynamic_column_headers" do
       let(:context) { { skills: skills } }
       subject { klass.dynamic_column_headers(context) }
@@ -68,7 +76,7 @@ describe CsvRowModel::Model::DynamicColumns do
         end
       end
 
-      context "when the method is overwritten" do
+      context "with header option" do
         let(:klass) do
           Class.new do
             include CsvRowModel::Model
@@ -77,7 +85,25 @@ describe CsvRowModel::Model::DynamicColumns do
         end
 
         it "overrides the original" do
-          expect(subject).to eql skills(&->(skill_name) { skill_name + "_changed" })
+          expect(subject).to eql skills.map {|skill_name| skill_name + "_changed" }
+        end
+      end
+
+      context "with format_dynamic_column_header defined" do
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Model
+            dynamic_column :skills
+
+            def self.format_dynamic_column_header(*args); args.join("__") end
+          end
+        end
+
+        it "takes the overwritten method" do
+          expect(subject).to eql [
+                                   "skill1__skills__0__0__#<OpenStruct skills=[\"skill1\", \"skill2\"]>",
+                                   "skill2__skills__0__1__#<OpenStruct skills=[\"skill1\", \"skill2\"]>"
+                                 ]
         end
       end
     end
