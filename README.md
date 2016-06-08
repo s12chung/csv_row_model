@@ -148,7 +148,7 @@ Override the `format_cell` method to clean/format every cell:
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
   class << self
-    def format_cell(cell, column_name, column_index, context={})
+    def format_cell(cell, column_name, column_index, context)
       cell = cell.strip
       cell.blank? ? nil : cell
     end
@@ -516,7 +516,7 @@ class FileRowModel
   row :string1
   row :string2, header: 'String 2'
 
-  def self.format_header(column_name, context={})
+  def self.format_header(column_name, context)
     ":: - #{column_name} - ::"
   end
 end

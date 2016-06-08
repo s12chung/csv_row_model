@@ -67,8 +67,17 @@ module CsvRowModel
         # Safe to override
         #
         # @return [String] formatted header
-        def format_header(column_name, context={})
+        def format_header(column_name, context)
           column_name
+        end
+
+        # Safe to override. Method applied to each cell by default
+        #
+        # @param cell [String] the cell's string
+        # @param column_name [Symbol] the cell's column_name
+        # @param column_index [Integer] the column_name's index
+        def format_cell(cell, column_name, column_index, context)
+          cell
         end
 
         protected
