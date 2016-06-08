@@ -13,6 +13,7 @@ module CsvRowModel
 
       # @return [Hash] a map of `column_name => public_send(column_name)` (is not overwritten by represents)
       def column_attributes
+        return {} unless try(self.class.column_names.first)
         attributes_from_method_names self.class.column_names
       end
 

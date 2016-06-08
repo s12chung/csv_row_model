@@ -16,6 +16,14 @@ describe CsvRowModel::Model::Columns do
       it "returns the map of column_name => public_send(column_name)" do
         expect(subject).to eql( string1: "haha", string2: "baka" )
       end
+
+      context "with no methods defined" do
+        subject { BasicRowModel.new(options).column_attributes }
+
+        it "returns an empty hash" do
+          expect(subject).to eql({})
+        end
+      end
     end
 
     describe "#attributes" do
