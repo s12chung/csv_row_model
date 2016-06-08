@@ -93,6 +93,7 @@ describe CsvRowModel::Model::DynamicColumns do
         let(:klass) do
           Class.new do
             include CsvRowModel::Model
+            column :another_column
             dynamic_column :skills
 
             def self.format_dynamic_column_header(*args); args.join("__") end
@@ -101,8 +102,8 @@ describe CsvRowModel::Model::DynamicColumns do
 
         it "takes the overwritten method" do
           expect(subject).to eql [
-                                   "skill1__skills__0__0__#<OpenStruct skills=[\"skill1\", \"skill2\"]>",
-                                   "skill2__skills__0__1__#<OpenStruct skills=[\"skill1\", \"skill2\"]>"
+                                   "skill1__skills__1__0__#<OpenStruct skills=[\"skill1\", \"skill2\"]>",
+                                   "skill2__skills__1__1__#<OpenStruct skills=[\"skill1\", \"skill2\"]>"
                                  ]
         end
       end

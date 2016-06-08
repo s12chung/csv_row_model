@@ -35,10 +35,10 @@ module CsvRowModel
         def dynamic_column_headers(context={})
           context = OpenStruct.new(context)
 
-          dynamic_columns.map.with_index do |(column_name, options), dynamic_index|
+          dynamic_columns.map do |column_name, options|
             Array(context.public_send(column_name)).map.with_index do |header_model, index_of_column|
               header_proc = options[:header] ||
-                ->(header_model) { format_dynamic_column_header(header_model, column_name, dynamic_index, index_of_column, context) }
+                ->(header_model) { format_dynamic_column_header(header_model, column_name, dynamic_index(column_name), index_of_column, context) }
               instance_exec(header_model, &header_proc)
             end
           end.flatten
