@@ -4,11 +4,15 @@ module CsvRowModel
       module Validations
         extend ActiveSupport::Concern
 
-        include ActiveModel::Validations
+        include ActiveWarnings
         include Validators::ValidateAttributes
 
         included do
           validate_attributes :csv
+
+          warnings do
+            validate { errors.add(:csv, "has header with #{csv.header.message}") unless csv.header.class == Array }
+          end
         end
 
         # @return [Boolean] returns true, if the file should abort reading
