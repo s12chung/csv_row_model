@@ -70,7 +70,6 @@ describe CsvRowModel::Import::Attributes do
 
             def default; "123" end
             def parse(s); s.to_f end
-            def self.format_cell(*args); args.first end
           end
         end
 
@@ -149,15 +148,6 @@ describe CsvRowModel::Import::Attributes do
       end
     end
 
-    describe "::format_cell" do
-      let(:cell) { "the_cell" }
-      subject { BasicImportModel.format_cell(cell, nil, nil) }
-
-      it "returns the cell" do
-        expect(subject).to eql cell
-      end
-    end
-
     describe "::define_attribute_method" do
       it "does not do anything the second time" do
         expect(import_model_klass).to receive(:define_method).with(:waka).once.and_call_original
@@ -213,15 +203,6 @@ describe CsvRowModel::Import::Attributes do
           expect(instance.original_attributes[:string1]).to eql('a')
           expect(import_model_klass.new(source_row).original_attributes[:string2]).to eql('a')
         end
-      end
-    end
-
-    describe "::format_cell" do
-      let(:cell) { "the_cell" }
-      subject { BasicImportModel.format_cell(cell, nil, nil) }
-
-      it "returns the cell" do
-        expect(subject).to eql cell
       end
     end
 

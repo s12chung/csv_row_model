@@ -62,15 +62,6 @@ module CsvRowModel
       end
 
       class_methods do
-        # Safe to override. Method applied to each cell by default
-        #
-        # @param cell [String] the cell's string
-        # @param column_name [Symbol] the cell's column_name
-        # @param column_index [Integer] the column_name's index
-        def format_cell(cell, column_name, column_index, context={})
-          cell
-        end
-
         # @return [Lambda] returns a Lambda: ->(original_value) { default_exists? ? default : original_value }
         def default_lambda(column_name)
           default = options(column_name)[:default]

@@ -29,13 +29,6 @@ module CsvRowModel
       end
 
       class_methods do
-        # Safe to override. Method applied to each cell by default
-        #
-        # @param cell [Object] the cell's value
-        def format_cell(cell, column_name, column_index, context={})
-          cell
-        end
-
         protected
         # See {Model#column}
         def column(column_name, options={})

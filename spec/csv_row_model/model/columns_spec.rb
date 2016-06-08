@@ -43,7 +43,7 @@ describe CsvRowModel::Model::Columns do
 
     describe "::format_header" do
       let(:header) { 'user_name' }
-      subject { BasicRowModel.format_header(header) }
+      subject { BasicRowModel.format_header(header, nil) }
 
       it "returns the header" do
         expect(subject).to eql header
@@ -56,6 +56,15 @@ describe CsvRowModel::Model::Columns do
 
       it "returns an array with header column names" do
         expect(subject).to eql headers
+      end
+    end
+
+    describe "::format_cell" do
+      let(:cell) { "the_cell" }
+      subject { BasicRowModel.format_cell(cell, nil, nil, nil) }
+
+      it "returns the cell" do
+        expect(subject).to eql cell
       end
     end
 
