@@ -55,7 +55,7 @@ describe CsvRowModel::Import::DynamicColumns do
             end
 
             class << self
-              def format_dynamic_column_cells(cells, column_name)
+              def format_dynamic_column_cells(cells, column_name, column_index, context)
                 cells.compact
               end
             end
@@ -118,8 +118,9 @@ describe CsvRowModel::Import::DynamicColumns do
       end
 
       it "calls ::format_dynamic_column_cells" do
+        index = import_model_class == DynamicColumnImportModel ? 2 : 0
         expect(instance.class).to receive(:format_dynamic_column_cells)
-                                    .with(dynamic_source_row, :skills)
+                                    .with(dynamic_source_row, :skills, index,kind_of(OpenStruct))
                                     .and_return(%w[a b c])
         expect(instance.original_attribute(:skills)).to eql %w[a b c]
       end
