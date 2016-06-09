@@ -3,11 +3,11 @@ require 'csv_row_model/validators/boolean_format'
 module CsvRowModel
   module Import
     class Cell
-      attr_reader :column_name, :original_value, :csv_string_model_errors, :row_model
+      attr_reader :column_name, :source_value, :csv_string_model_errors, :row_model
 
-      def initialize(column_name, original_value, csv_string_model_errors, row_model)
+      def initialize(column_name, source_value, csv_string_model_errors, row_model)
         @column_name = column_name
-        @original_value = original_value
+        @source_value = source_value
         @csv_string_model_errors = csv_string_model_errors
         @row_model = row_model
       end
@@ -20,7 +20,7 @@ module CsvRowModel
       end
 
       def formatted_value
-        @formatted_value ||= row_model.class.format_cell(original_value, column_name, row_model.class.index(column_name), row_model.context)
+        @formatted_value ||= row_model.class.format_cell(source_value, column_name, row_model.class.index(column_name), row_model.context)
       end
 
       def parsed_value
@@ -64,7 +64,7 @@ module CsvRowModel
       }.freeze
 
       # @return [Lambda, Proc] returns the Lambda/Proc given in the parse option or:
-      # ->(original_value) { parse_proc_exists? ? parsed_value : original_value  }
+      # ->(source_value) { parse_proc_exists? ? parsed_value : source_value  }
       def parse_lambda
         raise ArgumentError.new("Use :parse OR :type option, but not both for: #{column_name}") if options[:parse] && options[:type]
 

@@ -34,7 +34,7 @@ describe CsvRowModel::Import::Attributes do
         it "returns the cells with the right attributes" do
           values = subject.values
           expect(values.map(&:column_name)).to eql %i[string1 string2]
-          expect(values.map(&:original_value)).to eql [nil, nil]
+          expect(values.map(&:source_value)).to eql [nil, nil]
           expect(values.map(&:csv_string_model_errors)).to eql [[], ["can't be blank"]]
         end
       end

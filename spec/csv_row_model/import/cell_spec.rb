@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe CsvRowModel::Import::Cell do
   describe "instance" do
-    let(:instance) { described_class.new(:string1, original_value, csv_string_model_errors, row_model) }
-    let(:original_value) { '1.01' }
+    let(:instance) { described_class.new(:string1, source_value, csv_string_model_errors, row_model) }
+    let(:source_value) { '1.01' }
     let(:csv_string_model_errors) { nil }
 
     let(:import_row_model_class) { BasicImportModel }
@@ -13,7 +13,7 @@ describe CsvRowModel::Import::Cell do
       klass.new(source_row)
     end
     let(:options) { {} }
-    let(:source_row) { [original_value, "original_string2"] }
+    let(:source_row) { [source_value, "original_string2"] }
 
     describe "#value" do
       subject { instance.value }
@@ -44,7 +44,7 @@ describe CsvRowModel::Import::Cell do
         end
 
         context "with empty string" do
-          let(:original_value) { "" }
+          let(:source_value) { "" }
           it "returns the default" do
             expect(subject).to eql("123")
           end
@@ -91,7 +91,7 @@ describe CsvRowModel::Import::Cell do
         }
           .each do |type, expected_result|
           context "of #{type.nil? ? "nil" : type}" do
-            let(:original_value) { "1.01" }
+            let(:source_value) { "1.01" }
             let(:options) { { type: type} }
 
             it "returns the parsed type" do
@@ -104,9 +104,9 @@ describe CsvRowModel::Import::Cell do
           Date => ["15/12/30", Date.new(2015,12,30)],
           DateTime => ["15/12/30 09:00:00", DateTime.new(2015,12,30,9,00,00)]
         }
-          .each do |type, (original_value, expected_result)|
+          .each do |type, (source_value, expected_result)|
           context "of #{type.nil? ? "nil" : type}" do
-            let(:original_value) { original_value }
+            let(:source_value) { source_value }
             let(:options) { { type: type} }
 
             it "returns the parsed type" do
@@ -123,8 +123,8 @@ describe CsvRowModel::Import::Cell do
           end
         end
 
-        context "with nil original_value" do
-          let(:original_value) { nil }
+        context "with nil source_value" do
+          let(:source_value) { nil }
 
           described_class::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
             context "with #{type.nil? ? "nil" : type} :type" do
@@ -182,7 +182,7 @@ describe CsvRowModel::Import::Cell do
         let(:options) { { default: -> { "#{string1}_defaulted" } } }
 
         it "returns the default from the proc" do
-          expect(subject).to eql "#{original_value}_defaulted"
+          expect(subject).to eql "#{source_value}_defaulted"
         end
 
         context "when calling another attribute" do
@@ -217,7 +217,7 @@ describe CsvRowModel::Import::Cell do
         end
 
         context "without original value" do
-          let(:original_value) { '' }
+          let(:source_value) { '' }
 
           it "returns true" do
             expect(subject).to eql true
