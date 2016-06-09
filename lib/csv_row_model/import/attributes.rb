@@ -48,7 +48,7 @@ module CsvRowModel
         end
 
         def merge_options(column_name, options={})
-          original_options = options(column_name)
+          original_options = columns[column_name]
           csv_string_model_class.add_type_validation(column_name, columns[column_name]) unless original_options[:validate_type]
           super
         end

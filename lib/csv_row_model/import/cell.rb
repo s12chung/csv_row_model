@@ -46,7 +46,7 @@ module CsvRowModel
       end
 
       def options
-        row_model.class.options(column_name)
+        row_model.class.columns[column_name]
       end
 
       protected

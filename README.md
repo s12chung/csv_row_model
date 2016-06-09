@@ -86,7 +86,7 @@ To generate a header value, the following pseudocode is executed:
 ```ruby
 def header(column_name)
   # 1. Header Option
-  header = options(column_name)[:header]
+  header = options_for(column_name)[:header]
 
   # 2. format_header
   header || format_header(column_name, column_index, context)

@@ -97,17 +97,6 @@ describe CsvRowModel::Model::Columns do
     context "with custom class" do
       let(:klass) { Class.new { include CsvRowModel::Model } }
 
-      describe "::options" do
-        let(:options) { { type: Integer, validate_type: true } }
-        before { klass.send(:column, :blah, options) }
-
-        subject { klass.options(:blah) }
-
-        it "returns the options for the column" do
-          expect(subject).to eql options
-        end
-      end
-
       describe "::column" do
         context "with invalid option" do
           subject { klass.send(:column, :blah, invalid_option: true) }
