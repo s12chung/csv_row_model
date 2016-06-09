@@ -26,25 +26,18 @@ module CsvRowModel
       # remove each dependent attribute from errors if it's representation dependencies are in the errors
       def filter_errors
         self.class.representation_names.each do |representation_name|
-          next unless errors.messages[representation_name] &&
-            errors.messages.slice(*self.class.representations[representation_name][:dependencies]).present?
+          next unless errors.messages.slice(*self.class.representations[representation_name][:dependencies]).present?
           errors.delete representation_name
         end
-      end
-
-      # @param [Array] attribute_names of attribute_names to check
-      # @return [Boolean] if attributes are present
-      def attributes_present?(*attribute_names)
-        attribute_names.each { |attribute_name| return false if public_send(attribute_name).blank? }
-        true
       end
 
       # @param [Symbol] representation_name the representation to check
       # @return [Boolean] if the dependencies are valid
       def valid_dependencies?(representation_name)
-        attributes_present?(*self.class.representations[representation_name][:dependencies])
+        dependencies = self.class.representations[representation_name][:dependencies]
+        dependencies.each { |attribute_name| return false if public_send(attribute_name).blank? }
+        true
       end
-
 
       # equal to: @method_name ||= yield
       # @param [Symbol] method_name method_name in description

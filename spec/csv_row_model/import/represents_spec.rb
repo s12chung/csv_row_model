@@ -97,15 +97,6 @@ describe CsvRowModel::Import::Represents do
 
       subject { instance.send(:valid_dependencies?, :test_model) }
 
-      it "it calls the helper method" do
-        expect(instance).to receive(:attributes_present?).with(:string1, :string2)
-        subject
-      end
-    end
-
-    describe "#attributes_present?" do
-      subject { instance.send(:attributes_present?, :string1, :string2) }
-
       it "finds empty attribute and return false" do
         expect(subject).to eql false
       end
