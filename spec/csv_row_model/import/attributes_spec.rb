@@ -9,7 +9,7 @@ describe CsvRowModel::Import::Attributes do
     describe "#cells" do
       subject { instance.cells }
 
-      it "returns a has or cells mapped to their column_name" do
+      it "returns a hash of cells mapped to their column_name" do
         expect(subject.keys).to eql import_row_model_class.column_names
         expect(subject.values.map(&:class)).to eql [CsvRowModel::Import::Cell] * 2
       end

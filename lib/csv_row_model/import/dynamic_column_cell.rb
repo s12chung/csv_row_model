@@ -11,14 +11,29 @@ module CsvRowModel
       end
 
       def value
-        @value = begin
-          column_index = row_model.class.dynamic_index(column_name)
-          values = source_headers.map.with_index do |source_header, index|
-            formatted_value = row_model.class.format_cell(source_cells[index], source_header, column_index, row_model.context)
-            call_process_method(formatted_value, source_header)
-          end
-          row_model.class.format_dynamic_column_cells(values, column_name, column_index, row_model.context)
+        @value ||= row_model.class.format_dynamic_column_cells(unformatted_value, column_name, dynamic_index, row_model.context)
+      end
+
+      def unformatted_value
+        formatted_cells.zip(formatted_headers).map do |formatted_cell, source_header|
+          call_process_method(formatted_cell, source_header)
         end
+      end
+
+      def formatted_cells
+        source_cells.map.with_index do |source_cell, index|
+          row_model.class.format_cell(source_cell, column_name, dynamic_index + index, row_model.context)
+        end
+      end
+
+      def formatted_headers
+        source_headers.map.with_index do |source_header, index|
+          row_model.class.format_dynamic_column_header(source_header, column_name, dynamic_index, index, row_model.context)
+        end
+      end
+
+      def dynamic_index
+        @dynamic_index ||= row_model.class.dynamic_index(column_name)
       end
 
       protected
