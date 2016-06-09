@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe CsvRowModel::Import::DynamicColumns do
-  let(:dynamic_source_headers) { %w[Organized Clean Punctual Strong Crazy Flexible] }
-  let(:headers) { dynamic_source_headers }
+  let(:dynamic_column_source_headers) { %w[Organized Clean Punctual Strong Crazy Flexible] }
+  let(:headers) { dynamic_column_source_headers }
 
-  let(:dynamic_source_row) { %w[Yes Yes No Yes Yes No] }
-  let(:source_row) { dynamic_source_row }
+  let(:dynamic_column_source_cells) { %w[Yes Yes No Yes Yes No] }
+  let(:source_row) { dynamic_column_source_cells }
 
   let(:instance) { import_model_class.new(source_row, source_header: headers) }
 
@@ -21,13 +21,13 @@ describe CsvRowModel::Import::DynamicColumns do
     end
   end
 
-  let(:original_attributes) { { skills: dynamic_source_row }  }
+  let(:original_attributes) { { skills: dynamic_column_source_cells }  }
 
   describe "attribute methods" do
     subject { instance.skills }
 
     it 'works' do
-      expect(subject).to eql(dynamic_source_row)
+      expect(subject).to eql(dynamic_column_source_cells)
     end
 
     context "when defined before Import" do
@@ -39,7 +39,7 @@ describe CsvRowModel::Import::DynamicColumns do
       end
 
       it "works" do
-        expect(subject).to eql(dynamic_source_row)
+        expect(subject).to eql(dynamic_column_source_cells)
       end
     end
 
@@ -70,11 +70,11 @@ describe CsvRowModel::Import::DynamicColumns do
   end
 
   shared_examples "column dependent methods" do
-    describe "#dynamic_source_headers" do
-      subject { instance.dynamic_source_headers }
+    describe "#dynamic_column_source_headers" do
+      subject { instance.dynamic_column_source_headers }
 
       it "returns the dynamic part of the headers" do
-        expect(subject).to eql dynamic_source_headers
+        expect(subject).to eql dynamic_column_source_headers
       end
 
       context "for no dynamic classes" do
@@ -85,11 +85,11 @@ describe CsvRowModel::Import::DynamicColumns do
       end
     end
 
-    describe "#dynamic_source_row" do
-      subject { instance.dynamic_source_row }
+    describe "#dynamic_column_source_cells" do
+      subject { instance.dynamic_column_source_cells }
 
       it "returns the dynamic part of source row" do
-        expect(subject).to eql dynamic_source_row
+        expect(subject).to eql dynamic_column_source_cells
       end
 
       context "for no dynamic classes" do
@@ -114,32 +114,15 @@ describe CsvRowModel::Import::DynamicColumns do
       end
 
       it "works with dynamic_column" do
-        expect(instance.original_attribute(:skills)).to eql dynamic_source_row
+        expect(instance.original_attribute(:skills)).to eql dynamic_column_source_cells
       end
 
       it "calls ::format_dynamic_column_cells" do
         index = import_model_class == DynamicColumnImportModel ? 2 : 0
         expect(instance.class).to receive(:format_dynamic_column_cells)
-                                    .with(dynamic_source_row, :skills, index,kind_of(OpenStruct))
+                                    .with(dynamic_column_source_cells, :skills, index,kind_of(OpenStruct))
                                     .and_return(%w[a b c])
         expect(instance.original_attribute(:skills)).to eql %w[a b c]
-      end
-    end
-
-    describe "class" do
-      describe "::dynamic_source_headers" do
-        subject { import_model_class.dynamic_source_headers headers }
-
-        it "returns dynamic part of the headers" do
-          expect(subject).to eql dynamic_source_headers
-        end
-
-        context "for no dynamic classes" do
-          let(:import_model_class) { BasicImportModel }
-          it "returns empty arry" do
-            expect(subject).to eql []
-          end
-        end
       end
     end
   end
@@ -148,9 +131,9 @@ describe CsvRowModel::Import::DynamicColumns do
 
   context "with columns defined" do
     let(:import_model_class) { DynamicColumnImportModel }
-    let(:headers)    { %w[first_name last_name] + dynamic_source_headers }
-    let(:source_row) { %w[Mario Italian] + dynamic_source_row }
-    let(:original_attributes) { { first_name: "Mario", last_name: "Italian", skills: dynamic_source_row } }
+    let(:headers)    { %w[first_name last_name] + dynamic_column_source_headers }
+    let(:source_row) { %w[Mario Italian] + dynamic_column_source_cells }
+    let(:original_attributes) { { first_name: "Mario", last_name: "Italian", skills: dynamic_column_source_cells } }
 
     include_examples "column dependent methods"
 

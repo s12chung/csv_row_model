@@ -27,6 +27,7 @@ describe CsvRowModel::Import::Attributes do
           expect(instance).to receive(:_cells).with(no_args).once.and_call_original # for csv_string_model
           expect(instance).to receive(:_cells).once do |errors|
             expect(errors.messages).to eql(string2: ["can't be blank"])
+            {} # return empty hash to keep calling API
           end
           subject
         end

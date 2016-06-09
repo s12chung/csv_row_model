@@ -69,9 +69,8 @@ module CsvRowModel
 
         # define a dynamic_column, must be after all normal columns
         #
-        # options to be implemented later
-        #
         # @param column_name [Symbol] column_name
+        # @option options [String] :header human friendly string of the column name, by default format_header(column_name)
         def dynamic_column(column_name, options={})
           extra_keys = options.keys - VALID_OPTIONS_KEYS
           raise ArgumentError.new("invalid options #{extra_keys}") unless extra_keys.empty?
