@@ -51,7 +51,7 @@ module CsvRowModel
         # @param column_name [Symbol] the cell's column_name
         def define_dynamic_attribute_method(column_name)
           define_method(column_name) { original_attribute(column_name) }
-          define_method(singular_dynamic_attribute_method_name(column_name)) { |value, source_header| value }
+          DynamicColumnCell.define_process_method(self, column_name)
         end
       end
     end
