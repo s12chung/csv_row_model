@@ -15,7 +15,7 @@ module CsvRowModel
     include Base
     include CsvStringModel
     include Attributes
-    include DynamicColumns
+    # include DynamicColumns
     include Represents
   end
 end

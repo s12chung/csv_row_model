@@ -2,8 +2,6 @@ module CsvRowModel
   module Import
     module CsvStringModel
       extend ActiveSupport::Concern
-      # Classes with a validations associated with them in csv_row_model/validators
-      PARSE_VALIDATION_CLASSES = [Boolean, Integer, Float, Date, DateTime].freeze
 
       def valid?(*args)
         super
@@ -16,20 +14,12 @@ module CsvRowModel
       end
 
       # @return [Import::CsvStringModel::Model] a model with validations related to csv_string_model (values are from format_cell)
+      # @return [Import::CsvStringModel::Model] a model with validations related to csv_string_model (values are from format_cell)
       def csv_string_model
         @csv_string_model ||= begin
-          if source_row
-            column_names = self.class.column_names
-            hash = column_names.zip(
-              column_names.map.with_index do |column_name, index|
-                self.class.format_cell(source_row[index], column_name, index, context)
-              end
-            ).to_h
-          else
-            hash = {}
-          end
-
-          self.class.csv_string_model_class.new(hash)
+          cells = _cells
+          formatted_hash = array_to_block_hash(self.class.column_names) { |column_name| cells[column_name].formatted_value }
+          self.class.csv_string_model_class.new(formatted_hash)
         end
       end
 
@@ -50,23 +40,25 @@ module CsvRowModel
         def csv_string_model(&block)
           csv_string_model_class.class_eval(&block)
         end
-
-        # Adds the type validation based on :validate_type option
-        def add_type_validation(column_name)
-          options = options(column_name)
-          validate_type = options[:validate_type]
-
-          return unless validate_type
-
-          type = options[:type]
-          raise ArgumentError.new("invalid :type given for :validate_type for column") unless PARSE_VALIDATION_CLASSES.include? type
-
-          csv_string_model { validates column_name, :"#{type.name.underscore}_format" => true, allow_blank: true }
-        end
       end
 
       class Model < OpenStruct
         include ActiveWarnings
+
+        # Classes with a validations associated with them in csv_row_model/validators
+        PARSE_VALIDATION_CLASSES = [Boolean, Integer, Float, Date, DateTime].freeze
+
+        class << self
+          # Adds the type validation based on :validate_type option
+          def add_type_validation(column_name, options)
+            return unless options[:validate_type]
+
+            type = options[:type]
+            raise ArgumentError.new("invalid :type given for :validate_type for: #{column_name}") unless PARSE_VALIDATION_CLASSES.include? type
+
+            class_eval { validates column_name, :"#{type.name.underscore}_format" => true, allow_blank: true }
+          end
+        end
       end
     end
   end

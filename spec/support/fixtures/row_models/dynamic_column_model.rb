@@ -9,9 +9,9 @@ end
 #
 # Import
 #
-class DynamicColumnImportModel < DynamicColumnModel
-  include CsvRowModel::Import
-end
+# class DynamicColumnImportModel < DynamicColumnModel
+#   include CsvRowModel::Import
+# end
 
 #
 # Export

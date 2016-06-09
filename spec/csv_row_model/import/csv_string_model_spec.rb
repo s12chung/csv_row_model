@@ -132,13 +132,61 @@ describe CsvRowModel::Import::CsvStringModel do
     end
   end
 
-  describe CsvRowModel::Import::CsvStringModel::Model do
-    let(:instance) { described_class.new(string1: "abc", string2: "efg") }
+  describe described_class::Model do
+    describe "instance" do
+      let(:instance) { described_class.new(string1: "abc", string2: "efg") }
 
-    describe "attribute methods" do
-      it "works" do
-        expect(instance.string1).to eql "abc"
-        expect(instance.string2).to eql "efg"
+      describe "attribute methods" do
+        it "works" do
+          expect(instance.string1).to eql "abc"
+          expect(instance.string2).to eql "efg"
+        end
+      end
+    end
+
+    describe "class" do
+      describe "::add_type_validation" do
+        let(:klass) { Class.new(described_class) }
+        subject { klass.add_type_validation :string1, options }
+
+
+        described_class::PARSE_VALIDATION_CLASSES.each do |type|
+          context "with #{type} type" do
+            let(:options) { { type: type, validate_type: true } }
+
+            it "adds the validator" do
+              subject
+              validators = klass._validators[:string1]
+              expect(validators.size).to eql 1
+              expect(validators.first.class.to_s).to eql "#{type}FormatValidator"
+            end
+          end
+        end
+
+        context "with no type" do
+          subject { klass.add_type_validation :string1, validate_type: true }
+          it "raises exception" do
+            expect { subject }.to raise_error(ArgumentError)
+          end
+        end
+
+        describe "#valid?" do
+          subject { instance.valid? }
+          before { klass.add_type_validation :string1, type: Integer, validate_type: true }
+          let(:instance) { klass.new(string1: "abc") }
+
+          it "validates non Integer" do
+            expect(subject).to eql false
+          end
+
+          context "when attribute is blank" do
+            let(:instance) { klass.new(string1: "") }
+
+            it "doesn't validate" do
+              expect(subject).to eql true
+            end
+          end
+        end
       end
     end
   end
