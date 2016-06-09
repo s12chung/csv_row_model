@@ -15,7 +15,7 @@ module CsvRowModel
       def value
         @value ||= begin
           return unless csv_string_model_errors.blank?
-          defaulted? ? default_value : parsed_value
+          default? ? default_value : parsed_value
         end
       end
 
@@ -37,12 +37,12 @@ module CsvRowModel
         end
       end
 
-      def defaulted?
+      def default?
         !!options[:default] && formatted_value.blank?
       end
 
       def default_change
-        [formatted_value, default_value] if defaulted?
+        [formatted_value, default_value] if default?
       end
 
       def options

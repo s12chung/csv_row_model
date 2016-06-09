@@ -137,9 +137,8 @@ def original_attribute(column_name)
   end
 end
 
-def original_attributes; @original_attributes ||= { id: original_attribute(:id) } end
-
-def id; original_attribute[:id] end
+def original_attributes; { id: original_attribute(:id) } end
+def id; original_attribute(:id) end
 ```
 
 #### Format Cell

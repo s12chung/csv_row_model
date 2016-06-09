@@ -29,6 +29,13 @@ describe CsvRowModel::Import::Cell do
         expect(subject).to eql("waka")
       end
 
+      context "with empty csv_string_model_errors" do
+        let(:csv_string_model_errors) { [] }
+        it "returns the result" do
+          expect(subject).to eql("1.01")
+        end
+      end
+
       context "with all options" do
         let(:options) { { default: -> { "123" }, parse: ->(s) { s.to_f } } }
 
@@ -58,6 +65,16 @@ describe CsvRowModel::Import::Cell do
             expect(subject).to eql(nil)
           end
         end
+      end
+    end
+
+    describe "formatted_value" do
+      subject { instance.formatted_value }
+
+      it "returns the formatted_cell value and memoizes it" do
+        expect(import_row_model_class).to receive(:format_cell).with("1.01", :string1, 0, kind_of(OpenStruct)).once.and_return("waka")
+        expect(subject).to eql("waka")
+        expect(subject.object_id).to eql instance.formatted_value.object_id
       end
     end
 
@@ -177,8 +194,8 @@ describe CsvRowModel::Import::Cell do
       end
     end
 
-    describe "#defaulted?" do
-      subject { instance.defaulted? }
+    describe "#default?" do
+      subject { instance.default? }
 
       it "returns false without option" do
         expect(subject).to eql false
@@ -205,6 +222,22 @@ describe CsvRowModel::Import::Cell do
           it "returns true" do
             expect(subject).to eql true
           end
+        end
+      end
+    end
+
+    describe "#default_change" do
+      subject { instance.default_change }
+      let(:options) { { default: "default" }  }
+
+      it "returns nil" do
+        expect(subject).to eql nil
+      end
+
+      context "when defaulted" do
+        it "returns the formatted_value and default_value" do
+          expect(instance).to receive(:default?).once.and_return(true)
+          expect(subject).to eql ["1.01", "default"]
         end
       end
     end
