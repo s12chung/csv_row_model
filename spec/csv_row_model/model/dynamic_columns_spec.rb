@@ -118,8 +118,8 @@ describe CsvRowModel::Model::DynamicColumns do
       end
     end
 
-    describe "::dynamic_index" do
-      subject { DynamicColumnModel.dynamic_index(:skills) }
+    describe "::dynamic_column_index" do
+      subject { DynamicColumnModel.dynamic_column_index(:skills) }
 
       it "returns the index after the columns" do
         expect(subject).to eql 2

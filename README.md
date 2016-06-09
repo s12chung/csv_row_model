@@ -453,7 +453,7 @@ represents this table:
 | Mike       | Jackson    |   Yes  |   Yes  |
 
 
-The `format_dynamic_column_header(header_model, column_name, dynamic_index, index_of_column, context)` can
+The `format_dynamic_column_header(header_model, column_name, dynamic_column_index, index_of_column, context)` can
 be used to defined like `format_header`. Defined in both import and export due to headers being used for both.
 
 ### Export

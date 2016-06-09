@@ -46,7 +46,7 @@ describe CsvRowModel::Import::DynamicColumns do
               "#{cell}_f"
             end
 
-            def format_dynamic_column_header(header_model, column_name, dynamic_index, index_of_column, context)
+            def format_dynamic_column_header(header_model, column_name, dynamic_column_index, index_of_column, context)
               "f_#{header_model}"
             end
           end

@@ -11,7 +11,7 @@ module CsvRowModel
       end
 
       def value
-        @value ||= row_model.class.format_dynamic_column_cells(unformatted_value, column_name, dynamic_index, row_model.context)
+        @value ||= row_model.class.format_dynamic_column_cells(unformatted_value, column_name, dynamic_column_index, row_model.context)
       end
 
       def unformatted_value
@@ -22,18 +22,18 @@ module CsvRowModel
 
       def formatted_cells
         source_cells.map.with_index do |source_cell, index|
-          row_model.class.format_cell(source_cell, column_name, dynamic_index + index, row_model.context)
+          row_model.class.format_cell(source_cell, column_name, dynamic_column_index + index, row_model.context)
         end
       end
 
       def formatted_headers
         source_headers.map.with_index do |source_header, index|
-          row_model.class.format_dynamic_column_header(source_header, column_name, dynamic_index, index, row_model.context)
+          row_model.class.format_dynamic_column_header(source_header, column_name, dynamic_column_index, index, row_model.context)
         end
       end
 
-      def dynamic_index
-        @dynamic_index ||= row_model.class.dynamic_index(column_name)
+      def dynamic_column_index
+        @dynamic_column_index ||= row_model.class.dynamic_column_index(column_name)
       end
 
       protected

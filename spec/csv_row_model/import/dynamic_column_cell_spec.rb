@@ -117,19 +117,19 @@ describe CsvRowModel::Import::DynamicColumnCell do
           end
         end
 
-        it "it bumps the index up for the dynamic_index" do
+        it "it bumps the index up for the dynamic_column_index" do
           expect(subject.first).to eql "Organized__skills__1__0__#<OpenStruct>"
         end
       end
     end
 
-    describe "#dynamic_index" do
-      subject { instance.dynamic_index }
+    describe "#dynamic_column_index" do
+      subject { instance.dynamic_column_index }
 
-      it "calls dynamic_index on the class and memoizes" do
-        expect(import_row_model_class).to receive(:dynamic_index).with(:skills).and_call_original
+      it "calls dynamic_column_index on the class and memoizes" do
+        expect(import_row_model_class).to receive(:dynamic_column_index).with(:skills).and_call_original
         expect(subject).to eql 0
-        expect(subject.object_id).to eql instance.dynamic_index.object_id
+        expect(subject.object_id).to eql instance.dynamic_column_index.object_id
       end
     end
 

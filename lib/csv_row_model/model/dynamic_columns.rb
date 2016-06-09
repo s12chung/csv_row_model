@@ -23,7 +23,7 @@ module CsvRowModel
         # Safe to override
         #
         # @return [String] formatted header
-        def format_dynamic_column_header(header_model, column_name, dynamic_index, index_of_column, context)
+        def format_dynamic_column_header(header_model, column_name, dynamic_column_index, index_of_column, context)
           header_model
         end
 
@@ -38,20 +38,16 @@ module CsvRowModel
           dynamic_columns.map do |column_name, options|
             Array(context.public_send(column_name)).map.with_index do |header_model, index_of_column|
               header_proc = options[:header] ||
-                ->(header_model) { format_dynamic_column_header(header_model, column_name, dynamic_index(column_name), index_of_column, context) }
+                ->(header_model) { format_dynamic_column_header(header_model, column_name, dynamic_column_index(column_name), index_of_column, context) }
               instance_exec(header_model, &header_proc)
             end
           end.flatten
         end
 
         # @return [Integer] index of dynamic_column of all columns
-        def dynamic_index(column_name)
+        def dynamic_column_index(column_name)
           offset = dynamic_column_names.index(column_name)
           offset ? columns.size + offset : nil
-        end
-
-        def dynamic_column_options(column_name)
-          dynamic_columns[column_name]
         end
 
         # @return [Array<Symbol>] column names for the row model
