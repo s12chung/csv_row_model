@@ -15,7 +15,7 @@ module CsvRowModel
       end
 
       def cells
-        header_models.map { |header_model| call_process_method(header_model) }
+        header_models.map { |header_model| call_process_cell(header_model) }
       end
 
       def header_models
@@ -23,7 +23,7 @@ module CsvRowModel
       end
 
       class << self
-        def define_process_method(row_model_class, column_name)
+        def define_process_cell(row_model_class, column_name)
           super { |header_model| header_model }
         end
       end

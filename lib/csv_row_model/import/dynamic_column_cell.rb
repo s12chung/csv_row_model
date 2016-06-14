@@ -12,7 +12,7 @@ module CsvRowModel
 
       def unformatted_value
         formatted_cells.zip(formatted_headers).map do |formatted_cell, source_header|
-          call_process_method(formatted_cell, source_header)
+          call_process_cell(formatted_cell, source_header)
         end
       end
 
@@ -29,7 +29,7 @@ module CsvRowModel
       end
 
       class << self
-        def define_process_method(row_model_class, column_name)
+        def define_process_cell(row_model_class, column_name)
           super { |formatted_cell, source_header| formatted_cell }
         end
       end

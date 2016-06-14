@@ -133,8 +133,8 @@ describe CsvRowModel::Import::DynamicColumnCell do
       end
     end
 
-    describe "#call_process_method" do
-      subject { instance.send(:call_process_method, "a", "b") }
+    describe "#call_process_cell" do
+      subject { instance.send(:call_process_cell, "a", "b") }
 
       before do
         row_model_class.class_eval do
@@ -142,24 +142,24 @@ describe CsvRowModel::Import::DynamicColumnCell do
         end
       end
 
-      it "calls the process_method properly" do
+      it "calls the process_cell properly" do
         expect(subject).to eql "a**b"
       end
     end
   end
 
   describe "class" do
-    describe "::process_method_name" do
-      subject { described_class.process_method_name(:somethings) }
+    describe "::process_cell_method_name" do
+      subject { described_class.process_cell_method_name(:somethings) }
 
       it "returns a singularized name" do
         expect(subject).to eql :something
       end
     end
 
-    describe "::defined_process_method" do
+    describe "::define_process_cell" do
       let(:klass) { Class.new }
-      subject { described_class.define_process_method(klass, :somethings) }
+      subject { described_class.define_process_cell(klass, :somethings) }
 
       it "adds the process method to the class" do
         subject
