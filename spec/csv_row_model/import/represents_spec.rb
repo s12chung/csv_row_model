@@ -5,6 +5,52 @@ describe CsvRowModel::Import::Represents do
   let(:instance) { klass.new }
 
   describe "instance" do
+    describe "#representations" do
+      subject { instance.representations }
+      before do
+        klass.send(:represents_one, :test_model) { "test" }
+        klass.send(:represents_many, :test_models) { %w[test test] }
+      end
+      before { klass.send(:represents_one, :test_model) { "test" } }
+
+      it "returns a mapping of presentation_name => representation" do
+        expect(subject.keys).to eql [:test_model, :test_models]
+        expect(subject.values.map(&:name)).to eql [:test_model, :test_models]
+        expect(subject.values.map(&:lambda_value)).to eql ["test", %w[test test]]
+      end
+    end
+
+    describe "#representation_value" do
+      before { klass.send(:represents_one, :test_model) { return "test" } }
+
+      subject { instance.representation_value(:test_model) }
+
+      it "returns the value of the representation" do
+        expect(subject).to eql "test"
+      end
+
+      context "with invalid representation" do
+        subject { instance.representation_value(:some_invalid_name) }
+
+        it "returns nil" do
+          expect(subject).to eql nil
+        end
+      end
+
+      context "with representation having a representation as a dependency" do
+        subject { instance.representation_value(:test_models) }
+
+        before do
+          klass.send(:represents_one, :test_model) { "test" }
+          klass.send(:represents_many, :test_models, dependencies: :test_model) { return [test_model] * 2 }
+        end
+
+        it "works" do
+          expect(subject).to eql %w[test test]
+        end
+      end
+    end
+
     describe "#attributes" do
       subject { instance.attributes }
 
@@ -82,44 +128,6 @@ describe CsvRowModel::Import::Represents do
         end
       end
     end
-
-    describe "#memoize" do
-      subject { instance.send(:memoize, "test") { Random.rand } }
-
-      it "memoizes the result" do
-        expect(subject).to be_present
-        expect(subject).to eql instance.send(:memoize, "test")
-      end
-    end
-
-    describe "#valid_dependencies?" do
-      before { klass.send(:represents_one, :test_model, dependencies: %i[string1 string2]) { "test" } }
-
-      subject { instance.send(:valid_dependencies?, :test_model) }
-
-      it "finds empty attribute and return false" do
-        expect(subject).to eql false
-      end
-
-      context "with columns filled" do
-        let(:instance) { klass.new(%w[a b]) }
-
-        it "returns true" do
-          expect(subject).to eql true
-        end
-      end
-
-      context "with representation check" do
-        before { klass.send(:represents_one, :string2, dependencies: %i[string1]) { "test" } }
-
-        let(:instance) { klass.new(%w[a]) }
-
-        it "returns true" do
-          expect(instance.string2).to eql "test"
-          expect(subject).to eql true
-        end
-      end
-    end
   end
 
   describe "class" do
@@ -132,7 +140,6 @@ describe CsvRowModel::Import::Represents do
       end
 
       it "calls the helper methods" do
-        expect(klass).to receive(:set_representation_options).with(:test_model, {})
         expect(klass).to receive(:define_representation_method).with(:test_model).and_yield
         subject
       end
@@ -147,42 +154,25 @@ describe CsvRowModel::Import::Represents do
       end
 
       it "calls the helper methods" do
-        expect(klass).to receive(:set_representation_options).with(:test_models, {})
-        expect(klass).to receive(:define_representation_method).with(:test_models, []).and_yield
+        expect(klass).to receive(:define_representation_method).with(:test_models, { empty_value: [] }).and_yield
         subject
-      end
-    end
-
-    describe "::set_representation_options" do
-      let(:options) { { memoize: false } }
-      subject { klass.send(:set_representation_options, :test_model, options) { "test" } }
-
-      it "sets the option with defaults" do
-        subject
-        expect(klass.send(:representations)[:test_model]).to eql(options.merge(dependencies: []))
-      end
-
-      context "invalid option" do
-        let(:options) { { blah: false } }
-
-        it "raises error with bad invalid option" do
-          expect { subject }.to raise_error(ArgumentError)
-        end
       end
     end
 
     describe "::define_representation_method" do
-      subject { klass.send(:define_representation_method, :test_model, []) { "test" } }
-
+      subject { klass.send(:define_representation_method, :test_model, options) { "test" } }
       let(:options) { {} }
-      before { klass.send(:set_representation_options, :test_model, options) }
 
-      it "creates the memoized representation_method method and the underlying one" do
+      it "calls the underlying methods" do
+        expect(CsvRowModel::Import::Representation).to receive(:define_lambda_method).with(klass, :test_model).and_yield
+        expect(klass).to receive(:set_representation_options).with(:test_model, options)
         subject
+      end
+
+      it "creates the memoized representation_method method" do
+        subject
+        expect(instance).to receive(:representation_value).with(:test_model).and_call_original
         expect(instance.test_model).to eql "test"
-        expect(instance.test_model.object_id).to eql instance.test_model.object_id
-        expect(instance.__test_model).to eql "test"
-        expect(instance.__test_model.object_id).to_not eql instance.__test_model.object_id
       end
 
       it "works with subclassing and overriding" do
@@ -193,34 +183,22 @@ describe CsvRowModel::Import::Represents do
         expect(instance.test_model).to eql "overwritten"
         expect(instance.__test_model).to eql "test"
       end
+    end
 
-      context "with memoization off" do
-        let(:options) { { memoize: false } }
+    describe "::set_representation_options" do
+      let(:options) { { memoize: false } }
+      subject { klass.send(:set_representation_options, :test_model, options) { "test" } }
 
-        it "doesn't memoize anything" do
-          subject
-          expect(instance.test_model).to eql "test"
-          expect(instance.test_model.object_id).to_not eql instance.test_model.object_id
-          expect(instance.__test_model).to eql "test"
-          expect(instance.__test_model).to_not eql instance.__test_model.object_id
-        end
+      it "sets the option with defaults" do
+        subject
+        expect(klass.send(:representations)[:test_model]).to eql(options.merge(dependencies: [], empty_value: nil))
       end
 
-      context "with dependencies" do
-        let(:options) { { dependencies: %i[string1 string2] } }
+      context "invalid option" do
+        let(:options) { { blah: false } }
 
-        it "returns empty_value" do
-          subject
-          expect(instance.test_model).to eql []
-        end
-
-        context "with dependencies set" do
-          let(:instance) { klass.new %w[a b] }
-
-          it "returns the defined value" do
-            subject
-            expect(instance.test_model).to eql "test"
-          end
+        it "raises error with bad invalid option" do
+          expect { subject }.to raise_error(ArgumentError)
         end
       end
     end
