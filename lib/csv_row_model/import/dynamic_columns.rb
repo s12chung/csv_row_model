@@ -17,7 +17,7 @@ module CsvRowModel
 
       # @return [Hash] a map of `column_name => original_attribute(column_name)`
       def original_attributes
-        super.merge(array_to_block_hash(self.class.dynamic_column_names) { |column_name| original_attribute(column_name) })
+        super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| original_attribute(column_name) })
       end
 
       # @return [Array] dynamic_column headers
@@ -31,14 +31,6 @@ module CsvRowModel
       end
 
       class_methods do
-        # Safe to override. Method applied to each dynamic_column attribute
-        #
-        # @param cells [Array] Array of values
-        # @param column_name [Symbol] Dynamic column name
-        def format_dynamic_column_cells(cells, column_name, column_index, context)
-          cells
-        end
-
         protected
 
         # See {Model#dynamic_column}

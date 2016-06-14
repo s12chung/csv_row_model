@@ -1,3 +1,5 @@
+require 'csv_row_model/model/dynamic_column_cell'
+
 module CsvRowModel
   module Model
     module DynamicColumns
@@ -18,6 +20,14 @@ module CsvRowModel
 
         def is_dynamic_column?(column_name)
           dynamic_columns.keys.include?(column_name)
+        end
+
+        # Safe to override. Method applied to each dynamic_column attribute
+        #
+        # @param cells [Array] Array of values
+        # @param column_name [Symbol] Dynamic column name
+        def format_dynamic_column_cells(cells, column_name, column_index, context)
+          cells
         end
 
         # Safe to override
