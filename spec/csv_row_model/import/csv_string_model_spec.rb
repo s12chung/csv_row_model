@@ -26,106 +26,108 @@ describe CsvRowModel::Import::CsvStringModel do
 
     describe "#valid?" do
       subject { instance.valid? }
-      let(:klass) { ImportModelWithValidations }
+      let(:klass) do
+        Class.new do
+          include CsvRowModel::Model
+          include CsvRowModel::Import
 
-      it "works" do
-        expect(subject).to eql true
+          column :id
+
+          def self.name; "TwoLayerValid" end
+        end
       end
 
-      context "with empty row" do
-        let(:source_row) { %w[] }
+      context "with 1 validation" do
+        before do
+          klass.class_eval { validates :id, presence: true }
+        end
 
         it "works" do
-          expect(subject).to eql false
+          expect(subject).to eql true
+        end
+
+        context "with empty row" do
+          let(:source_row) { %w[] }
+
+          it "works" do
+            expect(subject).to eql false
+          end
         end
       end
 
-      describe "with custom class" do
-        let(:klass) do
-          Class.new do
-            include CsvRowModel::Model
-            include CsvRowModel::Import
+      context "when setting default, but invalid csv_string_model validation" do
+        let(:source_row) { ["1", ""]}
 
-            column :id
-
-            def self.name; "TwoLayerValid" end
+        before do
+          klass.class_eval do
+            column :name, default: "the default!"
+            csv_string_model { validates :name, presence: true }
           end
         end
 
-        context "when setting default, but invalid csv_string_model validation" do
-          let(:source_row) { ["1", ""]}
+        it "returns just invalid" do
+          expect(subject).to eql false
+          expect(instance.errors.full_messages).to eql ["Name can't be blank"]
+        end
+      end
 
-          before do
-            klass.class_eval do
-              column :name, default: "the default!"
-              csv_string_model { validates :name, presence: true }
-            end
-          end
-
-          it "returns just invalid" do
-            expect(subject).to eql false
-            expect(instance.errors.full_messages).to eql ["Name can't be blank"]
+      context "overriding validations" do
+        before do
+          klass.class_eval do
+            validates :id, length: { minimum: 5 }
+            csv_string_model { validates :id, presence: true }
           end
         end
 
-        context "overriding validations" do
+        it "takes the csv_string_model_class validation first then the row_model validation" do
+          expect(subject).to eql false
+          expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
+        end
+
+        context "with empty row" do
+          let(:source_row) { [''] }
+
+          it "just shows the csv_string_model_class validation" do
+            expect(subject).to eql false
+            expect(instance.errors.full_messages).to eql ["Id can't be blank"]
+          end
+        end
+
+        context "with errors has a key with empty value" do
           before do
-            klass.class_eval do
-              validates :id, length: { minimum: 5 }
-              csv_string_model { validates :id, presence: true }
+            expect(instance.csv_string_model).to receive(:valid?).at_least(1).times.and_wrap_original do |original, *args|
+              result = original.call(*args)
+              # this makes instance.csv_string_model.errors.messages = { id: [] }
+              instance.csv_string_model.errors[:id]
+              result
             end
           end
 
-          it "takes the csv_string_model_class validation first then the row_model validation" do
+          it "still shows the non-string validation" do
             expect(subject).to eql false
+            expect(instance.csv_string_model.errors.messages).to eql(id: [])
             expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
           end
+        end
+      end
 
-          context "with empty row" do
-            let(:source_row) { [''] }
-
-            it "just shows the csv_string_model_class validation" do
-              expect(subject).to eql false
-              expect(instance.errors.full_messages).to eql ["Id can't be blank"]
-            end
-          end
-
-          context "with errors has a key with empty value" do
-            before do
-              expect(instance.csv_string_model).to receive(:valid?).at_least(1).times.and_wrap_original do |original, *args|
-                result = original.call(*args)
-                # this makes instance.csv_string_model.errors.messages = { id: [] }
-                instance.csv_string_model.errors[:id]
-                result
-              end
-            end
-
-            it "still shows the non-string validation" do
-              expect(subject).to eql false
-              expect(instance.csv_string_model.errors.messages).to eql(id: [])
-              expect(instance.errors.full_messages).to eql ["Id is too short (minimum is 5 characters)"]
+      context "with warnings" do
+        before do
+          klass.class_eval do
+            warnings { validates :id, length: { minimum: 5 } }
+            csv_string_model do
+              warnings { validates :id, presence: true }
             end
           end
         end
 
-        context "with warnings" do
-          before do
-            klass.class_eval do
-              warnings { validates :id, length: { minimum: 5 } }
-              csv_string_model do
-                warnings { validates :id, presence: true }
-              end
-            end
-          end
+        context "with empty row" do
+          let(:source_row) { [''] }
 
-          context "with empty row" do
-            let(:source_row) { [''] }
-
-            it "just shows the csv_string_model_class validation" do
-              expect(subject).to eql true
-              expect(instance.safe?).to eql false
-              expect(instance.warnings.full_messages).to eql ["Id can't be blank"]
-            end
+          it "just shows the csv_string_model_class validation" do
+            expect(subject).to eql true
+            expect(instance.safe?).to eql false
+            expect(instance.warnings.full_messages).to eql ["Id can't be blank"]
           end
         end
       end

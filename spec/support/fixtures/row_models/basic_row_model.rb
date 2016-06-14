@@ -10,11 +10,6 @@ end
 #
 class BasicImportModel < BasicRowModel
   include CsvRowModel::Import
-
-  def method_that_raises; raise "test" end
-
-  protected
-  def protected_method; end
 end
 
 class ChildImportModel < BasicImportModel
@@ -24,12 +19,6 @@ end
 
 class ParentImportModel < BasicImportModel
   has_many :children, ChildImportModel
-end
-
-class ImportModelWithValidations < BasicRowModel
-  include CsvRowModel::Import
-
-  validates :string1, presence: true
 end
 
 #
