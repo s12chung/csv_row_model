@@ -26,10 +26,4 @@ end
 #
 class BasicExportModel < BasicRowModel
   include CsvRowModel::Export
-
-  class << self
-    def format_cell(cell, _column_name, _column_index, context)
-      cell.upcase
-    end
-  end
 end

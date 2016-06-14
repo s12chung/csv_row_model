@@ -47,7 +47,7 @@ describe CsvRowModel::Import::Attributes do
       it "returns the attributes hash" do
         # 2 attributes * (1 for csv_string_model + 1 for original_attributes)
         expect(import_row_model_class).to receive(:format_cell).exactly(4).times.and_call_original
-        expect(instance.original_attributes).to eql(string1: '1.01', string2: 'b')
+        expect(subject).to eql(string1: '1.01', string2: 'b')
       end
     end
 
@@ -60,6 +60,7 @@ describe CsvRowModel::Import::Attributes do
 
       context "invalid column_name" do
         subject { instance.original_attribute(:not_a_column) }
+
         it "works" do
           expect(subject).to eql nil
         end
@@ -91,7 +92,7 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe ":column" do
-      context "when included before and after #column call" do
+      context "when module included before and after #column call" do
         let(:import_row_model_class) do
           Class.new do
             include CsvRowModel::Model
@@ -104,6 +105,25 @@ describe CsvRowModel::Import::Attributes do
         it "works" do
           expect(instance.string1).to eql "1.01"
           expect(instance.string2).to eql "b"
+        end
+      end
+
+      context "with method defined before column" do
+        let(:import_row_model_class) do
+          Class.new do
+            def string1; "custom1" end
+            def string2; "custom2" end
+
+            include CsvRowModel::Model
+            column :string1
+            include CsvRowModel::Import
+            column :string2
+          end
+        end
+
+        it "does not override those methods" do
+          expect(instance.string1).to eql 'custom1'
+          expect(instance.string2).to eql 'custom2'
         end
       end
     end

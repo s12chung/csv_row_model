@@ -19,13 +19,12 @@ describe CsvRowModel::Import::Cell do
       subject { instance.value }
 
       it "memoizes the result" do
-        expect(import_row_model_class).to receive(:format_cell).once.and_call_original
         expect(subject).to eql "1.01"
         expect(subject.object_id).to eql instance.value.object_id
       end
 
       it "calls format_cell and returns the result" do
-        expect(import_row_model_class).to receive(:format_cell).with("1.01", :string1, 0, kind_of(OpenStruct)).once.and_return("waka")
+        expect(instance).to receive(:formatted_value).twice.and_return("waka")
         expect(subject).to eql("waka")
       end
 

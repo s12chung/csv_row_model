@@ -9,6 +9,6 @@ module CsvRowModel
 
     include Base
     include Attributes
-    include DynamicColumns
+    # include DynamicColumns
   end
 end
