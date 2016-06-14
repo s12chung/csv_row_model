@@ -1,21 +1,21 @@
 require 'spec_helper'
 
 describe CsvRowModel::Import::Attributes do
-  let(:import_row_model_class) { BasicImportModel }
+  let(:row_model_class) { BasicImportModel }
   let(:source_row)         { %w[1.01 b] }
-  let(:instance)           { import_row_model_class.new(source_row) }
+  let(:instance)           { row_model_class.new(source_row) }
 
   describe "instance" do
     describe "#cells" do
       subject { instance.cells }
 
       it "returns a hash of cells mapped to their column_name" do
-        expect(subject.keys).to eql import_row_model_class.column_names
+        expect(subject.keys).to eql row_model_class.column_names
         expect(subject.values.map(&:class)).to eql [CsvRowModel::Import::Cell] * 2
       end
 
       context "invalid and invalid csv_string_model" do
-        let(:import_row_model_class) do
+        let(:row_model_class) do
           Class.new(BasicImportModel) do
             validates :string1, presence: true
             csv_string_model { validates :string2, presence: true }
@@ -46,31 +46,19 @@ describe CsvRowModel::Import::Attributes do
 
       it "returns the attributes hash" do
         # 2 attributes * (1 for csv_string_model + 1 for original_attributes)
-        expect(import_row_model_class).to receive(:format_cell).exactly(4).times.and_call_original
+        expect(row_model_class).to receive(:format_cell).exactly(4).times.and_call_original
         expect(subject).to eql(string1: '1.01', string2: 'b')
       end
     end
 
     describe "#original_attribute" do
-      subject { instance.original_attribute(:string1) }
-
-      it "works" do
-        expect(subject).to eql "1.01"
-      end
-
-      context "invalid column_name" do
-        subject { instance.original_attribute(:not_a_column) }
-
-        it "works" do
-          expect(subject).to eql nil
-        end
-      end
+      it_behaves_like "cell_attribute", :original_attribute, :value, string1: "1.01"
     end
 
     describe "#default_changes" do
       subject { instance.default_changes }
 
-      let(:import_row_model_class) do
+      let(:row_model_class) do
         Class.new(BasicImportModel) do
           merge_options :string1, default: 123
           def self.format_cell(*args); nil end
@@ -84,7 +72,7 @@ describe CsvRowModel::Import::Attributes do
   end
 
   describe "class" do
-    let(:import_row_model_class) do
+    let(:row_model_class) do
       Class.new do
         include CsvRowModel::Model
         include CsvRowModel::Import
@@ -92,51 +80,18 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe ":column" do
-      context "when module included before and after #column call" do
-        let(:import_row_model_class) do
-          Class.new do
-            include CsvRowModel::Model
-            column :string1
-            include CsvRowModel::Import
-            column :string2
-          end
-        end
-
-        it "works" do
-          expect(instance.string1).to eql "1.01"
-          expect(instance.string2).to eql "b"
-        end
-      end
-
-      context "with method defined before column" do
-        let(:import_row_model_class) do
-          Class.new do
-            def string1; "custom1" end
-            def string2; "custom2" end
-
-            include CsvRowModel::Model
-            column :string1
-            include CsvRowModel::Import
-            column :string2
-          end
-        end
-
-        it "does not override those methods" do
-          expect(instance.string1).to eql 'custom1'
-          expect(instance.string2).to eql 'custom2'
-        end
-      end
+      it_behaves_like "column_method", CsvRowModel::Import, string1: "1.01", string2: "b"
     end
 
     describe "::merge_options" do
-      subject { import_row_model_class.send(:merge_options, :waka, type: Integer, validate_type: true) }
+      subject { row_model_class.send(:merge_options, :waka, type: Integer, validate_type: true) }
 
-      before { import_row_model_class.send(:column, :waka, original_options) }
+      before { row_model_class.send(:column, :waka, original_options) }
       let(:original_options) { {} }
 
       it "adds validations" do
-        expect(import_row_model_class).to_not receive(:define_method)
-        expect(import_row_model_class.csv_string_model_class).to receive(:add_type_validation).once.and_call_original
+        expect(row_model_class).to_not receive(:define_method)
+        expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).once.and_call_original
         subject
       end
 
@@ -144,8 +99,8 @@ describe CsvRowModel::Import::Attributes do
         let(:original_options) { { type: Integer, validate_type: true } }
 
         it "doesn't add validations" do
-          expect(import_row_model_class).to_not receive(:define_method)
-          expect(import_row_model_class.csv_string_model_class).to_not receive(:add_type_validation)
+          expect(row_model_class).to_not receive(:define_method)
+          expect(row_model_class.csv_string_model_class).to_not receive(:add_type_validation)
 
           subject
         end
@@ -153,17 +108,11 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe "::define_attribute_method" do
-      it "does not do anything the second time" do
-        expect(import_row_model_class).to receive(:define_method).with(:waka).once.and_call_original
-        expect(import_row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka, nil).once
-        expect(import_row_model_class).to receive(:define_method).with(:waka2).once.and_call_original
-        expect(import_row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka2, nil).once
-
-        import_row_model_class.send(:define_attribute_method, :waka)
-        import_row_model_class.send(:define_attribute_method, :waka)
-        import_row_model_class.send(:define_attribute_method, :waka2)
-        import_row_model_class.send(:define_attribute_method, :waka2)
+      before do
+        expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka, nil).once
+        expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka2, nil).once
       end
+      it_behaves_like "define_attribute_method"
     end
   end
 end

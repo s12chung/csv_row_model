@@ -6,19 +6,19 @@ describe CsvRowModel::Import::DynamicColumnCell do
 
     let(:source_headers) { %w[Organized Clean Punctual Strong Crazy Flexible] }
     let(:source_cells) { %w[Yes Yes No Yes Yes No] }
-    let(:import_row_model_class) do
+    let(:row_model_class) do
       Class.new do
         include CsvRowModel::Model
         include CsvRowModel::Import
         dynamic_column :skills
       end
     end
-    let(:row_model) { import_row_model_class.new }
+    let(:row_model) { row_model_class.new }
 
     describe "#value" do
       subject { instance.value }
       before do
-        import_row_model_class.class_eval do
+        row_model_class.class_eval do
           def self.format_dynamic_column_cells(*args); args end
         end
       end
@@ -40,7 +40,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
 
       context "with process method defined" do
         before do
-          import_row_model_class.class_eval do
+          row_model_class.class_eval do
             def skill(formatted_cell, source_header);  "#{formatted_cell}__#{source_header}" end
           end
         end
@@ -55,7 +55,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
       subject { instance.formatted_cells }
 
       before do
-        import_row_model_class.class_eval do
+        row_model_class.class_eval do
           def self.format_cell(*args); args.join("__") end
         end
       end
@@ -72,7 +72,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
       end
 
       context "with regular column defined" do
-        let(:import_row_model_class) do
+        let(:row_model_class) do
           Class.new do
             include CsvRowModel::Model
             include CsvRowModel::Import
@@ -91,7 +91,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
       subject { instance.formatted_headers }
 
       before do
-        import_row_model_class.class_eval do
+        row_model_class.class_eval do
           def self.format_dynamic_column_header(*args); args.join("__") end
         end
       end
@@ -108,7 +108,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
       end
 
       context "with regular column defined" do
-        let(:import_row_model_class) do
+        let(:row_model_class) do
           Class.new do
             include CsvRowModel::Model
             include CsvRowModel::Import
@@ -127,7 +127,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
       subject { instance.dynamic_column_index }
 
       it "calls dynamic_column_index on the class and memoizes" do
-        expect(import_row_model_class).to receive(:dynamic_column_index).with(:skills).and_call_original
+        expect(row_model_class).to receive(:dynamic_column_index).with(:skills).and_call_original
         expect(subject).to eql 0
         expect(subject.object_id).to eql instance.dynamic_column_index.object_id
       end
@@ -137,7 +137,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
       subject { instance.send(:call_process_method, "a", "b") }
 
       before do
-        import_row_model_class.class_eval do
+        row_model_class.class_eval do
           def skill(formatted_cell, source_header);  "#{formatted_cell}**#{source_header}" end
         end
       end

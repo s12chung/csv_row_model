@@ -6,9 +6,9 @@ describe CsvRowModel::Import::Cell do
     let(:source_value) { '1.01' }
     let(:csv_string_model_errors) { nil }
 
-    let(:import_row_model_class) { BasicImportModel }
+    let(:row_model_class) { BasicImportModel }
     let(:row_model) do
-      klass = Class.new(import_row_model_class)
+      klass = Class.new(row_model_class)
       klass.send(:merge_options, :string1, options)
       klass.new(source_row)
     end
@@ -71,7 +71,7 @@ describe CsvRowModel::Import::Cell do
       subject { instance.formatted_value }
 
       it "returns the formatted_cell value and memoizes it" do
-        expect(import_row_model_class).to receive(:format_cell).with("1.01", :string1, 0, kind_of(OpenStruct)).once.and_return("waka")
+        expect(row_model_class).to receive(:format_cell).with("1.01", :string1, 0, kind_of(OpenStruct)).once.and_return("waka")
         expect(subject).to eql("waka")
         expect(subject.object_id).to eql instance.formatted_value.object_id
       end
