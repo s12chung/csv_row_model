@@ -74,14 +74,10 @@ module CsvRowModel
         end
 
         def define_representation_method(representation_name, options={}, &block)
-          set_representation_options(representation_name, options)
+          Representation.check_options(options)
+          merge_representations(representation_name.to_sym => options)
           define_method(representation_name) { representation_value(representation_name) }
           Representation.define_lambda_method(self, representation_name, &block)
-        end
-
-        def set_representation_options(representation_name, options={})
-          options = check_and_merge_options(options, memoize: true, dependencies: [], empty_value: nil)
-          merge_representations(representation_name.to_sym => options)
         end
       end
     end

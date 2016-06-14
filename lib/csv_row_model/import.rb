@@ -10,7 +10,6 @@ module CsvRowModel
     extend ActiveSupport::Concern
 
     include Concerns::Inspect
-    include Concerns::InvalidOptions
 
     include Base
     include CsvStringModel

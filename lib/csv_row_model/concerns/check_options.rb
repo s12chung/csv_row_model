@@ -1,15 +1,13 @@
 module CsvRowModel
   module Concerns
-    module InvalidOptions
+    module CheckOptions
       extend ActiveSupport::Concern
 
       class_methods do
-        protected
-        def check_and_merge_options(options, default_options)
-          invalid_options = options.keys - default_options.keys
+        def check_options(options)
+          invalid_options = options.keys - self::VALID_OPTIONS
           raise ArgumentError.new("Invalid option(s): #{invalid_options}") if invalid_options.present?
-
-          options.reverse_merge(default_options)
+          true
         end
       end
     end

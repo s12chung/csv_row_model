@@ -16,7 +16,7 @@ if autoload && defined?(Rails)
   require 'csv_row_model/engine'
 else
   require 'csv_row_model/concerns/inspect'
-  require 'csv_row_model/concerns/invalid_options'
+  require 'csv_row_model/concerns/check_options'
 
   require 'csv_row_model/validators/validate_attributes'
 

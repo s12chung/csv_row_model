@@ -164,8 +164,8 @@ describe CsvRowModel::Import::Represents do
       let(:options) { {} }
 
       it "calls the underlying methods" do
+        expect(CsvRowModel::Import::Representation).to receive(:check_options).with(options)
         expect(CsvRowModel::Import::Representation).to receive(:define_lambda_method).with(klass, :test_model).and_yield
-        expect(klass).to receive(:set_representation_options).with(:test_model, options)
         subject
       end
 
@@ -182,24 +182,6 @@ describe CsvRowModel::Import::Represents do
         instance = Class.new(klass) { def test_model; "overwritten" end }.new
         expect(instance.test_model).to eql "overwritten"
         expect(instance.__test_model).to eql "test"
-      end
-    end
-
-    describe "::set_representation_options" do
-      let(:options) { { memoize: false } }
-      subject { klass.send(:set_representation_options, :test_model, options) { "test" } }
-
-      it "sets the option with defaults" do
-        subject
-        expect(klass.send(:representations)[:test_model]).to eql(options.merge(dependencies: [], empty_value: nil))
-      end
-
-      context "invalid option" do
-        let(:options) { { blah: false } }
-
-        it "raises error with bad invalid option" do
-          expect { subject }.to raise_error(ArgumentError)
-        end
       end
     end
   end
