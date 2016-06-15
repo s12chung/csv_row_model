@@ -4,7 +4,7 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       included do
-        attr_reader :source_header, :source_row, :context, :line_number, :index, :previous
+        attr_reader :source_header, :source_row, :line_number, :index, :previous
 
         # need to simplify children code
         validate { errors.add(:source_row, "can't be nil") if source_row.nil? }
@@ -15,7 +15,6 @@ module CsvRowModel
       # @param options [Hash]
       # @option options [Integer] :index 1st row_model is 0, 2nd is 1, 3rd is 2, etc.
       # @option options [Integer] :line_number line_number in the CSV file
-      # @option options [Hash] :context extra data you want to work with the model
       # @option options [Array] :source_header the csv header row
       # @option options [CsvRowModel::Import] :previous the previous row model
       # @option options [CsvRowModel::Import] :parent if the instance is a child, pass the parent
@@ -24,13 +23,13 @@ module CsvRowModel
           @csv_exception = source_row_or_exception
           source_row_or_exception = []
         end
-        options = options.symbolize_keys.reverse_merge(context: {})
 
-        @source_row, @context = source_row_or_exception, OpenStruct.new(options[:context])
-        @line_number, @index, @source_header, @previous = options[:line_number], options[:index], options[:source_header], options[:previous].try(:dup)
+        @source_row = source_row_or_exception
+        @line_number, @index, @source_header = options[:line_number], options[:index], options[:source_header]
 
+        @previous = options[:previous].try(:dup)
         previous.try(:free_previous)
-        super(source_row_or_exception, options)
+        super(options)
       end
 
       # @return [Hash] a map of `column_name => source_row[index_of_column_name]`

@@ -1,16 +1,16 @@
 module CsvRowModel
   module Export
     class File
-      attr_reader :export_model_class, :csv, :file, :context
+      attr_reader :row_model_class, :csv, :file, :context
 
       # @param [Export] export_model export model class
-      def initialize(export_model_class, context={})
-        @export_model_class = export_model_class
+      def initialize(row_model_class, context={})
+        @row_model_class = row_model_class
         @context = context.to_h.symbolize_keys
       end
 
       def headers
-        export_model_class.headers(self.context)
+        row_model_class.headers(self.context)
       end
 
       # Add a row_model to the
@@ -18,7 +18,7 @@ module CsvRowModel
       # @param [Hash] context the extra context given to the instance of the row model
       # @return [CsvRowModel::Export] the row model appended
       def append_model(source_model, context={})
-        row_model = export_model_class.new(source_model, context.reverse_merge(self.context))
+        row_model = row_model_class.new(source_model, context.reverse_merge(self.context))
         row_model.to_rows.each do |row|
           csv << row
         end
@@ -34,10 +34,10 @@ module CsvRowModel
       # Open a block to generate a file
       # @param [Boolean] with_headers adds the header to the file if true
       def generate(with_headers: true)
-        @file = Tempfile.new([export_model_class.name, ".csv"])
+        @file = Tempfile.new([row_model_class.name, ".csv"])
         CSV.open(file.path, "wb") do |csv|
           @csv = csv
-          export_model_class.setup(csv, context, with_headers: with_headers)
+          row_model_class.setup(csv, context, with_headers: with_headers)
           yield Proxy.new(self)
         end
       ensure

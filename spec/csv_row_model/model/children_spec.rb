@@ -3,7 +3,7 @@ require 'spec_helper'
 describe CsvRowModel::Model::Children do
   describe "instance" do
     let(:options) { {} }
-    let(:instance) { BasicRowModel.new(nil, options) }
+    let(:instance) { BasicRowModel.new(options) }
 
     describe "#child?" do
       subject { instance.child? }

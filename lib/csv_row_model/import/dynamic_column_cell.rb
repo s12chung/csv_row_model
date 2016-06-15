@@ -1,13 +1,12 @@
 module CsvRowModel
   module Import
     class DynamicColumnCell < CsvRowModel::Model::DynamicColumnCell
-      attr_reader :column_name, :source_headers, :source_cells, :row_model
+      attr_reader :source_headers, :source_cells
 
       def initialize(column_name, source_headers, source_cells, row_model)
-        @column_name = column_name
         @source_headers = source_headers
         @source_cells = source_cells
-        @row_model = row_model
+        super(column_name, row_model)
       end
 
       def unformatted_value

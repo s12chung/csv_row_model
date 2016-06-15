@@ -1,14 +1,11 @@
 module CsvRowModel
   module Export
     class DynamicColumnCell < CsvRowModel::Model::DynamicColumnCell
-      attr_reader :column_name, :row_model
-
-      def initialize(column_name, row_model)
-        @column_name = column_name
-        @row_model = row_model
+      def unformatted_value
+        formatted_cells
       end
 
-      def unformatted_value
+      def formatted_cells
         cells.map.with_index.map do |cell, index|
           row_model.class.format_cell(cell, column_name, dynamic_column_index + index, row_model.context)
         end
