@@ -25,12 +25,12 @@ describe CsvRowModel::Import::DynamicColumns do
     end
 
     describe "#cells" do
-      it_behaves_like "cell_method",
+      it_behaves_like "cells_method",
                       %i[skills],
                       CsvRowModel::Import::DynamicColumnCell => 1
 
       with_context "standard columns defined" do
-        it_behaves_like "cell_method",
+        it_behaves_like "cells_method",
                         %i[first_name last_name skills],
                         CsvRowModel::Import::Cell => 2,
                         CsvRowModel::Import::DynamicColumnCell => 1

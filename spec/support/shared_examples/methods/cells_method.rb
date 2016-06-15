@@ -1,5 +1,5 @@
-# it_behaves_like "cell_method", %i[first_name last_name], CsvRowModel::Import::Cell => 2
-shared_examples "cell_method" do |column_names, cell_classes_to_count|
+# it_behaves_like "cells_method", %i[first_name last_name], CsvRowModel::Import::Cell => 2
+shared_examples "cells_method" do |column_names, cell_classes_to_count|
   subject { instance.cells }
 
   it "returns a hash of cells mapped to their column_name" do
