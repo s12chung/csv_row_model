@@ -62,5 +62,15 @@ describe CsvRowModel::Export::DynamicColumns do
     describe "::dynamic_column" do
       it_behaves_like "dynamic_column_method", CsvRowModel::Export, Skill.all
     end
+
+    describe "::define_dynamic_attribute_method" do
+      subject { row_model_class.send(:define_dynamic_attribute_method, :skills) }
+
+      it "makes an attribute that calls :formatted_attribute" do
+        subject
+        expect(instance).to receive(:formatted_attribute).with(:skills).and_return("tested")
+        expect(instance.skills).to eql "tested"
+      end
+    end
   end
 end

@@ -47,6 +47,13 @@ describe CsvRowModel::Export::Attributes do
     end
 
     describe "::define_attribute_method" do
+      subject { row_model_class.send(:define_attribute_method, :waka) }
+      it "makes an attribute that calls the source_model column_name method" do
+        subject
+        expect(source_model).to receive(:waka).with(no_args).and_return("tested")
+        expect(instance.waka).to eql "tested"
+      end
+
       it_behaves_like "define_attribute_method"
     end
   end

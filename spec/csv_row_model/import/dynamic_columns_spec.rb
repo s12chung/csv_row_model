@@ -4,19 +4,19 @@ dynamic_column_source_headers = %w[Organized Clean Punctual Strong Crazy Flexibl
 dynamic_column_source_cells = %w[Yes Yes No Yes Yes No]
 
 describe CsvRowModel::Import::DynamicColumns do
+  let(:row_model_class) do
+    Class.new do
+      include CsvRowModel::Model
+      include CsvRowModel::Import
+      dynamic_column :skills
+    end
+  end
+
   let(:instance) { row_model_class.new(source_row, source_header: headers) }
   let(:headers) { dynamic_column_source_headers }
   let(:source_row) { dynamic_column_source_cells }
 
   describe "instance" do
-    let(:row_model_class) do
-      Class.new do
-        include CsvRowModel::Model
-        include CsvRowModel::Import
-        dynamic_column :skills
-      end
-    end
-
     shared_context "standard columns defined" do
       let(:row_model_class) { DynamicColumnImportModel }
       let(:headers)    { %w[first_name last_name] + dynamic_column_source_headers }
@@ -119,6 +119,16 @@ describe CsvRowModel::Import::DynamicColumns do
   describe "class" do
     describe "::dynamic_column" do
       it_behaves_like "dynamic_column_method", CsvRowModel::Import, dynamic_column_source_cells
+    end
+
+    describe "::define_dynamic_attribute_method" do
+      subject { row_model_class.send(:define_dynamic_attribute_method, :skills) }
+
+      it "makes an attribute that calls original_attribute" do
+        subject
+        expect(instance).to receive(:original_attribute).with(:skills).and_return("tested")
+        expect(instance.skills).to eql "tested"
+      end
     end
   end
 end

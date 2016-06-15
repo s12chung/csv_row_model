@@ -108,11 +108,19 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe "::define_attribute_method" do
-      before do
-        expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka, nil).once
-        expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka2, nil).once
+      subject { row_model_class.send(:define_attribute_method, :waka) }
+      before { expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka, nil).once }
+
+      it "makes an attribute that calls original_attribute" do
+        subject
+        expect(instance).to receive(:original_attribute).with(:waka).and_return("tested")
+        expect(instance.waka).to eql "tested"
       end
-      it_behaves_like "define_attribute_method"
+
+      context "with another validation added" do
+        before { expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka2, nil).once }
+        it_behaves_like "define_attribute_method"
+      end
     end
   end
 end
