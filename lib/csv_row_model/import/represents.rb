@@ -9,22 +9,22 @@ module CsvRowModel
         inherited_class_hash :representations
       end
 
-      def representations
-        @representations ||= array_to_block_hash(self.class.representation_names) do |representation_name|
+      def representation_objects
+        @representation_objects ||= array_to_block_hash(self.class.representation_names) do |representation_name|
           Representation.new(representation_name, self.class.representations[representation_name], self)
         end
       end
 
       def representation_value(representation_name)
-        representations[representation_name].try(:value)
+        representation_objects[representation_name].try(:value)
       end
 
-      def attributes
-        super.merge!(representation_attributes)
-      end
-
-      def representation_attributes
+      def representations
         attributes_from_method_names(self.class.representation_names)
+      end
+
+      def all_attributes
+        attributes.merge!(representations)
       end
 
       def valid?(*args)
@@ -38,7 +38,7 @@ module CsvRowModel
       # remove each dependent attribute from errors if it's representation dependencies are in the errors
       def filter_errors
         self.class.representation_names.each do |representation_name|
-          next unless errors.messages.slice(*representations[representation_name].dependencies).present?
+          next unless errors.messages.slice(*representation_objects[representation_name].dependencies).present?
           errors.delete representation_name
         end
       end

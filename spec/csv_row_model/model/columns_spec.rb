@@ -10,27 +10,19 @@ describe CsvRowModel::Model::Columns do
       instance.define_singleton_method(:string2) { "baka" }
     end
 
-    describe "#column_attributes" do
-      subject { instance.column_attributes }
+    describe "#attributes" do
+      subject { instance.attributes }
 
       it "returns the map of column_name => public_send(column_name)" do
         expect(subject).to eql( string1: "haha", string2: "baka" )
       end
 
       context "with no methods defined" do
-        subject { BasicRowModel.new(options).column_attributes }
+        subject { BasicRowModel.new(options).attributes }
 
         it "returns an empty hash" do
           expect(subject).to eql({})
         end
-      end
-    end
-
-    describe "#attributes" do
-      subject { instance.attributes }
-
-      it "is same as column_attributes" do
-        expect(subject).to eql instance.column_attributes
       end
     end
 

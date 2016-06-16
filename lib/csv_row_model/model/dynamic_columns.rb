@@ -8,8 +8,8 @@ module CsvRowModel
         inherited_class_hash :dynamic_columns
       end
 
-      # See Model::Columns#column_attributes
-      def column_attributes
+      # See Model::Columns#attributes
+      def attributes
         super.merge!(attributes_from_method_names(self.class.dynamic_column_names))
       end
 
