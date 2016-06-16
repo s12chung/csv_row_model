@@ -9,8 +9,8 @@ module CsvRowModel
         self.dynamic_column_names.each { |*args| define_dynamic_attribute_method(*args) }
       end
 
-      def cells
-        @dynamic_column_cells ||= super.merge(array_to_block_hash(self.class.dynamic_column_names) do |column_name|
+      def cell_objects
+        @dynamic_column_cell_objects ||= super.merge(array_to_block_hash(self.class.dynamic_column_names) do |column_name|
           DynamicColumnCell.new(column_name, dynamic_column_source_headers, dynamic_column_source_cells, self)
         end)
       end

@@ -24,13 +24,13 @@ describe CsvRowModel::Import::DynamicColumns do
       let(:original_attributes) {  }
     end
 
-    describe "#cells" do
-      it_behaves_like "cells_method",
+    describe "#cell_objects" do
+      it_behaves_like "cell_objects_method",
                       %i[skills],
                       CsvRowModel::Import::DynamicColumnCell => 1
 
       with_context "standard columns defined" do
-        it_behaves_like "cells_method",
+        it_behaves_like "cell_objects_method",
                         %i[first_name last_name skills],
                         CsvRowModel::Import::Cell => 2,
                         CsvRowModel::Import::DynamicColumnCell => 1
@@ -88,7 +88,7 @@ describe CsvRowModel::Import::DynamicColumns do
     describe "#original_attribute" do
       subject { instance.original_attribute(:skills) }
 
-      it_behaves_like "cell_attribute", :original_attribute, :value, skills: dynamic_column_source_cells
+      it_behaves_like "cell_object_attribute", :original_attribute, :value, skills: dynamic_column_source_cells
 
       context "with all overrides" do
         let(:row_model_class) do

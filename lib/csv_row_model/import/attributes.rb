@@ -9,10 +9,10 @@ module CsvRowModel
         self.column_names.each { |*args| define_attribute_method(*args) }
       end
 
-      def cells
-        @cells ||= begin
+      def cell_objects
+        @cell_objects ||= begin
           csv_string_model.valid?
-          _cells(csv_string_model.errors)
+          _cell_objects(csv_string_model.errors)
         end
       end
 
@@ -23,17 +23,17 @@ module CsvRowModel
 
       # @return [Object] the column's attribute before override
       def original_attribute(column_name)
-        cells[column_name].try(:value)
+        cell_objects[column_name].try(:value)
       end
 
       # return [Hash] a map changes from {.column}'s default option': `column_name -> [value_before_default, default_set]`
       def default_changes
-        array_to_block_hash(self.class.column_names) { |column_name| cells[column_name].default_change }.delete_if {|k, v| v.blank? }
+        array_to_block_hash(self.class.column_names) { |column_name| cell_objects[column_name].default_change }.delete_if {|k, v| v.blank? }
       end
 
       protected
       # to prevent circular dependency with csv_string_model
-      def _cells(csv_string_model_errors={})
+      def _cell_objects(csv_string_model_errors={})
         array_to_block_hash(self.class.column_names) do |column_name|
           Cell.new(column_name, mapped_row[column_name], csv_string_model_errors[column_name], self)
         end

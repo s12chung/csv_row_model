@@ -9,8 +9,8 @@ module CsvRowModel
         self.column_names.each { |*args| define_attribute_method(*args) }
       end
 
-      def cells
-        @cells ||= array_to_block_hash(self.class.column_names) { |column_name| Cell.new(column_name, self) }
+      def cell_objects
+        @cell_objects ||= array_to_block_hash(self.class.column_names) { |column_name| Cell.new(column_name, self) }
       end
 
       # @return [Hash] a map of `column_name => formatted_attributes`
@@ -19,11 +19,11 @@ module CsvRowModel
       end
 
       def formatted_attribute(column_name)
-        cells[column_name].try(:value)
+        cell_objects[column_name].try(:value)
       end
 
       def source_attribute(column_name)
-        cells[column_name].try(:source_value)
+        cell_objects[column_name].try(:source_value)
       end
 
       class_methods do
