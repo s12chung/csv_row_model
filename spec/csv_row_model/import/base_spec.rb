@@ -56,11 +56,23 @@ describe CsvRowModel::Import::Base do
       subject { instance.free_previous }
 
       it "makes previous nil" do
-        expect {
-          subject
-        }.to change {
-          instance.previous
-        }.to(nil)
+        expect { subject }.to change { instance.previous }.to(nil)
+      end
+
+      context "when the class depends on the previous.previous" do
+        let(:klass) do
+          Class.new(BasicImportModel) do
+            def string1
+              @string1 ||= original_attribute(:string1) || previous.try(:string1)
+            end
+          end
+        end
+        let(:source_row) { [] }
+        let(:options) { { previous: klass.new([], previous: klass.new(%w[1.01 b])) } }
+
+        it "should grab string1 from previous.previous" do
+          expect(instance.string1).to eql "1.01"
+        end
       end
     end
 
