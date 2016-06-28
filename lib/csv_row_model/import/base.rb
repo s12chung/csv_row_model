@@ -40,6 +40,7 @@ module CsvRowModel
 
       # Free `previous` from memory to avoid making a linked list
       def free_previous
+        attributes
         @previous = nil
       end
 
