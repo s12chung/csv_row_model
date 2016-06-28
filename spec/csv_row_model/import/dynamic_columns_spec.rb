@@ -16,14 +16,14 @@ describe CsvRowModel::Import::DynamicColumns do
   let(:headers) { dynamic_column_source_headers }
   let(:source_row) { dynamic_column_source_cells }
 
-  describe "instance" do
-    shared_context "standard columns defined" do
-      let(:row_model_class) { DynamicColumnImportModel }
-      let(:headers)    { %w[first_name last_name] + dynamic_column_source_headers }
-      let(:source_row) { %w[Mario Italian] + dynamic_column_source_cells }
-      let(:original_attributes) {  }
-    end
+  shared_context "standard columns defined" do
+    let(:row_model_class) { DynamicColumnImportModel }
+    let(:headers)    { %w[first_name last_name] + dynamic_column_source_headers }
+    let(:source_row) { %w[Mario Italian] + dynamic_column_source_cells }
+    let(:original_attributes) {  }
+  end
 
+  describe "instance" do
     describe "#cell_objects" do
       it_behaves_like "cell_objects_method",
                       %i[skills],
@@ -53,36 +53,12 @@ describe CsvRowModel::Import::DynamicColumns do
 
     describe "#dynamic_column_source_headers" do
       subject { instance.dynamic_column_source_headers }
-
-      with_this_then_context "standard columns defined" do
-        it "returns the dynamic part of the headers" do
-          expect(subject).to eql dynamic_column_source_headers
-        end
-
-        context "for no dynamic classes" do
-          let(:row_model_class) { BasicImportModel }
-          it "returns empty array" do
-            expect(subject).to eql []
-          end
-        end
-      end
+      it("calls the class method") { expect(row_model_class).to receive(:dynamic_column_source_headers).with(headers); subject }
     end
 
     describe "#dynamic_column_source_cells" do
       subject { instance.dynamic_column_source_cells }
-
-      with_this_then_context "standard columns defined" do
-        it "returns the dynamic part of source row" do
-          expect(subject).to eql dynamic_column_source_cells
-        end
-
-        context "for no dynamic classes" do
-          let(:row_model_class) { BasicImportModel }
-          it "returns empty array" do
-            expect(subject).to eql []
-          end
-        end
-      end
+      it("calls the class method") { expect(row_model_class).to receive(:dynamic_column_source_cells).with(source_row); subject }
     end
 
     describe "#original_attribute" do
@@ -117,6 +93,40 @@ describe CsvRowModel::Import::DynamicColumns do
   end
 
   describe "class" do
+    describe "::dynamic_column_source_headers" do
+      subject { row_model_class.dynamic_column_source_headers headers  }
+
+      with_this_then_context "standard columns defined" do
+        it "returns the dynamic part of the headers" do
+          expect(subject).to eql dynamic_column_source_headers
+        end
+
+        context "for no dynamic classes" do
+          let(:row_model_class) { BasicImportModel }
+          it "returns empty array" do
+            expect(subject).to eql []
+          end
+        end
+      end
+    end
+
+    describe "::dynamic_column_source_cells" do
+      subject { row_model_class.dynamic_column_source_cells source_row }
+
+      with_this_then_context "standard columns defined" do
+        it "returns the dynamic part of source row" do
+          expect(subject).to eql dynamic_column_source_cells
+        end
+
+        context "for no dynamic classes" do
+          let(:row_model_class) { BasicImportModel }
+          it "returns empty array" do
+            expect(subject).to eql []
+          end
+        end
+      end
+    end
+
     describe "::dynamic_column" do
       it_behaves_like "dynamic_column_method", CsvRowModel::Import, dynamic_column_source_cells
     end

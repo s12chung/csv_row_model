@@ -22,15 +22,23 @@ module CsvRowModel
 
       # @return [Array] dynamic_column headers
       def dynamic_column_source_headers
-        self.class.dynamic_columns? ? source_header[self.class.columns.size..-1] : []
+        self.class.dynamic_column_source_headers source_header
       end
 
       # @return [Array] dynamic_column row data
       def dynamic_column_source_cells
-        self.class.dynamic_columns? ? source_row[self.class.columns.size..-1] : []
+        self.class.dynamic_column_source_cells source_row
       end
 
       class_methods do
+        def dynamic_column_source_headers(source_header)
+          dynamic_columns? ? source_header[columns.size..-1] : []
+        end
+
+        def dynamic_column_source_cells(source_row)
+          dynamic_columns? ? source_row[columns.size..-1] : []
+        end
+
         protected
 
         # See {Model#dynamic_column}
