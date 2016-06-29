@@ -33,19 +33,24 @@ describe CsvRowModel::Model::Children do
 
         subject { parent_instance.append_child(source_row) }
 
-        before do
-          expect(BasicRowModel).to receive(:new).with(source_row, options).and_return another_instance
-        end
+        before { allow(BasicRowModel).to receive(:new).with(source_row, options).and_return another_instance }
 
         it "appends the child and returns it" do
           expect(subject).to eql another_instance
           expect(parent_instance.children).to eql [instance, another_instance]
         end
 
-        context "when child is invalid" do
-          before do
-            another_instance.define_singleton_method(:valid?) { false }
+        context "when source_row is nil" do
+          let(:source_row) { nil }
+
+          it "doesn't add a child" do
+            expect(subject).to eql nil
+            expect(parent_instance.children).to eql []
           end
+        end
+
+        context "when child is invalid" do
+          before { allow(another_instance).to receive(:valid?).and_return(false) }
 
           it "doesn't append the child and returns nil" do
             expect(subject).to eql nil

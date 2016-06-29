@@ -6,8 +6,6 @@ module CsvRowModel
       included do
         attr_reader :source_header, :source_row, :line_number, :index, :previous
 
-        # need to simplify children code
-        validate { errors.add(:source_row, "can't be nil") if source_row.nil? }
         validate { errors.add(:csv, "has #{@csv_exception.message}") if @csv_exception }
       end
 
@@ -19,12 +17,10 @@ module CsvRowModel
       # @option options [CsvRowModel::Import] :previous the previous row model
       # @option options [CsvRowModel::Import] :parent if the instance is a child, pass the parent
       def initialize(source_row_or_exception=[], options={})
-        unless source_row_or_exception.class == Array
-          @csv_exception = source_row_or_exception
-          source_row_or_exception = []
-        end
-
         @source_row = source_row_or_exception
+        @csv_exception = source_row if source_row.kind_of? Exception
+        @source_row = [] if source_row_or_exception.class != Array
+
         @line_number, @index, @source_header = options[:line_number], options[:index], options[:source_header]
 
         @previous = options[:previous].try(:dup)

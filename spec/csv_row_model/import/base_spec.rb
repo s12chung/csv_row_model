@@ -17,7 +17,7 @@ describe CsvRowModel::Import::Base do
       end
 
       context "with Exception given" do
-        let(:instance) { klass.new(Exception.new("msg")) }
+        let(:instance) { klass.new(StandardError.new("msg")) }
 
         it "is invalid and has empty row as source" do
           expect(instance).to be_invalid

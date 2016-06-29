@@ -4,7 +4,7 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       def eql?(other)
-        other.attributes == attributes
+        other.try(:attributes) == attributes
       end
 
       def hash
