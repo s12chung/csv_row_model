@@ -118,7 +118,6 @@ describe CsvRowModel::Model::Columns do
             child_class.send(:merge_options, :blah, header: "Blah")
           end
 
-
           it "passes merged option to child, but not to parent" do
             expect(klass.columns).to eql(blah: { type: Integer })
             expect(klass.raw_columns).to eql(blah: { type: Integer })
@@ -133,6 +132,16 @@ describe CsvRowModel::Model::Columns do
 
             expect(child_class.columns).to eql(blah: { type: Integer, default: 1, header: "Blah" })
             expect(child_class.raw_columns).to eql(blah: { header: "Blah" })
+          end
+
+          context "with multiple columns" do
+            before { %i[blah1 blah2].each {|column_name| klass.send(:column, column_name, type: Integer) } }
+            subject { child_class.send(:merge_options, :blah1, default: 1) }
+
+            it "keeps the column_names in the same order " do
+              subject
+              expect(child_class.column_names).to eql %i[blah blah1 blah2]
+            end
           end
         end
       end
