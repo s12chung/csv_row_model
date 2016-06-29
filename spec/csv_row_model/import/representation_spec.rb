@@ -13,8 +13,7 @@ describe CsvRowModel::Import::Representation do
       subject { instance.value }
 
       before do
-        allow(instance).to receive(:memoized_value).and_return("memo")
-        allow(instance).to receive(:dependencies_value).and_return("dep")
+        allow(instance).to receive(:dependencies_value) { "dep" }
         allow(instance).to receive(:memoize?).and_return(memoize)
       end
 
@@ -22,7 +21,8 @@ describe CsvRowModel::Import::Representation do
         let(:memoize) { true }
 
         it "returns the #memoized_value" do
-          expect(subject).to eql "memo"
+          expect(subject).to eql "dep"
+          expect(subject.object_id).to eql instance.value.object_id
         end
       end
 
@@ -31,6 +31,7 @@ describe CsvRowModel::Import::Representation do
 
         it "returns the #memoized_value" do
           expect(subject).to eql "dep"
+          expect(subject.object_id).to_not eql instance.value.object_id
         end
       end
     end
@@ -49,14 +50,14 @@ describe CsvRowModel::Import::Representation do
     describe "#memoize?" do
       subject { instance.memoize? }
 
-      it "returns false" do
-        expect(subject).to eql false
+      it "by default returns true" do
+        expect(subject).to eql true
       end
 
       context "with :memoize option" do
-        let(:options) { { memoize: true } }
-        it "returns true" do
-          expect(subject).to eql true
+        let(:options) { { memoize: false } }
+        it "returns false" do
+          expect(subject).to eql false
         end
       end
     end

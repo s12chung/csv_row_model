@@ -21,7 +21,7 @@ module CsvRowModel
       end
 
       def memoize?
-        !!options[:memoize]
+        options.has_key?(:memoize) ? !!options[:memoize] : true
       end
 
       def dependencies_value

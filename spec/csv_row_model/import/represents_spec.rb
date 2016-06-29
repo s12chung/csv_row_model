@@ -171,8 +171,9 @@ describe CsvRowModel::Import::Represents do
 
       it "creates the memoized representation_method method" do
         subject
-        expect(instance).to receive(:representation_value).with(:test_model).and_call_original
+        expect(instance).to receive(:representation_value).with(:test_model).exactly(3).times.and_call_original
         expect(instance.test_model).to eql "test"
+        expect(instance.test_model.object_id).to eql instance.test_model.object_id
       end
 
       it "works with subclassing and overriding" do
