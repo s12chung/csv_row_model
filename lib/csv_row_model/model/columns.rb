@@ -8,7 +8,6 @@ module CsvRowModel
 
       # @return [Hash] a map of `column_name => public_send(column_name)`
       def attributes
-        return {} unless try(self.class.column_names.first)
         attributes_from_method_names self.class.column_names
       end
 
@@ -23,7 +22,7 @@ module CsvRowModel
       protected
 
       def attributes_from_method_names(column_names)
-        array_to_block_hash(column_names) { |column_name| public_send(column_name) }
+        array_to_block_hash(column_names) { |column_name| try(column_name) }
       end
 
       def array_to_block_hash(array, &block)

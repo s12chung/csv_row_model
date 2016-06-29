@@ -5,23 +5,41 @@ describe CsvRowModel::Model::Columns do
     let(:options) { {} }
     let(:instance) { BasicRowModel.new(options) }
 
-    before do
-      instance.define_singleton_method(:string1) { "haha" }
-      instance.define_singleton_method(:string2) { "baka" }
-    end
-
     describe "#attributes" do
       subject { instance.attributes }
-
-      it "returns the map of column_name => public_send(column_name)" do
-        expect(subject).to eql( string1: "haha", string2: "baka" )
+      it "returns an empty hash" do
+        expect(subject).to eql(string1: nil, string2: nil)
       end
 
-      context "with no methods defined" do
-        subject { BasicRowModel.new(options).attributes }
+      context "with methods defined" do
+        before do
+          instance.define_singleton_method(:string1) { "haha" }
+          instance.define_singleton_method(:string2) { "baka" }
+        end
 
-        it "returns an empty hash" do
-          expect(subject).to eql({})
+        it "returns the map of column_name => public_send(column_name)" do
+          expect(subject).to eql( string1: "haha", string2: "baka" )
+        end
+      end
+
+      context "with nil returned in method" do
+        before do
+          instance.define_singleton_method(:string1) { nil }
+          instance.define_singleton_method(:string2) { "baka" }
+        end
+
+        it "returns the map of column_name => public_send(column_name)" do
+          expect(subject).to eql(string1: nil, string2: "baka")
+        end
+      end
+
+      context "with one method defined" do
+        before do
+          instance.define_singleton_method(:string1) { "haha" }
+        end
+
+        it "returns the map of column_name => public_send(column_name)" do
+          expect(subject).to eql(string1: "haha", string2: nil)
         end
       end
     end
