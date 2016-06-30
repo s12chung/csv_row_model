@@ -87,11 +87,6 @@ module CsvRowModel
         def inspect_methods
           @inspect_methods ||= %i[mapped_row initialized_at parent context previous].freeze
         end
-
-        #
-        # Call to define the Presenter (do nothing, will remove)
-        #
-        def presenter; end
       end
     end
   end
