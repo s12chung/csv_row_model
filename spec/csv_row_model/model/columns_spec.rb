@@ -43,7 +43,7 @@ describe CsvRowModel::Model::Columns do
 
     describe "::format_header" do
       let(:header) { 'user_name' }
-      subject { BasicRowModel.format_header(header, nil) }
+      subject { BasicRowModel.format_header(header, nil, nil) }
 
       it "returns the header" do
         expect(subject).to eql header
@@ -52,10 +52,28 @@ describe CsvRowModel::Model::Columns do
 
     describe "::headers" do
       let(:headers) { [:string1, 'String 2'] }
-      subject { BasicRowModel.headers }
+      subject { klass.headers }
 
       it "returns an array with header column names" do
         expect(subject).to eql headers
+      end
+
+      context "with format_header defined" do
+        subject { klass.headers(a: "context") }
+
+        let(:klass) do
+          Class.new do
+            include CsvRowModel::Model
+            column :a
+            column :b
+
+            def self.format_header(*args); args.join("__") end
+          end
+        end
+
+        it "takes the overwritten method" do
+          expect(subject).to eql ["a__0__#<OpenStruct a=\"context\">", "b__1__#<OpenStruct a=\"context\">"]
+        end
       end
     end
 

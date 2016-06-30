@@ -13,7 +13,7 @@ describe CsvRowModel::Export::Attributes do
         end
       end
     end
-    context 'dynamic olumns' do
+    context 'dynamic columns' do
       describe "#formatted_attributes" do
         let(:instance) { DynamicColumnExportWithFormattingModel.new(User.new('Mario', 'Doe'), skills: Skill.all) }
         it "ensure CsvRowModel::Export::Attributes#formatted_attributes don't format dynamic columns" do

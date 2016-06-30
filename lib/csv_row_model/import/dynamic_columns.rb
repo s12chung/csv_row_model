@@ -40,7 +40,7 @@ module CsvRowModel
           public_send(self.class.singular_dynamic_attribute_method_name(column_name), value, source_header)
         end
 
-        @original_attributes[column_name] = self.class.format_dynamic_column_cells(values, column_name)
+        @original_attributes[column_name] = self.class.format_dynamic_column_cells(values, column_name, self.class.dynamic_index(column_name), context)
       end
 
       class_methods do
@@ -48,9 +48,10 @@ module CsvRowModel
         #
         # @param cells [Array] Array of values
         # @param column_name [Symbol] Dynamic column name
-        def format_dynamic_column_cells(cells, column_name)
+        def format_dynamic_column_cells(cells, column_name, column_index, context)
           cells
         end
+
         # @return [Array] dynamic_column headers
         def dynamic_source_headers(source_header)
           dynamic_columns? ? source_header[columns.size..-1] : []

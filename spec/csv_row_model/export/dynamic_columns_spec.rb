@@ -17,19 +17,15 @@ describe CsvRowModel::Export::DynamicColumns do
 
   describe 'class' do
     describe 'attribute methods' do
-      let(:export_model_base_class) do
-        Class.new do
-          include CsvRowModel::Model
-        end
-      end
+      subject { instance.skills }
+
+      let(:export_model_base_class) { Class.new { include CsvRowModel::Model } }
       let(:export_model_class) do
         Class.new(export_model_base_class) do
           include CsvRowModel::Export
           dynamic_column :skills
         end
       end
-
-      subject { instance.skills }
 
       it 'works' do
         expect(subject).to eql(skills)
