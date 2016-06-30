@@ -9,7 +9,7 @@ describe CsvRowModel::Export::Base do
       subject{ instance.to_row }
 
       it 'return an array with model formatted attribute values' do
-        expect(subject).to eql ["TEST 1", "TEST 2"]
+        expect(subject).to eql ["Test 1", "Test 2"]
       end
     end
   end

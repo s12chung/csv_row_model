@@ -15,6 +15,7 @@ module CsvRowModel
       #
       # @return [Model] return the child if it is valid, otherwise returns nil
       def append_child(source, options={})
+        return nil unless source
         self.class.has_many_relationships.each do |relation_name, child_class|
           child_row_model = child_class.new(source, options.reverse_merge(parent: self))
           if child_row_model.valid?

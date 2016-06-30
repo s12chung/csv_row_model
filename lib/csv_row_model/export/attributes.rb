@@ -1,3 +1,5 @@
+require 'csv_row_model/export/cell'
+
 module CsvRowModel
   module Export
     module Attributes
@@ -7,25 +9,21 @@ module CsvRowModel
         self.column_names.each { |*args| define_attribute_method(*args) }
       end
 
-      # @return [Hash] a map of `column_name => self.class.format_cell(public_send(column_name))`
+      def cell_objects
+        @cell_objects ||= array_to_block_hash(self.class.column_names) { |column_name| Cell.new(column_name, self) }
+      end
+
+      # @return [Hash] a map of `column_name => formatted_attributes`
       def formatted_attributes
-        formatted_attributes_from_column_names self.class.column_names
+        array_to_block_hash(self.class.column_names) { |column_name| formatted_attribute(column_name) }
       end
 
       def formatted_attribute(column_name)
-        return public_send(column_name) if self.class.is_dynamic_column?(column_name)
-
-        self.class.format_cell(
-          public_send(column_name),
-          column_name,
-          self.class.index(column_name),
-          context
-        )
+        cell_objects[column_name].try(:value)
       end
 
-      protected
-      def formatted_attributes_from_column_names(column_names)
-        array_to_block_hash(column_names) { |column_name| formatted_attribute(column_name) }
+      def source_attribute(column_name)
+        cell_objects[column_name].try(:source_value)
       end
 
       class_methods do

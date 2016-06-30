@@ -15,7 +15,7 @@ describe IntegerFormatValidator do
   let(:instance) { klass.new }
   subject { instance.safe? }
 
-  include_examples "validate_type_examples"
+  it_behaves_like "validated_types"
 
   context "proper Integer" do
     before { instance.string1 = "123" }
@@ -23,9 +23,9 @@ describe IntegerFormatValidator do
       expect(subject).to eql true
     end
 
-    include_examples "prefix_zero"
-    include_examples "suffix_zero"
-    include_examples "suffix_decimal_zero"
+    it_behaves_like "allows_prefix_zero"
+    it_behaves_like "allows_suffix_zero"
+    it_behaves_like "allows_suffix_decimal_zero"
   end
 
   context "Float" do

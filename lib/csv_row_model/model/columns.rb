@@ -8,11 +8,6 @@ module CsvRowModel
 
       # @return [Hash] a map of `column_name => public_send(column_name)`
       def attributes
-        column_attributes
-      end
-
-      # @return [Hash] a map of `column_name => public_send(column_name)` (is not overwritten by represents)
-      def column_attributes
         attributes_from_method_names self.class.column_names
       end
 
@@ -27,7 +22,7 @@ module CsvRowModel
       protected
 
       def attributes_from_method_names(column_names)
-        array_to_block_hash(column_names) { |column_name| public_send(column_name) }
+        array_to_block_hash(column_names) { |column_name| try(column_name) }
       end
 
       def array_to_block_hash(array, &block)
@@ -38,12 +33,6 @@ module CsvRowModel
         # @return [Array<Symbol>] column names for the row model
         def column_names
           columns.keys
-        end
-
-        # @param [Symbol] column_name name of column to find option
-        # @return [Hash] options for the column_name
-        def options(column_name)
-          columns[column_name]
         end
 
         # @param [Symbol] column_name name of column to find index

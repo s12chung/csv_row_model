@@ -13,19 +13,11 @@ describe CsvRowModel::Model::DynamicColumns do
       instance.define_singleton_method(:skills) { %w[skill1 skill2] }
     end
 
-    describe "#column_attributes" do
-      subject { instance.column_attributes }
-
-      it "returns the map of column_name => public_send(column_name)" do
-        expect(subject).to eql( first_name: "haha", last_name: "baka", skills: %w[skill1 skill2] )
-      end
-    end
-
     describe "#attributes" do
       subject { instance.attributes }
 
-      it "is same as column_attributes" do
-        expect(subject).to eql instance.column_attributes
+      it "returns the map of column_name => public_send(column_name)" do
+        expect(subject).to eql( first_name: "haha", last_name: "baka", skills: %w[skill1 skill2] )
       end
     end
   end
@@ -118,8 +110,8 @@ describe CsvRowModel::Model::DynamicColumns do
       end
     end
 
-    describe "::dynamic_index" do
-      subject { DynamicColumnModel.dynamic_index(:skills) }
+    describe "::dynamic_column_index" do
+      subject { DynamicColumnModel.dynamic_column_index(:skills) }
 
       it "returns the index after the columns" do
         expect(subject).to eql 2

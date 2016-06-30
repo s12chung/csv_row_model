@@ -4,10 +4,8 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       included do
-        attr_reader :source_header, :source_row, :context, :line_number, :index, :previous
+        attr_reader :source_header, :source_row, :line_number, :index, :previous
 
-        # need to simplify children code
-        validate { errors.add(:source_row, "can't be nil") if source_row.nil? }
         validate { errors.add(:csv, "has #{@csv_exception.message}") if @csv_exception }
       end
 
@@ -15,22 +13,19 @@ module CsvRowModel
       # @param options [Hash]
       # @option options [Integer] :index 1st row_model is 0, 2nd is 1, 3rd is 2, etc.
       # @option options [Integer] :line_number line_number in the CSV file
-      # @option options [Hash] :context extra data you want to work with the model
       # @option options [Array] :source_header the csv header row
       # @option options [CsvRowModel::Import] :previous the previous row model
       # @option options [CsvRowModel::Import] :parent if the instance is a child, pass the parent
       def initialize(source_row_or_exception=[], options={})
-        unless source_row_or_exception.class == Array
-          @csv_exception = source_row_or_exception
-          source_row_or_exception = []
-        end
-        options = options.symbolize_keys.reverse_merge(context: {})
+        @source_row = source_row_or_exception
+        @csv_exception = source_row if source_row.kind_of? Exception
+        @source_row = [] if source_row_or_exception.class != Array
 
-        @source_row, @context = source_row_or_exception, OpenStruct.new(options[:context])
-        @line_number, @index, @source_header, @previous = options[:line_number], options[:index], options[:source_header], options[:previous].try(:dup)
+        @line_number, @index, @source_header = options[:line_number], options[:index], options[:source_header]
 
+        @previous = options[:previous].try(:dup)
         previous.try(:free_previous)
-        super(source_row_or_exception, options)
+        super(options)
       end
 
       # @return [Hash] a map of `column_name => source_row[index_of_column_name]`
@@ -45,24 +40,6 @@ module CsvRowModel
         @previous = nil
       end
 
-      # @return [Model::CsvStringModel] a model with validations related to Model::csv_string_model (values are from format_cell)
-      def csv_string_model
-        @csv_string_model ||= begin
-          if source_row
-            column_names = self.class.column_names
-            hash = column_names.zip(
-              column_names.map.with_index do |column_name, index|
-                self.class.format_cell(source_row[index], column_name, index, context)
-              end
-            ).to_h
-          else
-            hash = {}
-          end
-
-          self.class.csv_string_model_class.new(hash)
-        end
-      end
-
       # Safe to override.
       #
       # @return [Boolean] returns true, if this instance should be skipped
@@ -75,16 +52,6 @@ module CsvRowModel
       # @return [Boolean] returns true, if the entire csv file should stop reading
       def abort?
         false
-      end
-
-      def valid?(*args)
-        super
-        call_wrapper = using_warnings? ? csv_string_model.method(:using_warnings) : ->(&block) { block.call }
-        call_wrapper.call do
-          csv_string_model.valid?(*args)
-          errors.messages.merge!(csv_string_model.errors.messages.reject {|k, v| v.empty? })
-          errors.empty?
-        end
       end
 
       class_methods do

@@ -22,8 +22,8 @@ module CsvRowModel
         # @return [Array] header_matchs matchers for the row model
         def header_matchers(context)
           @header_matchers ||= begin
-            columns.map do |name, options|
-              if formatted_header = self.format_header(name, context)
+            columns.map.with_index do |(name, options), index|
+              if formatted_header = self.format_header(name, index, context)
                 Regexp.new("^#{formatted_header}$", Regexp::IGNORECASE)
               end
             end.compact

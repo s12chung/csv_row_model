@@ -3,7 +3,7 @@ require 'spec_helper'
 describe CsvRowModel::Model::Base do
   describe "instance" do
     let(:options) { {} }
-    let(:instance) { BasicRowModel.new(nil, options) }
+    let(:instance) { BasicRowModel.new(options) }
 
     describe "#initialize" do
       subject { instance }

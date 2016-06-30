@@ -5,24 +5,42 @@ describe CsvRowModel::Model::Columns do
     let(:options) { {} }
     let(:instance) { BasicRowModel.new(options) }
 
-    before do
-      instance.define_singleton_method(:string1) { "haha" }
-      instance.define_singleton_method(:string2) { "baka" }
-    end
-
-    describe "#column_attributes" do
-      subject { instance.column_attributes }
-
-      it "returns the map of column_name => public_send(column_name)" do
-        expect(subject).to eql( string1: "haha", string2: "baka" )
-      end
-    end
-
     describe "#attributes" do
       subject { instance.attributes }
+      it "returns an empty hash" do
+        expect(subject).to eql(string1: nil, string2: nil)
+      end
 
-      it "is same as column_attributes" do
-        expect(subject).to eql instance.column_attributes
+      context "with methods defined" do
+        before do
+          instance.define_singleton_method(:string1) { "haha" }
+          instance.define_singleton_method(:string2) { "baka" }
+        end
+
+        it "returns the map of column_name => public_send(column_name)" do
+          expect(subject).to eql( string1: "haha", string2: "baka" )
+        end
+      end
+
+      context "with nil returned in method" do
+        before do
+          instance.define_singleton_method(:string1) { nil }
+          instance.define_singleton_method(:string2) { "baka" }
+        end
+
+        it "returns the map of column_name => public_send(column_name)" do
+          expect(subject).to eql(string1: nil, string2: "baka")
+        end
+      end
+
+      context "with one method defined" do
+        before do
+          instance.define_singleton_method(:string1) { "haha" }
+        end
+
+        it "returns the map of column_name => public_send(column_name)" do
+          expect(subject).to eql(string1: "haha", string2: nil)
+        end
       end
     end
 
@@ -89,17 +107,6 @@ describe CsvRowModel::Model::Columns do
     context "with custom class" do
       let(:klass) { Class.new { include CsvRowModel::Model } }
 
-      describe "::options" do
-        let(:options) { { type: Integer, validate_type: true } }
-        before { klass.send(:column, :blah, options) }
-
-        subject { klass.options(:blah) }
-
-        it "returns the options for the column" do
-          expect(subject).to eql options
-        end
-      end
-
       describe "::column" do
         context "with invalid option" do
           subject { klass.send(:column, :blah, invalid_option: true) }
@@ -129,7 +136,6 @@ describe CsvRowModel::Model::Columns do
             child_class.send(:merge_options, :blah, header: "Blah")
           end
 
-
           it "passes merged option to child, but not to parent" do
             expect(klass.columns).to eql(blah: { type: Integer })
             expect(klass.raw_columns).to eql(blah: { type: Integer })
@@ -144,6 +150,16 @@ describe CsvRowModel::Model::Columns do
 
             expect(child_class.columns).to eql(blah: { type: Integer, default: 1, header: "Blah" })
             expect(child_class.raw_columns).to eql(blah: { header: "Blah" })
+          end
+
+          context "with multiple columns" do
+            before { %i[blah1 blah2].each {|column_name| klass.send(:column, column_name, type: Integer) } }
+            subject { child_class.send(:merge_options, :blah1, default: 1) }
+
+            it "keeps the column_names in the same order " do
+              subject
+              expect(child_class.column_names).to eql %i[blah blah1 blah2]
+            end
           end
         end
       end

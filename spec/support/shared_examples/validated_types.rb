@@ -1,4 +1,4 @@
-shared_examples "validate_type_examples" do
+shared_examples "validated_types" do
   context "nil" do
     before { instance.string1 = nil }
 

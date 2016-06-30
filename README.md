@@ -86,7 +86,7 @@ To generate a header value, the following pseudocode is executed:
 ```ruby
 def header(column_name)
   # 1. Header Option
-  header = options(column_name)[:header]
+  header = options_for(column_name)[:header]
 
   # 2. format_header
   header || format_header(column_name, column_index, context)
@@ -137,9 +137,8 @@ def original_attribute(column_name)
   end
 end
 
-def original_attributes; @original_attributes ||= { id: original_attribute(:id) } end
-
-def id; original_attribute[:id] end
+def original_attributes; { id: original_attribute(:id) } end
+def id; original_attribute(:id) end
 ```
 
 #### Format Cell
@@ -454,7 +453,7 @@ represents this table:
 | Mike       | Jackson    |   Yes  |   Yes  |
 
 
-The `format_dynamic_column_header(header_model, column_name, dynamic_index, index_of_column, context)` can
+The `format_dynamic_column_header(header_model, column_name, dynamic_column_index, index_of_column, context)` can
 be used to defined like `format_header`. Defined in both import and export due to headers being used for both.
 
 ### Export

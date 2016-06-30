@@ -6,11 +6,11 @@ module CsvRowModel
       # @return [Array] an array of rows, where if cell is row_name, it's parsed into the header_match
       #                 and everything else is return as is.
       def to_rows
-        rows_template.map do |row|
+        rows_template.map.with_index do |row, index|
           [].tap do |result|
             row.each do |cell|
               if header? cell
-                result << self.class.format_header(cell, context)
+                result << self.class.format_header(cell, index, context)
               else
                 result << cell.to_s
               end

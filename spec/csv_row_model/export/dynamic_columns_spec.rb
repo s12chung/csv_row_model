@@ -1,64 +1,75 @@
 require 'spec_helper'
 
 describe CsvRowModel::Export::DynamicColumns do
-  let(:skills)             { Skill.all }
-  let(:instance)           { export_model_class.new(User.new('Mario', 'Doe'), skills: skills) }
-  let(:export_model_class) { DynamicColumnExportModel }
+  let(:skills) { Skill.all }
+  let(:instance) { row_model_class.new(User.new('Mario', 'Doe'), skills: skills) }
+  let(:row_model_class) do
+    Class.new do
+      include CsvRowModel::Model
+      include CsvRowModel::Export
+      dynamic_column :skills
+    end
+  end
 
   describe 'instance' do
+    shared_context "standard columns defined" do
+      let(:row_model_class) { DynamicColumnExportModel }
+    end
+
+    describe "#cell_objects" do
+      it_behaves_like "cell_objects_method",
+                      %i[skills],
+                      CsvRowModel::Export::DynamicColumnCell => 1
+
+      with_context "standard columns defined" do
+        it_behaves_like "cell_objects_method",
+                        %i[first_name last_name skills],
+                        CsvRowModel::Export::Cell => 2,
+                        CsvRowModel::Export::DynamicColumnCell => 1
+      end
+    end
+
+    describe "#formatted_attributes" do
+      subject { instance.formatted_attributes }
+
+      it "should have dynamic columns" do
+        expect(subject).to eql(skills: skills)
+      end
+
+      with_context "standard columns defined" do
+        it "should have standard and dynamic columns" do
+          expect(subject).to eql(first_name: "Mario", last_name: "Doe", skills: skills)
+        end
+      end
+    end
+
     describe '#to_row' do
       subject { instance.to_row }
 
       it 'returns a row representation of the row_model' do
-        expect(subject).to eql ['Mario', 'Doe'] + skills
+        expect(subject).to eql skills
+      end
+
+      with_context "standard columns defined" do
+        it 'returns a row representation of the row_model' do
+          expect(subject).to eql ['Mario', 'Doe'] + skills
+        end
       end
     end
   end
 
   describe 'class' do
-    describe 'attribute methods' do
-      subject { instance.skills }
+    describe "::dynamic_column" do
+      it_behaves_like "dynamic_column_method", CsvRowModel::Export, Skill.all
+    end
 
-      let(:export_model_base_class) { Class.new { include CsvRowModel::Model } }
-      let(:export_model_class) do
-        Class.new(export_model_base_class) do
-          include CsvRowModel::Export
-          dynamic_column :skills
-        end
-      end
+    describe "::define_dynamic_attribute_method" do
+      subject { row_model_class.send(:define_dynamic_attribute_method, :skills) }
 
-      it 'works' do
-        expect(subject).to eql(skills)
-      end
-
-      context 'when defined before Export' do
-        let(:export_model_class) do
-          Class.new(export_model_base_class) do
-            dynamic_column :skills
-            include CsvRowModel::Export
-          end
-        end
-
-        it 'works' do
-          expect(subject).to eql(skills)
-        end
-      end
-
-      context 'with overwritten singular method' do
-        let(:export_model_class) do
-          Class.new(export_model_base_class) do
-            dynamic_column :skills
-            include CsvRowModel::Export
-
-            def skill(header_model)
-              header_model.upcase
-            end
-          end
-        end
-
-        it 'works' do
-          expect(subject).to eql(skills.map(&:upcase))
-        end
+      it "makes an attribute that calls :formatted_attribute" do
+        subject
+        expect(instance).to receive(:formatted_attribute).with(:skills).and_return("tested")
+        expect(instance.skills).to eql "tested"
       end
     end
   end

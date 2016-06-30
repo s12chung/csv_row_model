@@ -10,4 +10,5 @@ RSpec.configure do |c|
   c.run_all_when_everything_filtered = true
 
   c.include CsvFilePaths
+  c.include WithThisThenContext
 end
