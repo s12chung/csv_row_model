@@ -12,8 +12,18 @@ describe CsvRowModel::Import::Base do
 
       context "should set the child" do
         let(:parent_instance) { BasicRowModel.new }
-        let(:options) { { parent:  parent_instance } }
+        let(:options) { { parent: parent_instance } }
         specify { expect(subject.child?).to eql true }
+      end
+
+      context "with Exception given" do
+        let(:instance) { klass.new(Exception.new("msg")) }
+
+        it "is invalid and has empty row as source" do
+          expect(instance).to be_invalid
+          expect(instance.errors.full_messages).to eql ["Csv has msg"]
+          expect(instance.source_row).to eql []
+        end
       end
     end
 

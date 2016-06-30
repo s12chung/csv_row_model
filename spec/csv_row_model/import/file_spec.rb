@@ -21,6 +21,7 @@ describe CsvRowModel::Import::File do
       it "resets and starts at the first row" do
         subject
         expect(instance.index).to eql -1
+        expect(instance.line_number).to eql 0
         expect(instance.current_row_model).to eql nil
         expect(instance.next.source_row).to eql %w[lang1 lang2]
       end
@@ -52,8 +53,9 @@ describe CsvRowModel::Import::File do
         expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
 
         expect(row_model.previous.try(:source_row)).to eql previous_row_model.try(:source_row)
-        # + 1 due to header
-        expect(row_model.index).to eql index + 1
+        expect(row_model.index).to eql index
+        # header means +1, starts at 1 means +1 too--- 1 + 1 = 2
+        expect(row_model.line_number).to eql index + 2
         expect(row_model.context).to eql OpenStruct.new(some_context: true)
       end
 
@@ -64,7 +66,7 @@ describe CsvRowModel::Import::File do
     end
 
     context "with children" do
-      let(:file_path) { parent_5_rows_path }
+      let(:file_path) { parent_6_rows_path }
       let(:model_class) { ParentImportModel }
 
       it "gets the rows until the end of file" do
@@ -93,6 +95,35 @@ describe CsvRowModel::Import::File do
           expect(instance.next).to eql nil
           expect(instance.end_of_file?).to eql true
         end
+      end
+    end
+
+    context "with badly formatted file" do
+      let(:file_path) { syntax_bad_quotes_5_rows_path }
+
+      it "gets headers and returns invalid row" do
+        row = instance.next
+        expect(row).to be_valid
+        expect(row.source_row).to eql ["string1", "string2"]
+
+        invalid_row = instance.next
+        expect(invalid_row).to be_invalid
+        expect(invalid_row.errors.full_messages).to eql ["Csv has Illegal quoting in line 3."]
+        expect(invalid_row.source_row).to eql []
+
+        row = instance.next
+        expect(row).to be_valid
+        expect(row.source_row).to eql ["lang1", "lang2"]
+
+        expect(instance.next).to be_invalid
+        expect(instance.next).to be_invalid
+        expect(instance.next).to be_nil
+      end
+
+      it "has header to be an empty array" do
+        expect(instance.header).to eql []
+        expect(instance).to be_unsafe
+        expect(instance.warnings.full_messages).to eql ["Csv has header with Illegal quoting in line 1."]
       end
     end
   end
