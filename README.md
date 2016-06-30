@@ -494,7 +494,7 @@ class DynamicColumnImportModel < DynamicColumnModel
     # Clean/format every dynamic_column attribute array
     #
     # this is an override with the default implementation
-    def format_dynamic_column_cells(cells, column_name)
+    def format_dynamic_column_cells(cells, column_name, column_index, context)
       cells
     end
   end
