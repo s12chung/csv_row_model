@@ -121,7 +121,7 @@ describe CsvRowModel::Import::File do
       end
 
       it "has header to be an empty array" do
-        expect(instance.header).to eql []
+        expect(instance.headers).to eql []
         expect(instance).to be_unsafe
         expect(instance.warnings.full_messages).to eql ["Csv has header with Illegal quoting in line 1."]
       end

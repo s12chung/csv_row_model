@@ -24,18 +24,18 @@ module CsvRowModel
         @size ||= `wc -l #{file_path}`.split[0].to_i + 1
       end
 
-      # If the current position is at the header, skip it and return it. Otherwise, only return false.
+      # If the current position is at the headers, skip it and return it. Otherwise, only return false.
       # @return [Boolean, Array] returns false, if header is already skipped, otherwise returns the header
-      def skip_header
-        start_of_file? ? (@header = read_row) : false
+      def skip_headers
+        start_of_file? ? (@headers = read_row) : false
       end
 
       # Returns the header __without__ changing the position of the CSV
       # @return [Array, nil] the header
-      def header
+      def headers
         return unless valid?
-        return @header if @header
-        @header = next_row
+        return @headers if @headers
+        @headers = next_row
       end
 
       # Resets the file to the start of file

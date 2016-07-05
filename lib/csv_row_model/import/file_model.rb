@@ -49,7 +49,7 @@ module CsvRowModel
             end
           end
 
-          new(source_row, source_header: csv.header, context: context, previous: file.previous_row_model)
+          new(source_row, source_headers: csv.headers, context: context, previous: file.previous_row_model)
         end
       end
     end

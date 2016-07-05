@@ -10,8 +10,8 @@ module CsvRowModel
       end
 
       def unformatted_value
-        formatted_cells.zip(formatted_headers).map do |formatted_cell, source_header|
-          call_process_cell(formatted_cell, source_header)
+        formatted_cells.zip(formatted_headers).map do |formatted_cell, source_headers|
+          call_process_cell(formatted_cell, source_headers)
         end
       end
 
@@ -22,14 +22,14 @@ module CsvRowModel
       end
 
       def formatted_headers
-        source_headers.map.with_index do |source_header, index|
-          row_model.class.format_dynamic_column_header(source_header, column_name, dynamic_column_index, index, row_model.context)
+        source_headers.map.with_index do |source_headers, index|
+          row_model.class.format_dynamic_column_header(source_headers, column_name, dynamic_column_index, index, row_model.context)
         end
       end
 
       class << self
         def define_process_cell(row_model_class, column_name)
-          super { |formatted_cell, source_header| formatted_cell }
+          super { |formatted_cell, source_headers| formatted_cell }
         end
       end
     end

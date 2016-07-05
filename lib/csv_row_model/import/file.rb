@@ -33,8 +33,8 @@ module CsvRowModel
         reset
       end
 
-      def header
-        h = csv.header
+      def headers
+        h = csv.headers
         h.class == Array ? h : []
       end
 
