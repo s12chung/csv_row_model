@@ -29,9 +29,9 @@ module CsvRowModel
       end
 
       # @return [Hash] a map of `column_name => source_row[index_of_column_name]`
-      def mapped_row
+      def source_attributes
         return {} unless source_row
-        @mapped_row ||= self.class.column_names.zip(source_row).to_h
+        @source_attributes ||= self.class.column_names.zip(source_row).to_h
       end
 
       # Free `previous` from memory to avoid making a linked list
@@ -85,7 +85,7 @@ module CsvRowModel
 
         protected
         def inspect_methods
-          @inspect_methods ||= %i[mapped_row initialized_at parent context previous].freeze
+          @inspect_methods ||= %i[source_attributes initialized_at parent context previous].freeze
         end
       end
     end

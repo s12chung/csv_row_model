@@ -35,7 +35,7 @@ module CsvRowModel
       # to prevent circular dependency with csv_string_model
       def _cell_objects(csv_string_model_errors={})
         array_to_block_hash(self.class.column_names) do |column_name|
-          Cell.new(column_name, mapped_row[column_name], csv_string_model_errors[column_name], self)
+          Cell.new(column_name, source_attributes[column_name], csv_string_model_errors[column_name], self)
         end
       end
 

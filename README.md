@@ -53,7 +53,7 @@ row_model = import_file.next
 row_model.headers # => ["id", "name"]
 
 row_model.source_row # => ["1", "Some Project Name"]
-row_model.mapped_row # => { id: "1", name: "Some Project Name" }, this is `source_row` mapped to `column_names`
+row_model.source_attributes # => { id: "1", name: "Some Project Name" }, this is `source_row` mapped to `column_names`
 row_model.attributes # => { id: "1", name: "Some Project Name" }, this is final attribute values mapped to `column_names`
 
 row_model.id # => 1
@@ -123,7 +123,7 @@ To generate a attribute value, the following pseudocode is executed:
 ```ruby
 def original_attribute(column_name)
   # 1. Get the raw CSV string value for the column
-  value = mapped_row[column_name]
+  value = source_attributes[column_name]
 
   # 2. Clean or format each cell
   value = self.class.format_cell(cell, column_name, column_index, context)
