@@ -11,7 +11,7 @@ module CsvRowModel
           validate_attributes :csv
 
           warnings do
-            validate { errors.add(:csv, "has header with #{csv.header.message}") unless csv.header.class == Array }
+            validate { errors.add(:csv, "has header with #{csv.headers.message}") unless csv.headers.class == Array }
           end
         end
 

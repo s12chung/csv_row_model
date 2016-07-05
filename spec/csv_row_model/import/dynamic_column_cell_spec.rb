@@ -28,7 +28,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
       context "with process method defined" do
         before do
           row_model_class.class_eval do
-            def skill(formatted_cell, source_header);  "#{formatted_cell}__#{source_header}" end
+            def skill(formatted_cell, source_headers);  "#{formatted_cell}__#{source_headers}" end
           end
         end
 

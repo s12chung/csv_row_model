@@ -50,7 +50,7 @@ end
 import_file = CsvRowModel::Import::File.new(file_path, ProjectImportRowModel)
 row_model = import_file.next
 
-row_model.header # => ["id", "name"]
+row_model.headers # => ["id", "name"]
 
 row_model.source_row # => ["1", "Some Project Name"]
 row_model.mapped_row # => { id: "1", name: "Some Project Name" }, this is `source_row` mapped to `column_names`

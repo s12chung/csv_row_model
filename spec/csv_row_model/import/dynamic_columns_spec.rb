@@ -12,7 +12,7 @@ describe CsvRowModel::Import::DynamicColumns do
     end
   end
 
-  let(:instance) { row_model_class.new(source_row, source_header: headers) }
+  let(:instance) { row_model_class.new(source_row, source_headers: headers) }
   let(:headers) { dynamic_column_source_headers }
   let(:source_row) { dynamic_column_source_cells }
 

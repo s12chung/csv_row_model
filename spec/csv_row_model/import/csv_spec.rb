@@ -38,14 +38,14 @@ describe CsvRowModel::Import::Csv do
     expect(instance.current_row).to eql ["string1", "string2"]
   end
 
-  describe "#skip_header" do
-    subject { instance.skip_header }
+  describe "#skip_headers" do
+    subject { instance.skip_headers }
 
     it "goes to the second row and doesn't move" do
       start_of_file? instance
 
-      expect(instance.skip_header).to eql ["string1", "string2"]
-      expect(instance.skip_header).to eql false
+      expect(instance.skip_headers).to eql ["string1", "string2"]
+      expect(instance.skip_headers).to eql false
 
       first_row? instance
     end
@@ -53,15 +53,15 @@ describe CsvRowModel::Import::Csv do
     it "works when header is called" do
       start_of_file? instance
 
-      instance.header
+      instance.headers
       expect(subject).to eql ["string1", "string2"]
 
       first_row? instance
     end
   end
 
-  describe "#header" do
-    subject { instance.header }
+  describe "#headers" do
+    subject { instance.headers }
 
     it "returns the header without changing the state" do
       start_of_file? instance
