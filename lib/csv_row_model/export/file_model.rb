@@ -7,14 +7,8 @@ module CsvRowModel
       #                 and everything else is return as is.
       def to_rows
         rows_template.map.with_index do |row, index|
-          [].tap do |result|
-            row.each do |cell|
-              if header? cell
-                result << self.class.format_header(cell, index, context)
-              else
-                result << cell.to_s
-              end
-            end
+          row.map do |cell|
+            self.class.row_names.include?(cell) ? self.class.format_header(cell, index, context) : cell.to_s
           end
         end
       end
@@ -31,13 +25,6 @@ module CsvRowModel
       class_methods do
         def setup(csv, context, with_headers: true); end
       end
-
-      private
-
-      def header?(cell)
-        self.class.is_row_name? cell
-      end
-
     end
   end
 end
