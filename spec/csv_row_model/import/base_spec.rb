@@ -53,8 +53,8 @@ describe CsvRowModel::Import::Base do
       it("works") { subject }
     end
 
-    describe "#mapped_row" do
-      subject { instance.mapped_row }
+    describe "#source_attributes" do
+      subject { instance.source_attributes }
       it "returns a map of `column_name => source_row[index_of_column_name]" do
         expect(subject).to eql({ string1: '1.01', string2: 'b'})
       end

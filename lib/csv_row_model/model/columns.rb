@@ -41,12 +41,6 @@ module CsvRowModel
           column_names.index column_name
         end
 
-        # @param [Symbol] column_name name of column to check
-        # @return [Boolean] true if it's a column name
-        def is_column_name? column_name
-          column_name.is_a?(Symbol) && index(column_name)
-        end
-
         # @param [Hash, OpenStruct] context name of column to check
         # @return [Array] column headers for the row model
         def headers(context={})
@@ -74,7 +68,7 @@ module CsvRowModel
 
         protected
 
-        VALID_OPTIONS_KEYS = %i[type parse validate_type default header header_matchs].freeze
+        VALID_OPTIONS_KEYS = %i[type parse validate_type default header].freeze
 
         # Adds column to the row model
         #
