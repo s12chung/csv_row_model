@@ -9,8 +9,6 @@ module CsvRowModel
   module Import
     extend ActiveSupport::Concern
 
-    include Concerns::Inspect
-
     include Base
     include CsvStringModel
     include Attributes

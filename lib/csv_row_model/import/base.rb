@@ -2,6 +2,8 @@ module CsvRowModel
   module Import
     module Base
       extend ActiveSupport::Concern
+      include Concerns::Inspect
+      INSPECT_METHODS = %i[source_attributes initialized_at parent context previous].freeze
 
       included do
         attr_reader :source_headers, :source_row, :line_number, :index, :previous
@@ -81,11 +83,6 @@ module CsvRowModel
             next_row_is_parent = !row_model.append_child(csv.next_row)
             return row_model if next_row_is_parent
           end
-        end
-
-        protected
-        def inspect_methods
-          @inspect_methods ||= %i[source_attributes initialized_at parent context previous].freeze
         end
       end
     end
