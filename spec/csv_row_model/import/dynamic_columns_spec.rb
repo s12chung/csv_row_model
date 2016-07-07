@@ -37,6 +37,27 @@ describe CsvRowModel::Import::DynamicColumns do
       end
     end
 
+    describe "#formatted_attributes" do
+      subject { instance.formatted_attributes }
+      let(:row_model_class) { Class.new(super()) { def self.format_cell(*args); args.join("__") end } }
+
+      it "returns all attributes of dynamic columns" do
+        expect(subject).to eql(skills: ["Yes__skills__0__#<OpenStruct>", "Yes__skills__1__#<OpenStruct>", "No__skills__2__#<OpenStruct>", "Yes__skills__3__#<OpenStruct>", "Yes__skills__4__#<OpenStruct>", "No__skills__5__#<OpenStruct>"])
+      end
+
+      with_context "standard columns defined" do
+        let(:row_model_class) { Class.new(DynamicColumnImportModel) { def self.format_cell(*args); args.join("__") end } }
+
+        it "returns all attributes including the dynamic columns" do
+          expect(subject).to eql(
+                               first_name: "Mario__first_name__0__#<OpenStruct>",
+                               last_name: "Italian__last_name__1__#<OpenStruct>",
+                               skills: ["Yes__skills__2__#<OpenStruct>", "Yes__skills__3__#<OpenStruct>", "No__skills__4__#<OpenStruct>", "Yes__skills__5__#<OpenStruct>", "Yes__skills__6__#<OpenStruct>", "No__skills__7__#<OpenStruct>"]
+                             )
+        end
+      end
+    end
+
     describe "#original_attributes" do
       subject { instance.original_attributes }
 

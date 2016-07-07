@@ -15,6 +15,11 @@ module CsvRowModel
         end)
       end
 
+      # @return [Hash] a map of `column_name => format_cell(column_name, ...)`
+      def formatted_attributes
+        super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| cell_objects[column_name].formatted_cells })
+      end
+
       # @return [Hash] a map of `column_name => original_attribute(column_name)`
       def original_attributes
         super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| original_attribute(column_name) })
