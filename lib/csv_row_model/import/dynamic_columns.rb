@@ -10,9 +10,13 @@ module CsvRowModel
       end
 
       def cell_objects
-        @dynamic_column_cell_objects ||= super.merge(array_to_block_hash(self.class.dynamic_column_names) do |column_name|
+        @cell_objects ||= super.merge(dynamic_column_cell_objects)
+      end
+
+      def dynamic_column_cell_objects
+        @dynamic_column_cell_objects ||= array_to_block_hash(self.class.dynamic_column_names) do |column_name|
           DynamicColumnCell.new(column_name, dynamic_column_source_headers, dynamic_column_source_cells, self)
-        end)
+        end
       end
 
       # @return [Hash] a map of `column_name => format_cell(column_name, ...)`
@@ -23,6 +27,11 @@ module CsvRowModel
       # @return [Hash] a map of `column_name => original_attribute(column_name)`
       def original_attributes
         super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| original_attribute(column_name) })
+      end
+
+      # @return [Array] an array of format_dynamic_column_header(...)
+      def formatted_dynamic_column_headers
+        dynamic_column_cell_objects.values.first.try(:formatted_headers) || []
       end
 
       # @return [Array] dynamic_column headers
