@@ -36,7 +36,7 @@ module CsvRowModel
         # process_cell = one cell
         # attribute_method = many cells = [process_cell(), process_cell()...]
         def define_process_cell(row_model_class, column_name, &block)
-          row_model_class.send(:define_method, process_cell_method_name(column_name), &block)
+          row_model_class.define_proxy_method(process_cell_method_name(column_name), &block)
         end
       end
     end

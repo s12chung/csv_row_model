@@ -52,7 +52,7 @@ module CsvRowModel
         end
 
         def define_lambda_method(row_model_class, representation_name, &block)
-          row_model_class.send(:define_method, lambda_name(representation_name), &block)
+          row_model_class.define_proxy_method(lambda_name(representation_name), &block)
         end
       end
     end

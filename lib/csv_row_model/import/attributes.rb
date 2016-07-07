@@ -58,7 +58,7 @@ module CsvRowModel
         def define_attribute_method(column_name)
           return if method_defined? column_name
           csv_string_model_class.add_type_validation(column_name, columns[column_name])
-          define_method(column_name) { original_attribute(column_name) }
+          define_proxy_method(column_name) { original_attribute(column_name) }
         end
       end
     end

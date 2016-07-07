@@ -90,7 +90,7 @@ describe CsvRowModel::Import::Attributes do
       let(:original_options) { {} }
 
       it "adds validations" do
-        expect(row_model_class).to_not receive(:define_method)
+        expect(row_model_class).to_not receive(:define_proxy_method)
         expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).once.and_call_original
         subject
       end
@@ -99,7 +99,7 @@ describe CsvRowModel::Import::Attributes do
         let(:original_options) { { type: Integer, validate_type: true } }
 
         it "doesn't add validations" do
-          expect(row_model_class).to_not receive(:define_method)
+          expect(row_model_class).to_not receive(:define_proxy_method)
           expect(row_model_class.csv_string_model_class).to_not receive(:add_type_validation)
 
           subject

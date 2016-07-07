@@ -37,7 +37,7 @@ module CsvRowModel
         # Define default attribute method for a dynamic_column
         # @param column_name [Symbol] the cell's column_name
         def define_dynamic_attribute_method(column_name)
-          define_method(column_name) { formatted_attribute(column_name) }
+          define_proxy_method(column_name) { formatted_attribute(column_name) }
           DynamicColumnCell.define_process_cell(self, column_name)
         end
       end

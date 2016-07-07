@@ -55,7 +55,7 @@ module CsvRowModel
 
           merge_has_many_relationships(relation_name => row_model_class)
 
-          define_method(relation_name) do
+          define_proxy_method(relation_name) do
             #
             # equal to: @relation_name ||= []
             #

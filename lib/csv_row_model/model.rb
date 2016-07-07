@@ -9,6 +9,8 @@ module CsvRowModel
   module Model
     extend ActiveSupport::Concern
 
+    include Concerns::HiddenModule
+
     include InheritedClassVar
 
     include ActiveWarnings
