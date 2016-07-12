@@ -41,6 +41,15 @@ describe CsvRowModel::Import::Attributes do
       end
     end
 
+    describe "#formatted_attributes" do
+      subject { instance.formatted_attributes }
+      let(:row_model_class) { Class.new(super()) { def self.format_cell(*args); args.join("__") end } }
+
+      it "returns the formatted_headers" do
+        expect(subject).to eql(string1: "1.01__string1__0__#<OpenStruct>", string2: "b__string2__1__#<OpenStruct>")
+      end
+    end
+
     describe "#original_attributes" do
       subject { instance.original_attributes }
 

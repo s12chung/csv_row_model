@@ -37,6 +37,36 @@ describe CsvRowModel::Import::DynamicColumns do
       end
     end
 
+    describe "#dynamic_Column_cell_objects" do
+      with_this_then_context "standard columns defined" do
+        it_behaves_like "cell_objects_method",
+                        %i[skills],
+                        { CsvRowModel::Import::DynamicColumnCell => 1 },
+                        :dynamic_column_cell_objects
+      end
+    end
+
+    describe "#formatted_attributes" do
+      subject { instance.formatted_attributes }
+      let(:row_model_class) { Class.new(super()) { def self.format_cell(*args); args.join("__") end } }
+
+      it "returns all attributes of dynamic columns" do
+        expect(subject).to eql(skills: ["Yes__skills__0__#<OpenStruct>", "Yes__skills__1__#<OpenStruct>", "No__skills__2__#<OpenStruct>", "Yes__skills__3__#<OpenStruct>", "Yes__skills__4__#<OpenStruct>", "No__skills__5__#<OpenStruct>"])
+      end
+
+      with_context "standard columns defined" do
+        let(:row_model_class) { Class.new(DynamicColumnImportModel) { def self.format_cell(*args); args.join("__") end } }
+
+        it "returns all attributes including the dynamic columns" do
+          expect(subject).to eql(
+                               first_name: "Mario__first_name__0__#<OpenStruct>",
+                               last_name: "Italian__last_name__1__#<OpenStruct>",
+                               skills: ["Yes__skills__2__#<OpenStruct>", "Yes__skills__3__#<OpenStruct>", "No__skills__4__#<OpenStruct>", "Yes__skills__5__#<OpenStruct>", "Yes__skills__6__#<OpenStruct>", "No__skills__7__#<OpenStruct>"]
+                             )
+        end
+      end
+    end
+
     describe "#original_attributes" do
       subject { instance.original_attributes }
 
@@ -48,6 +78,15 @@ describe CsvRowModel::Import::DynamicColumns do
         it "returns all attributes including the dynamic columns" do
           expect(subject).to eql( first_name: "Mario", last_name: "Italian", skills: dynamic_column_source_cells )
         end
+      end
+    end
+
+    describe "#formatted_dynamic_column_headers" do
+      subject { instance.formatted_dynamic_column_headers }
+      let(:row_model_class) { Class.new(super()) { def self.format_dynamic_column_header(*args); args.join("__") end } }
+
+      it "returns the formatted_headers" do
+        expect(subject).to eql ["Organized__skills__0__0__#<OpenStruct>", "Clean__skills__0__1__#<OpenStruct>", "Punctual__skills__0__2__#<OpenStruct>", "Strong__skills__0__3__#<OpenStruct>", "Crazy__skills__0__4__#<OpenStruct>", "Flexible__skills__0__5__#<OpenStruct>"]
       end
     end
 

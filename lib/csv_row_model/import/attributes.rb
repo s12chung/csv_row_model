@@ -16,6 +16,11 @@ module CsvRowModel
         end
       end
 
+      # @return [Hash] a map of `column_name => format_cell(column_name, ...)`
+      def formatted_attributes
+        array_to_block_hash(self.class.column_names) { |column_name| cell_objects[column_name].formatted_value }
+      end
+
       # @return [Hash] a map of `column_name => original_attribute(column_name)`
       def original_attributes
         array_to_block_hash(self.class.column_names) { |column_name| original_attribute(column_name) }
