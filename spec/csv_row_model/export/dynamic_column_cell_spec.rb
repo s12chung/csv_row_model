@@ -65,7 +65,7 @@ describe CsvRowModel::Export::DynamicColumnCell do
 
     describe "class" do
       describe "::define_process_cell" do
-        let(:klass) { Class.new }
+        let(:klass) { Class.new { include CsvRowModel::Concerns::HiddenModule } }
         subject { described_class.define_process_cell(klass, :somethings) }
 
         it "adds the process method to the class" do

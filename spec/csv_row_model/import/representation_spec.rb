@@ -3,7 +3,7 @@ require 'spec_helper'
 describe CsvRowModel::Import::Representation do
   describe "instance" do
     let(:instance) { described_class.new(:string1, options, row_model) }
-    let(:row_model) { OpenStruct.new }
+    let(:row_model) { BasicImportModel.new }
     let(:options) { {} }
 
     let(:block) { Proc.new { "string1" } }
@@ -96,14 +96,14 @@ describe CsvRowModel::Import::Representation do
       end
 
       context "dependency is provided" do
-        let(:options) { { dependencies: %i[dep1 dep2] } }
+        let(:options) { { dependencies: %i[string1 string1] } }
 
         it "returns false" do
           expect(subject).to eql false
         end
 
         context "when dependency is not blank" do
-          let(:row_model) { OpenStruct.new(dep1: "dep", dep2: "dep") }
+          let(:row_model) { BasicImportModel.new(%w[dep1 dep2]) }
 
           it "returns true" do
             expect(subject).to eql true
@@ -178,7 +178,7 @@ describe CsvRowModel::Import::Representation do
     end
 
     describe "::define_lambda_method" do
-      let(:klass) { Class.new }
+      let(:klass) { Class.new { include CsvRowModel::Concerns::HiddenModule } }
       subject { described_class.define_lambda_method(klass, :some_name) { return "test" } }
 
       it "adds the process method to the class" do
