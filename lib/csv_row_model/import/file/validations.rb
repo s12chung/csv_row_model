@@ -7,6 +7,8 @@ module CsvRowModel
         include ActiveWarnings
 
         included do
+          validate { errors.messages.merge!(csv.errors.messages) unless csv.valid? }
+
           warnings do
             validate { errors.add(:csv, "has header with #{csv.headers.message}") unless csv.headers.class == Array }
           end

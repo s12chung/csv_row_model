@@ -5,6 +5,23 @@ describe CsvRowModel::Import::File do
   let(:model_class) { BasicImportModel }
   let(:instance) { described_class.new file_path, model_class }
 
+  describe "#valid?" do
+    subject { instance.valid? }
+
+    it "defaults to true" do
+      expect(subject).to eql true
+    end
+
+    context "bad file path" do
+      let(:file_path) { "abc" }
+
+      it "has header to be an empty array" do
+        expect(subject).to eql false
+        expect(instance.errors.full_messages).to eql ["Ruby csv No such file or directory @ rb_sysopen - abc"]
+      end
+    end
+  end
+
   describe "#safe?" do
     subject { instance.safe? }
 
