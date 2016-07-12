@@ -7,8 +7,6 @@ module CsvRowModel
 
       included do
         attr_reader :source_headers, :source_row, :line_number, :index, :previous
-
-        validate { errors.add(:csv, "has #{@csv_exception.message}") if @csv_exception }
       end
 
       # @param [Array] source_row_or_exception the csv row
@@ -28,6 +26,13 @@ module CsvRowModel
         @previous = options[:previous].try(:dup)
         previous.try(:free_previous)
         super(options)
+      end
+
+      def valid?(*args)
+        super.tap { |value| return value unless @csv_exception }
+        errors.clear
+        errors.add(:csv, "has #{@csv_exception.message}")
+        false
       end
 
       # @return [Hash] a map of `column_name => source_row[index_of_column_name]`
