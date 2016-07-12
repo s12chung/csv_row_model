@@ -85,7 +85,7 @@ module CsvRowModel
         return unless valid?
         @ruby_csv.readline.tap { |row| @headers ||= row }
       rescue Exception => e
-        changed = e.exception(e.message.gsub(/line \d+\./, "line #{line_number + 1}.")) # line numbers are usually off
+        changed = e.exception(e.message.gsub(/line \d+\.?/, "line #{line_number + 1}.")) # line numbers are usually off
         changed.set_backtrace(e.backtrace)
         changed
       end

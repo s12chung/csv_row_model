@@ -108,7 +108,7 @@ describe CsvRowModel::Import::File do
 
         invalid_row = instance.next
         expect(invalid_row).to be_invalid
-        expect(invalid_row.errors.full_messages).to eql ["Csv has Illegal quoting in line 3."]
+        expect(invalid_row.errors.full_messages).to eql ["Csv has Missing or stray quote in line 3."]
         expect(invalid_row.source_row).to eql []
 
         row = instance.next

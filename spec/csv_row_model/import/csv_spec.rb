@@ -174,7 +174,7 @@ describe CsvRowModel::Import::Csv do
         expect(instance.read_row).to eql ["string1", "string2"]
         expect(instance.line_number).to eql 2
 
-        expect(instance.read_row.to_s).to eql "Illegal quoting in line 3."
+        expect(instance.read_row.to_s).to eql "Missing or stray quote in line 3."
         expect(instance.line_number).to eql 3
 
         expect(instance.read_row).to eql ["lang1", "lang2"]

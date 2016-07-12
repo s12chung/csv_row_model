@@ -1,7 +1,7 @@
-a""""
+quote_by_itself""""
 string1,string2
-a""""
+"something"inside"quotes",""
 lang1,lang2
-z""
-"","
+quote_by_itself""
+"unfinished_quote","
 ,""""
