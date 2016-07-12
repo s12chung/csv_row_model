@@ -86,7 +86,7 @@ describe CsvRowModel::Import::File do
     end
 
     context "file_model" do
-      let(:file_path) { basic_1_model_path }
+      let(:file_path) { file_model_1_row_path }
       let(:instance) { described_class.new file_path, FileImportModel }
 
       it "works" do
@@ -118,12 +118,6 @@ describe CsvRowModel::Import::File do
         expect(instance.next).to be_invalid
         expect(instance.next).to be_invalid
         expect(instance.next).to be_nil
-      end
-
-      it "has header to be an empty array" do
-        expect(instance.headers).to eql []
-        expect(instance).to be_unsafe
-        expect(instance.warnings.full_messages).to eql ["Csv has header with Illegal quoting in line 1."]
       end
     end
   end

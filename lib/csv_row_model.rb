@@ -19,8 +19,6 @@ else
   require 'csv_row_model/concerns/hidden_module'
   require 'csv_row_model/concerns/check_options'
 
-  require 'csv_row_model/validators/validate_attributes'
-
   require 'csv_row_model/model'
   require 'csv_row_model/model/file_model'
 

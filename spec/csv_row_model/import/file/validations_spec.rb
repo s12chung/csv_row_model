@@ -5,6 +5,24 @@ describe CsvRowModel::Import::File do
   let(:model_class) { BasicImportModel }
   let(:instance) { described_class.new file_path, model_class }
 
+  describe "#safe?" do
+    subject { instance.safe? }
+
+    it "defaults to true" do
+      expect(subject).to eql true
+    end
+
+    context "bad header" do
+      let(:file_path) { bad_header_1_row_path }
+
+      it "has header to be an empty array" do
+        expect(subject).to eql false
+        expect(instance.headers).to eql []
+        expect(instance.warnings.full_messages).to eql ["Csv has header with Unclosed quoted field on line 1."]
+      end
+    end
+  end
+
   describe "abort?" do
     subject { instance.abort? }
 

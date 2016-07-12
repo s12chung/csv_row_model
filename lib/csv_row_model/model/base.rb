@@ -11,8 +11,6 @@ module CsvRowModel
 
         # @return [DateTime] return when self has been intialized
         attr_reader :initialized_at
-
-        validate_attributes :parent
       end
 
       # @param [Hash] options
