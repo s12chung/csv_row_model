@@ -59,46 +59,6 @@ describe CsvRowModel::Model::DynamicColumns do
       it "returns the header that is the header_model" do
         expect(subject).to eql skills
       end
-
-      context "the context gives a nil model" do
-        let(:context) { {} }
-
-        it "returns an empty array" do
-          expect(subject).to eql []
-        end
-      end
-
-      context "with header option" do
-        let(:klass) do
-          Class.new do
-            include CsvRowModel::Model
-            dynamic_column :skills, header: ->(skill_name) { skill_name + "_changed" }
-          end
-        end
-
-        it "overrides the original" do
-          expect(subject).to eql skills.map {|skill_name| skill_name + "_changed" }
-        end
-      end
-
-      context "with format_dynamic_column_header defined" do
-        let(:klass) do
-          Class.new do
-            include CsvRowModel::Model
-            column :another_column
-            dynamic_column :skills
-
-            def self.format_dynamic_column_header(*args); args.join("__") end
-          end
-        end
-
-        it "takes the overwritten method" do
-          expect(subject).to eql [
-                                   "skill1__skills__1__0__#<OpenStruct skills=[\"skill1\", \"skill2\"]>",
-                                   "skill2__skills__1__1__#<OpenStruct skills=[\"skill1\", \"skill2\"]>"
-                                 ]
-        end
-      end
     end
 
     describe "::headers" do
