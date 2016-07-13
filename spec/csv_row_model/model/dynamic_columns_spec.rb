@@ -38,7 +38,7 @@ describe CsvRowModel::Model::DynamicColumns do
     end
 
     describe "::format_dynamic_column_header" do
-      subject { DynamicColumnModel.format_dynamic_column_header("blah", nil, nil, nil, nil) }
+      subject { DynamicColumnModel.format_dynamic_column_header("blah", nil, nil, nil) }
 
       it "returns the header_model" do
         expect(subject).to eql "blah"

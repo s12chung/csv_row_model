@@ -12,7 +12,7 @@ describe CsvRowModel::Model::DynamicColumnHeader do
     subject { instance.value }
 
     it "returns the formatted header" do
-      expect(subject).to eql ["context__skills__2__0__#<OpenStruct skills=\"context\">"]
+      expect(subject).to eql ["context__skills__2__#<OpenStruct skills=\"context\">"]
     end
 
     context "with :header option" do

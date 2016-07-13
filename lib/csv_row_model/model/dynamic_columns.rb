@@ -33,7 +33,7 @@ module CsvRowModel
         # Safe to override
         #
         # @return [String] formatted header
-        def format_dynamic_column_header(header_model, column_name, dynamic_column_index, index_of_column, context)
+        def format_dynamic_column_header(header_model, column_name, dynamic_column_index, context)
           header_model
         end
 

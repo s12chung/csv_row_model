@@ -12,7 +12,7 @@ module CsvRowModel
       end
 
       def format_header(header_model)
-        row_model_class.format_dynamic_column_header(header_model, column_name, dynamic_column_index, 0, context)
+        row_model_class.format_dynamic_column_header(header_model, column_name, dynamic_column_index, context)
       end
 
       def dynamic_column_index

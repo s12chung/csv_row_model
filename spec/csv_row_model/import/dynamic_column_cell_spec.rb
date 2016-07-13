@@ -60,12 +60,12 @@ describe CsvRowModel::Import::DynamicColumnCell do
 
       it "returns an array of the formatted_cells" do
         expect(subject).to eql [
-                                 "Organized__skills__0__0__#<OpenStruct>",
-                                 "Clean__skills__0__1__#<OpenStruct>",
-                                 "Punctual__skills__0__2__#<OpenStruct>",
-                                 "Strong__skills__0__3__#<OpenStruct>",
-                                 "Crazy__skills__0__4__#<OpenStruct>",
-                                 "Flexible__skills__0__5__#<OpenStruct>"
+                                 "Organized__skills__0__#<OpenStruct>",
+                                 "Clean__skills__0__#<OpenStruct>",
+                                 "Punctual__skills__0__#<OpenStruct>",
+                                 "Strong__skills__0__#<OpenStruct>",
+                                 "Crazy__skills__0__#<OpenStruct>",
+                                 "Flexible__skills__0__#<OpenStruct>"
                                ]
       end
 
@@ -80,7 +80,7 @@ describe CsvRowModel::Import::DynamicColumnCell do
         end
 
         it "it bumps the index up for the dynamic_column_index" do
-          expect(subject.first).to eql "Organized__skills__1__0__#<OpenStruct>"
+          expect(subject.first).to eql "Organized__skills__1__#<OpenStruct>"
         end
       end
     end
