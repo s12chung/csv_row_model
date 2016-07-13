@@ -28,30 +28,6 @@ describe CsvRowModel::Import::Base do
           expect(instance.source_row).to eql []
         end
       end
-
-      context "with more errors" do
-        let(:source_row) { [] }
-        let(:row_model_class) do
-          Class.new(BasicImportModel) do
-            validates :string1, :string2, presence: true
-            def self.name; "test" end
-          end
-        end
-
-        it "had working validations" do
-          subject
-          expect(instance.errors.full_messages).to eql ["String1 can't be blank", "String2 can't be blank"]
-        end
-
-        context "with Exception given" do
-          let(:instance) { row_model_class.new(StandardError.new("msg")) }
-
-          it "removes the other errors" do
-            subject
-            expect(instance.errors.full_messages).to eql ["Csv has msg"]
-          end
-        end
-      end
     end
 
     describe "#source_attributes" do
