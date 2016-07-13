@@ -15,7 +15,7 @@ describe CsvRowModel::Import::Csv do
       let(:file_path) { "abc" }
       it "returns false" do
         expect(subject).to eql false
-        expect(instance.errors.full_messages).to eql ["Ruby csv No such file or directory @ rb_sysopen - abc"]
+        expect(instance.errors.full_messages).to eql ["Csv No such file or directory @ rb_sysopen - abc"]
       end
     end
   end

@@ -17,7 +17,7 @@ describe CsvRowModel::Import::File do
 
       it "has header to be an empty array" do
         expect(subject).to eql false
-        expect(instance.errors.full_messages).to eql ["Ruby csv No such file or directory @ rb_sysopen - abc"]
+        expect(instance.errors.full_messages).to eql ["Csv No such file or directory @ rb_sysopen - abc"]
       end
     end
   end

@@ -11,7 +11,7 @@ module CsvRowModel
 
       include ActiveModel::Validations
 
-      validate { begin; _ruby_csv; rescue => e; errors.add(:ruby_csv, e.message) end }
+      validate { begin; _ruby_csv; rescue => e; errors.add(:csv, e.message) end }
 
       def initialize(file_path)
         @file_path = file_path
