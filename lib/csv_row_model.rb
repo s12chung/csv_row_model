@@ -21,6 +21,7 @@ else
 
   require 'csv_row_model/model'
   require 'csv_row_model/model/file_model'
+  require 'csv_row_model/model/header'
 
   require 'csv_row_model/import'
   require 'csv_row_model/import/file_model'
