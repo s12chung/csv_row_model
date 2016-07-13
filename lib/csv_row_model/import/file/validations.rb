@@ -5,10 +5,9 @@ module CsvRowModel
         extend ActiveSupport::Concern
 
         include ActiveWarnings
-        include Validators::ValidateAttributes
 
         included do
-          validate_attributes :csv
+          validate { errors.messages.merge!(csv.errors.messages) unless csv.valid? }
 
           warnings do
             validate { errors.add(:csv, "has header with #{csv.headers.message}") unless csv.headers.class == Array }

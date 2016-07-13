@@ -6,10 +6,17 @@ describe CsvRowModel::Import::Csv do
 
   describe "#valid?" do
     subject { instance.valid? }
-    let(:file_path) { "abc" }
 
-    it "returns false" do
-      expect(subject).to eql false
+    it "defaults to true" do
+      expect(subject).to eql true
+    end
+
+    context "with bad file path" do
+      let(:file_path) { "abc" }
+      it "returns false" do
+        expect(subject).to eql false
+        expect(instance.errors.full_messages).to eql ["Csv No such file or directory @ rb_sysopen - abc"]
+      end
     end
   end
 
@@ -70,6 +77,13 @@ describe CsvRowModel::Import::Csv do
 
       start_of_file? instance
     end
+
+    context "with bad header syntax" do
+      let(:file_path) { bad_header_1_row_path }
+      it "returns an exception" do
+        expect(subject.to_s).to eql "Unclosed quoted field on line 1."
+      end
+    end
   end
 
   describe "#reset" do
@@ -115,6 +129,11 @@ describe CsvRowModel::Import::Csv do
 
       expect(instance.read_row).to eql  ["string1", "string2"]
     end
+
+    it "sets allows the header to be available" do
+      subject
+      expect(instance.headers).to eql ["string1", "string2"]
+    end
   end
 
   describe "#read_row" do
@@ -126,6 +145,11 @@ describe CsvRowModel::Import::Csv do
       expect(instance.read_row).to eql nil
       expect(instance.read_row).to eql nil
       expect(instance.end_of_file?).to eql true
+    end
+
+    it "sets allows the header to be available" do
+      subject
+      expect(instance.headers).to eql ["string1", "string2"]
     end
 
     context "with empty lines" do
@@ -150,7 +174,7 @@ describe CsvRowModel::Import::Csv do
         expect(instance.read_row).to eql ["string1", "string2"]
         expect(instance.line_number).to eql 2
 
-        expect(instance.read_row.to_s).to eql "Illegal quoting in line 3."
+        expect(instance.read_row.to_s).to eql "Missing or stray quote in line 3."
         expect(instance.line_number).to eql 3
 
         expect(instance.read_row).to eql ["lang1", "lang2"]

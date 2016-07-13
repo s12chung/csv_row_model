@@ -11,7 +11,7 @@ module CsvRowModel
 
       include ActiveModel::Validations
 
-      validate { begin; _ruby_csv; rescue => e; errors.add(:ruby_csv, e.message) end }
+      validate { begin; _ruby_csv; rescue => e; errors.add(:csv, e.message) end }
 
       def initialize(file_path)
         @file_path = file_path
@@ -33,9 +33,7 @@ module CsvRowModel
       # Returns the header __without__ changing the position of the CSV
       # @return [Array, nil] the header
       def headers
-        return unless valid?
-        return @headers if @headers
-        @headers = next_row
+        @headers ||= next_row
       end
 
       # Resets the file to the start of file
@@ -43,7 +41,7 @@ module CsvRowModel
         return false unless valid?
 
         @line_number = 0
-        @current_row = @next_row = @skipped_rows = @next_skipped_rows = nil
+        @headers = @current_row = @next_row = @skipped_rows = @next_skipped_rows = nil
 
         @ruby_csv.try(:close)
         @ruby_csv = _ruby_csv
@@ -83,13 +81,13 @@ module CsvRowModel
         CSV.open(file_path)
       end
 
-      def _read_row(ruby_csv=@ruby_csv)
+      def _read_row
         return unless valid?
-        ruby_csv.readline
+        @ruby_csv.readline.tap { |row| @headers ||= row }
       rescue Exception => e
-        changed = e.exception(e.message.gsub(/line \d+\./, "line #{line_number + 1}.")) # line numbers are usually off
+        changed = e.exception(e.message.gsub(/line \d+\.?/, "line #{line_number + 1}.")) # line numbers are usually off
         changed.set_backtrace(e.backtrace)
-        return changed
+        changed
       end
     end
   end

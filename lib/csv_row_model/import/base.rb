@@ -7,8 +7,7 @@ module CsvRowModel
 
       included do
         attr_reader :source_headers, :source_row, :line_number, :index, :previous
-
-        validate { errors.add(:csv, "has #{@csv_exception.message}") if @csv_exception }
+        validate { errors.add(:csv, "has #{@csv_exception.message}") if @csv_exception  }
       end
 
       # @param [Array] source_row_or_exception the csv row
