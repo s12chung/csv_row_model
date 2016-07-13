@@ -54,15 +54,6 @@ describe CsvRowModel::Export::DynamicColumnCell do
       end
     end
 
-    describe "#header_models" do
-      subject { instance.header_models }
-
-      it "cells the method of the column_name on the context" do
-        expect(row_model).to receive(:context).and_return(OpenStruct.new(skills: "waka"))
-        expect(subject).to eql "waka"
-      end
-    end
-
     describe "class" do
       describe "::define_process_cell" do
         let(:klass) { Class.new { include CsvRowModel::Concerns::HiddenModule } }
