@@ -1,3 +1,5 @@
+require 'csv_row_model/internal/import/csv'
+
 module CsvRowModel
   module Import
     # Represents a csv file and handles parsing to return `Import`

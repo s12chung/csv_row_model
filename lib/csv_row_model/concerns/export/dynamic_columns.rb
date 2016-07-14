@@ -1,4 +1,4 @@
-require 'csv_row_model/export/dynamic_column_cell'
+require 'csv_row_model/internal/export/dynamic_column_cell'
 
 module CsvRowModel
   module Export

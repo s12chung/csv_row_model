@@ -1,3 +1,5 @@
+require 'csv_row_model/internal/model/header'
+
 module CsvRowModel
   module Model
     module Attributes

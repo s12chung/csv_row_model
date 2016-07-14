@@ -1,4 +1,4 @@
-require 'csv_row_model/import/representation'
+require 'csv_row_model/internal/import/representation'
 
 module CsvRowModel
   module Import

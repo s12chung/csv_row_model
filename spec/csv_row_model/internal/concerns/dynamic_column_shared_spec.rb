@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe CsvRowModel::Model::DynamicColumnShared do
+describe CsvRowModel::DynamicColumnShared do
   let(:klass) do
     Class.new(OpenStruct) do
-      include CsvRowModel::Model::DynamicColumnShared
+      include CsvRowModel::DynamicColumnShared
     end
   end
   let(:instance) { klass.new(column_name: :skills, options: options) }

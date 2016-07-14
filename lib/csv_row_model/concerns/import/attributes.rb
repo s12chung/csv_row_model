@@ -1,5 +1,5 @@
 require 'csv_row_model/concerns/import/csv_string_model'
-require 'csv_row_model/import/cell'
+require 'csv_row_model/internal/import/cell'
 
 module CsvRowModel
   module Import

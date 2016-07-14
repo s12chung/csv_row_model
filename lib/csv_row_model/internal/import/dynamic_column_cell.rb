@@ -1,3 +1,5 @@
+require 'csv_row_model/internal/model/dynamic_column_cell'
+
 module CsvRowModel
   module Import
     class DynamicColumnCell < CsvRowModel::Model::DynamicColumnCell

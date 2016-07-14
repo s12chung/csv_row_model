@@ -1,4 +1,4 @@
-require 'csv_row_model/model/dynamic_column_cell'
+require 'csv_row_model/internal/model/dynamic_column_header'
 
 module CsvRowModel
   module Model

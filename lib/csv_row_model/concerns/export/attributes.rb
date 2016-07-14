@@ -1,4 +1,4 @@
-require 'csv_row_model/export/cell'
+require 'csv_row_model/internal/export/cell'
 
 module CsvRowModel
   module Export

@@ -1,3 +1,5 @@
+require 'csv_row_model/internal/concerns/dynamic_column_shared'
+
 module CsvRowModel
   module Model
     class DynamicColumnHeader < Header
