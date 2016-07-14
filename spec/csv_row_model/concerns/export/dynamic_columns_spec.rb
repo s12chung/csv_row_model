@@ -16,16 +16,16 @@ describe CsvRowModel::Export::DynamicColumns do
       let(:row_model_class) { DynamicColumnExportModel }
     end
 
-    describe "#cell_objects" do
-      it_behaves_like "cell_objects_method",
+    describe "#attribute_objects" do
+      it_behaves_like "attribute_objects_method",
                       %i[skills],
-                      CsvRowModel::Export::DynamicColumnCell => 1
+                      CsvRowModel::Export::DynamicColumnAttribute => 1
 
       with_context "standard columns defined" do
-        it_behaves_like "cell_objects_method",
+        it_behaves_like "attribute_objects_method",
                         %i[first_name last_name skills],
-                        CsvRowModel::Export::Cell => 2,
-                        CsvRowModel::Export::DynamicColumnCell => 1
+                        CsvRowModel::Export::Attribute => 2,
+                        CsvRowModel::Export::DynamicColumnAttribute => 1
       end
     end
 

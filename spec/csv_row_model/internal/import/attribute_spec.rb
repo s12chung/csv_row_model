@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CsvRowModel::Import::Cell do
+describe CsvRowModel::Import::Attribute do
   describe "instance" do
     let(:instance) { described_class.new(:string1, source_value, csv_string_model_errors, row_model) }
     let(:source_value) { '1.01' }

@@ -1,5 +1,5 @@
 require 'csv_row_model/concerns/import/csv_string_model'
-require 'csv_row_model/internal/import/cell'
+require 'csv_row_model/internal/import/attribute'
 
 module CsvRowModel
   module Import
@@ -11,16 +11,16 @@ module CsvRowModel
         self.column_names.each { |*args| define_attribute_method(*args) }
       end
 
-      def cell_objects
-        @cell_objects ||= begin
+      def attribute_objects
+        @attribute_objects ||= begin
           csv_string_model.valid?
-          _cell_objects(csv_string_model.errors)
+          _attribute_objects(csv_string_model.errors)
         end
       end
 
       # @return [Hash] a map of `column_name => format_cell(column_name, ...)`
       def formatted_attributes
-        array_to_block_hash(self.class.column_names) { |column_name| cell_objects[column_name].formatted_value }
+        array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].formatted_value }
       end
 
       # @return [Hash] a map of `column_name => original_attribute(column_name)`
@@ -30,19 +30,19 @@ module CsvRowModel
 
       # @return [Object] the column's attribute before override
       def original_attribute(column_name)
-        cell_objects[column_name].try(:value)
+        attribute_objects[column_name].try(:value)
       end
 
       # return [Hash] a map changes from {.column}'s default option': `column_name -> [value_before_default, default_set]`
       def default_changes
-        array_to_block_hash(self.class.column_names) { |column_name| cell_objects[column_name].default_change }.delete_if {|k, v| v.blank? }
+        array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].default_change }.delete_if {|k, v| v.blank? }
       end
 
       protected
       # to prevent circular dependency with csv_string_model
-      def _cell_objects(csv_string_model_errors={})
+      def _attribute_objects(csv_string_model_errors={})
         array_to_block_hash(self.class.column_names) do |column_name|
-          Cell.new(column_name, source_attributes[column_name], csv_string_model_errors[column_name], self)
+          Attribute.new(column_name, source_attributes[column_name], csv_string_model_errors[column_name], self)
         end
       end
 

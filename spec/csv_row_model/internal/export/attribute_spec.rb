@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CsvRowModel::Export::Cell do
+describe CsvRowModel::Export::Attribute do
   describe "instance" do
     let(:instance) { described_class.new(:string1, row_model) }
     let(:row_model_class) { Class.new BasicExportModel }

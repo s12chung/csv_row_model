@@ -6,12 +6,12 @@ describe CsvRowModel::Import::Attributes do
   let(:instance)           { row_model_class.new(source_row) }
 
   describe "instance" do
-    describe "#cell_objects" do
-      subject { instance.cell_objects }
+    describe "#attribute_objects" do
+      subject { instance.attribute_objects }
 
       it "returns a hash of cells mapped to their column_name" do
         expect(subject.keys).to eql row_model_class.column_names
-        expect(subject.values.map(&:class)).to eql [CsvRowModel::Import::Cell] * 2
+        expect(subject.values.map(&:class)).to eql [CsvRowModel::Import::Attribute] * 2
       end
 
       context "invalid and invalid csv_string_model" do
@@ -24,8 +24,8 @@ describe CsvRowModel::Import::Attributes do
         let(:source_row) { [] }
 
         it "passes the csv_string_model.errors to _cells_objects" do
-          expect(instance).to receive(:_cell_objects).with(no_args).once.and_call_original # for csv_string_model
-          expect(instance).to receive(:_cell_objects).once do |errors|
+          expect(instance).to receive(:_attribute_objects).with(no_args).once.and_call_original # for csv_string_model
+          expect(instance).to receive(:_attribute_objects).once do |errors|
             expect(errors.messages).to eql(string2: ["can't be blank"])
             {} # return empty hash to keep calling API
           end
@@ -61,7 +61,7 @@ describe CsvRowModel::Import::Attributes do
     end
 
     describe "#original_attribute" do
-      it_behaves_like "cell_object_attribute", :original_attribute, :value, string1: "1.01"
+      it_behaves_like "attribute_object_value", :original_attribute, :value, string1: "1.01"
     end
 
     describe "#default_changes" do

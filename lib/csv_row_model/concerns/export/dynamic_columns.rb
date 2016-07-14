@@ -1,4 +1,4 @@
-require 'csv_row_model/internal/export/dynamic_column_cell'
+require 'csv_row_model/internal/export/dynamic_column_attribute'
 
 module CsvRowModel
   module Export
@@ -9,9 +9,9 @@ module CsvRowModel
         self.dynamic_column_names.each { |*args| define_dynamic_attribute_method(*args) }
       end
 
-      def cell_objects
-        @dynamic_column_cell_objects ||= super.merge(array_to_block_hash(self.class.dynamic_column_names) do |column_name|
-          DynamicColumnCell.new(column_name, self)
+      def attribute_objects
+        @dynamic_column_attribute_objects ||= super.merge(array_to_block_hash(self.class.dynamic_column_names) do |column_name|
+          DynamicColumnAttribute.new(column_name, self)
         end)
       end
 
@@ -38,7 +38,7 @@ module CsvRowModel
         # @param column_name [Symbol] the cell's column_name
         def define_dynamic_attribute_method(column_name)
           define_proxy_method(column_name) { formatted_attribute(column_name) }
-          DynamicColumnCell.define_process_cell(self, column_name)
+          DynamicColumnAttribute.define_process_cell(self, column_name)
         end
       end
     end

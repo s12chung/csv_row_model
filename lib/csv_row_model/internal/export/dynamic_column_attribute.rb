@@ -1,9 +1,9 @@
-require 'csv_row_model/internal/model/dynamic_column_cell'
+require 'csv_row_model/internal/model/dynamic_column_attribute'
 require 'csv_row_model/internal/concerns/dynamic_column_shared'
 
 module CsvRowModel
   module Export
-    class DynamicColumnCell < CsvRowModel::Model::DynamicColumnCell
+    class DynamicColumnAttribute < CsvRowModel::Model::DynamicColumnAttribute
       include CsvRowModel::DynamicColumnShared
 
       def unformatted_value

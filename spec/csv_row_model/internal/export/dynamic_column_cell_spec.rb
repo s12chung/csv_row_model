@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe CsvRowModel::Export::DynamicColumnCell do
+describe CsvRowModel::Export::DynamicColumnAttribute do
   describe "instance" do
     let(:instance) { described_class.new(:skills, row_model) }
     let(:row_model_class) do

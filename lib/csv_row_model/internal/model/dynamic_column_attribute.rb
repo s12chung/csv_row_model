@@ -1,6 +1,6 @@
 module CsvRowModel
   module Model
-    class DynamicColumnCell
+    class DynamicColumnAttribute
       attr_reader :column_name, :row_model
 
       def initialize(column_name, row_model)
@@ -30,7 +30,7 @@ module CsvRowModel
         self.class.process_cell_method_name(column_name)
       end
 
-      # Calls the process_cell to return the value of a Cell given the args
+      # Calls the process_cell to return the value of a Attribute given the args
       def call_process_cell(*args)
         row_model.public_send(process_cell_method_name, *args)
       end

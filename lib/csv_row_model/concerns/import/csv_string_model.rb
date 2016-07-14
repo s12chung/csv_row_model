@@ -17,8 +17,8 @@ module CsvRowModel
       # @return [Import::CsvStringModel::Model] a model with validations related to csv_string_model (values are from format_cell)
       def csv_string_model
         @csv_string_model ||= begin
-          cell_objects = _cell_objects
-          formatted_hash = array_to_block_hash(self.class.column_names) { |column_name| cell_objects[column_name].formatted_value }
+          attribute_objects = _attribute_objects
+          formatted_hash = array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].formatted_value }
           self.class.csv_string_model_class.new(formatted_hash)
         end
       end

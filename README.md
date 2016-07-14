@@ -350,7 +350,7 @@ row_model.valid? # => false
 row_model.errors.full_messages # => ["Id must be greater than 0"]
 ```
 
-Note that `CsvStringModel` validations are calculated after [Format Cell](#format-cell).
+Note that `CsvStringModel` validations are calculated after [Format Attribute](#format-cell).
 
 ### Represents
 A CSV is often a representation of database model(s), much like how JSON parameters represents models in requests.

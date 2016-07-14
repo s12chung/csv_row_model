@@ -1,6 +1,6 @@
 module CsvRowModel
   module Export
-    class Cell
+    class Attribute
       attr_reader :column_name, :row_model
 
       def initialize(column_name, row_model)
