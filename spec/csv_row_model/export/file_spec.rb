@@ -9,23 +9,11 @@ describe CsvRowModel::Export::File do
     let(:instance) { described_class.new(FileExportModel, some_context: true)  }
 
     describe "#generate" do
-      let(:row1) { ['string1', string1] }
-      let(:row2) { ['String 2', string2] }
-
-      include_context 'csv file'
-
-      let(:csv_source) do
-        [
-          [ ':: - string1 - ::', '', 'Value Of String 1'                      ],
-          [ 'String 2'         , '', ''                 , ''                  ],
-          [ ''                 , '', ''                 , 'Value Of String 2' ],
-        ]
-      end
+      let(:file_path) { file_export_model_path }
+      let(:csv_string) { File.read(file_path) }
 
       it "returns csv string" do
-        expect(FileExportModel).to receive(:new)
-                                         .with(anything, { some_context: true, another_context: true })
-                                         .and_call_original
+        expect(FileExportModel).to receive(:new).with(anything, { some_context: true, another_context: true }).and_call_original
 
         expect(instance.generated?).to eql false
 
@@ -33,6 +21,7 @@ describe CsvRowModel::Export::File do
           expect(csv.class).to_not eql described_class
           csv.append_model(model, another_context: true)
         end
+
         expect(instance.generated?).to eql true
         expect(instance.context).to eql(some_context: true)
         expect(instance.to_s).to eql csv_string
