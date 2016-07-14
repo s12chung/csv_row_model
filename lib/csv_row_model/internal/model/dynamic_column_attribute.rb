@@ -1,27 +1,13 @@
+require 'csv_row_model/internal/model/attribute'
+require 'csv_row_model/internal/concerns/dynamic_column_shared'
+
 module CsvRowModel
   module Model
-    class DynamicColumnAttribute
-      attr_reader :column_name, :row_model
-
-      def initialize(column_name, row_model)
-        @column_name = column_name
-        @row_model = row_model
-      end
+    class DynamicColumnAttribute < Attribute
+      include DynamicColumnShared
 
       def value
-        @value ||= row_model.class.format_dynamic_column_cells(unformatted_value, column_name, dynamic_column_index, row_model.context)
-      end
-
-      def dynamic_column_index
-        @dynamic_column_index ||= row_model.class.dynamic_column_index(column_name)
-      end
-
-      def options
-        row_model.class.dynamic_columns[column_name]
-      end
-
-      def context
-        row_model.context
+        @value ||= row_model_class.format_dynamic_column_cells(unformatted_value, column_name, column_index, row_model.context)
       end
 
       protected

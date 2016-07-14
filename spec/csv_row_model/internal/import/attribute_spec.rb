@@ -66,10 +66,6 @@ describe CsvRowModel::Import::Attribute do
       end
     end
 
-    describe "#formatted_value" do
-      it_behaves_like "formatted_value_method", "1.01__string1__0__#<OpenStruct>"
-    end
-
     describe "#parsed_value" do
       subject { instance.parsed_value }
 

@@ -27,16 +27,6 @@ describe CsvRowModel::Model::DynamicColumnAttribute do
       end
     end
 
-    describe "#dynamic_column_index" do
-      subject { instance.dynamic_column_index }
-
-      it "calls dynamic_column_index on the class and memoizes" do
-        expect(row_model_class).to receive(:dynamic_column_index).with(:skills).and_call_original
-        expect(subject).to eql 0
-        expect(subject.object_id).to eql instance.dynamic_column_index.object_id
-      end
-    end
-
     describe "#process_cell_method_name" do
       subject { instance.send(:process_cell_method_name) }
 

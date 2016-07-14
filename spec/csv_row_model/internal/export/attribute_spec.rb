@@ -16,10 +16,6 @@ describe CsvRowModel::Export::Attribute do
       end
     end
 
-    describe "#formatted_value" do
-      it_behaves_like "formatted_value_method", "1.01__string1__0__#<OpenStruct>"
-    end
-
     describe "#source_value" do
       subject { instance.source_value }
 

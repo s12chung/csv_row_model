@@ -1,13 +1,14 @@
+require 'csv_row_model/internal/model/attribute'
+
 module CsvRowModel
   module Import
-    class Attribute
-      attr_reader :column_name, :source_value, :csv_string_model_errors, :row_model
+    class Attribute < CsvRowModel::Model::Attribute
+      attr_reader :source_value, :csv_string_model_errors
 
       def initialize(column_name, source_value, csv_string_model_errors, row_model)
-        @column_name = column_name
         @source_value = source_value
         @csv_string_model_errors = csv_string_model_errors
-        @row_model = row_model
+        super(column_name, row_model)
       end
 
       def value
@@ -15,10 +16,6 @@ module CsvRowModel
           return unless csv_string_model_errors.blank?
           default? ? default_value : parsed_value
         end
-      end
-
-      def formatted_value
-        @formatted_value ||= row_model.class.format_cell(source_value, column_name, row_model.class.index(column_name), row_model.context)
       end
 
       def parsed_value
@@ -41,10 +38,6 @@ module CsvRowModel
 
       def default_change
         [formatted_value, default_value] if default?
-      end
-
-      def options
-        row_model.class.columns[column_name]
       end
 
       protected

@@ -1,3 +1,4 @@
+require 'csv_row_model/internal/model/header'
 require 'csv_row_model/internal/concerns/dynamic_column_shared'
 
 module CsvRowModel
@@ -14,15 +15,7 @@ module CsvRowModel
       end
 
       def format_header(header_model)
-        row_model_class.format_dynamic_column_header(header_model, column_name, dynamic_column_index, context)
-      end
-
-      def dynamic_column_index
-        row_model_class.dynamic_column_index(column_name)
-      end
-
-      def options
-        row_model_class.dynamic_columns[column_name]
+        row_model_class.format_dynamic_column_header(header_model, column_name, column_index, context)
       end
     end
   end

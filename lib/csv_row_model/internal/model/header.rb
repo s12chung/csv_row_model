@@ -1,6 +1,10 @@
+require 'csv_row_model/internal/concerns/column_shared'
+
 module CsvRowModel
   module Model
     class Header
+      include ColumnShared
+
       attr_reader :column_name, :row_model_class, :context
 
       def initialize(column_name, row_model_class, context)
@@ -14,13 +18,7 @@ module CsvRowModel
       end
 
       def formatted_header
-        row_model_class.format_header(column_name, index, context)
-      end
-      def options
-        row_model_class.columns[column_name]
-      end
-      def index
-        row_model_class.index(column_name)
+        row_model_class.format_header(column_name, column_index, context)
       end
     end
   end
