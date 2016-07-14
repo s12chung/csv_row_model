@@ -44,10 +44,7 @@ module CsvRowModel
         # @param [Hash, OpenStruct] context name of column to check
         # @return [Array] column headers for the row model
         def headers(context={})
-          context = OpenStruct.new(context)
-          columns.map.with_index do |(column_name, options), index|
-            options[:header] || format_header(column_name, index, context)
-          end
+          column_names.map { |column_name| Header.new(column_name, self, context).value }
         end
 
         # Safe to override

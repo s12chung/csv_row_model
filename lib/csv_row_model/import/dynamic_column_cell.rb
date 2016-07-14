@@ -22,8 +22,8 @@ module CsvRowModel
       end
 
       def formatted_headers
-        source_headers.map.with_index do |source_headers, index|
-          row_model.class.format_dynamic_column_header(source_headers, column_name, dynamic_column_index, index, row_model.context)
+        source_headers.map do |source_headers|
+          row_model.class.format_dynamic_column_header(source_headers, column_name, dynamic_column_index, row_model.context)
         end
       end
 

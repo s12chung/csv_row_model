@@ -1,6 +1,8 @@
 module CsvRowModel
   module Export
     class DynamicColumnCell < CsvRowModel::Model::DynamicColumnCell
+      include CsvRowModel::Model::DynamicColumnShared
+
       def unformatted_value
         formatted_cells
       end
@@ -13,10 +15,6 @@ module CsvRowModel
 
       def cells
         header_models.map { |header_model| call_process_cell(header_model) }
-      end
-
-      def header_models
-        row_model.context.public_send(column_name)
       end
 
       class << self

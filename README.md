@@ -440,7 +440,7 @@ class DynamicColumnModel
   column :first_name
   column :last_name
   # header is optional, below is the default_implementation
-  dynamic_column :skills, header: ->(skill_name) { skill_name }
+  dynamic_column :skills, header: ->(skill_name) { skill_name }, header_models_context_key: :skills
 end
 ```
 
@@ -453,7 +453,7 @@ represents this table:
 | Mike       | Jackson    |   Yes  |   Yes  |
 
 
-The `format_dynamic_column_header(header_model, column_name, dynamic_column_index, index_of_column, context)` can
+The `format_dynamic_column_header(header_model, column_name, dynamic_column_index, context)` can
 be used to defined like `format_header`. Defined in both import and export due to headers being used for both.
 
 ### Export
@@ -470,7 +470,8 @@ class DynamicColumnExportModel < DynamicColumnModel
   end
 end
 
-# the `skills` context is mapped to generate an array
+# `skills` in the context is used as the header, which is used in `def skill(skill_name)` above
+# to change this context key, use the :header_models_context_key option
 export_file = CsvRowModel::Export::File.new(DynamicColumnExportModel, { skills: Skill.all  })
 export_file.generate do |csv|
   User.all.each { |user| csv << user }

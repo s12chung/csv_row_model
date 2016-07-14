@@ -16,6 +16,14 @@ module CsvRowModel
         @dynamic_column_index ||= row_model.class.dynamic_column_index(column_name)
       end
 
+      def options
+        row_model.class.dynamic_columns[column_name]
+      end
+
+      def context
+        row_model.context
+      end
+
       protected
 
       def process_cell_method_name
