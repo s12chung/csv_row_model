@@ -1,9 +1,11 @@
+require 'csv_row_model/concerns/import/csv_string_model'
 require 'csv_row_model/import/cell'
 
 module CsvRowModel
   module Import
     module Attributes
       extend ActiveSupport::Concern
+      include CsvStringModel
 
       included do
         self.column_names.each { |*args| define_attribute_method(*args) }
