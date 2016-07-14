@@ -8,8 +8,6 @@ require 'active_warnings'
 
 require 'inherited_class_var'
 
-require 'csv_row_model/concerns/inspect'
-require 'csv_row_model/concerns/hidden_module'
 require 'csv_row_model/concerns/check_options'
 
 require 'csv_row_model/model'

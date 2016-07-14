@@ -1,7 +1,7 @@
 module CsvRowModel
   module Import
     class Representation
-      include Concerns::CheckOptions
+      include CheckOptions
       VALID_OPTIONS = %i[memoize empty_value dependencies].freeze
 
       attr_reader :name, :options, :row_model

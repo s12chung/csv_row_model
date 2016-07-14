@@ -178,7 +178,7 @@ describe CsvRowModel::Import::Representation do
     end
 
     describe "::define_lambda_method" do
-      let(:klass) { Class.new { include CsvRowModel::Concerns::HiddenModule } }
+      let(:klass) { Class.new { include CsvRowModel::HiddenModule } }
       subject { described_class.define_lambda_method(klass, :some_name) { return "test" } }
 
       it "adds the process method to the class" do

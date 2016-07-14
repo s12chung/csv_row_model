@@ -1,6 +1,6 @@
 require 'spec_helper'
 class InspectObject
-  include CsvRowModel::Concerns::Inspect
+  include CsvRowModel::Inspect
   INSPECT_METHODS = %i[var3 var1 var2]
   attr_accessor :var1, :var2, :var3
   def initialize
@@ -11,7 +11,7 @@ class InspectObject
 end
 
 
-describe CsvRowModel::Concerns::Inspect do
+describe CsvRowModel::Inspect do
   describe "instance" do
     let(:instance) { InspectObject.new }
 

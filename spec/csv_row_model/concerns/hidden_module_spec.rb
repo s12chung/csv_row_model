@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe CsvRowModel::Concerns::HiddenModule do
-  let(:klass1) { Class.new { include CsvRowModel::Concerns::HiddenModule } }
-  let(:klass2) { Class.new { include CsvRowModel::Concerns::HiddenModule } }
+describe CsvRowModel::HiddenModule do
+  let(:klass1) { Class.new { include CsvRowModel::HiddenModule } }
+  let(:klass2) { Class.new { include CsvRowModel::HiddenModule } }
   let(:subclass1) { Class.new(klass1) }
 
   describe "class" do
@@ -26,7 +26,7 @@ describe CsvRowModel::Concerns::HiddenModule do
       context "with super method defined" do
         let(:klass1) do
           Class.new do
-            include CsvRowModel::Concerns::HiddenModule
+            include CsvRowModel::HiddenModule
             def waka; super end
           end
         end

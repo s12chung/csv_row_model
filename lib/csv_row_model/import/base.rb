@@ -2,7 +2,7 @@ module CsvRowModel
   module Import
     module Base
       extend ActiveSupport::Concern
-      include Concerns::Inspect
+      include Inspect
       INSPECT_METHODS = %i[source_attributes initialized_at parent context previous].freeze
 
       included do
