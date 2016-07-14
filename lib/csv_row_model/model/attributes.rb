@@ -1,6 +1,6 @@
 module CsvRowModel
   module Model
-    module Columns
+    module Attributes
       extend ActiveSupport::Concern
       included do
         inherited_class_hash :columns

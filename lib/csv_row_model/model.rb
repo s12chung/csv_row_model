@@ -1,5 +1,7 @@
+require 'inherited_class_var'
+
 require 'csv_row_model/model/base'
-require 'csv_row_model/model/columns'
+require 'csv_row_model/model/attributes'
 require 'csv_row_model/model/children'
 require 'csv_row_model/model/dynamic_columns'
 
@@ -17,7 +19,7 @@ module CsvRowModel
     include HiddenModule
 
     include Base
-    include Columns
+    include Attributes
     include Children
     include DynamicColumns
   end
