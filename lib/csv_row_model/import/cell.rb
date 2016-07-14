@@ -1,5 +1,3 @@
-require 'csv_row_model/validators/boolean_format'
-
 module CsvRowModel
   module Import
     class Cell
