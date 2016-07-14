@@ -4,13 +4,7 @@ module CsvRowModel
       extend ActiveSupport::Concern
 
       included do
-        attr_reader :context
-
-        # @return [Model] return the parent, if this instance is a child
-        attr_reader :parent
-
-        # @return [DateTime] return when self has been intialized
-        attr_reader :initialized_at
+        attr_reader :context, :parent, :initialized_at
       end
 
       # @param [Hash] options
@@ -23,17 +17,23 @@ module CsvRowModel
       end
 
       # Safe to override.
-      #
       # @return [Boolean] returns true, if this instance should be skipped
       def skip?
         !valid?
       end
 
       # Safe to override.
-      #
       # @return [Boolean] returns true, if the entire csv file should stop reading
       def abort?
         false
+      end
+
+      def eql?(other)
+        other.try(:attributes) == attributes
+      end
+
+      def hash
+        attributes.hash
       end
     end
   end
