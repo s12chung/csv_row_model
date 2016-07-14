@@ -24,12 +24,4 @@ describe BooleanFormatValidator do
       expect(subject).to eql true
     end
   end
-
-  context "bad Boolean" do
-    before { instance.string1 = "asdad" }
-
-    it "is invalid" do
-      expect(subject).to eql false
-    end
-  end
 end

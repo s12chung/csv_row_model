@@ -44,12 +44,4 @@ describe FloatFormatValidator do
     it_behaves_like "allows_suffix_zero"
     it_behaves_like "allows_suffix_decimal_zero"
   end
-
-  context "bad Float" do
-    before { instance.string1 = "asdad" }
-
-    it "is invalid" do
-      expect(subject).to eql false
-    end
-  end
 end

@@ -48,12 +48,4 @@ describe IntegerFormatValidator do
       end
     end
   end
-
-  context "bad Integer" do
-    before { instance.string1 = "asdad" }
-
-    it "is invalid" do
-      expect(subject).to eql false
-    end
-  end
 end

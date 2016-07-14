@@ -24,7 +24,6 @@ require 'csv_row_model/export'
 require 'csv_row_model/export/file'
 require 'csv_row_model/export/file_model'
 
-require 'csv_row_model/validators/number_validator'
 require 'csv_row_model/validators/default_change_validator'
 require 'csv_row_model/validators/boolean_format_validator'
 require 'csv_row_model/validators/date_time_format_validator'
