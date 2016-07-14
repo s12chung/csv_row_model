@@ -23,16 +23,6 @@ module CsvRowModel
         array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].formatted_value }
       end
 
-      # @return [Hash] a map of `column_name => original_attribute(column_name)`
-      def original_attributes
-        array_to_block_hash(self.class.column_names) { |column_name| original_attribute(column_name) }
-      end
-
-      # @return [Object] the column's attribute before override
-      def original_attribute(column_name)
-        attribute_objects[column_name].try(:value)
-      end
-
       # return [Hash] a map changes from {.column}'s default option': `column_name -> [value_before_default, default_set]`
       def default_changes
         array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].default_change }.delete_if {|k, v| v.blank? }

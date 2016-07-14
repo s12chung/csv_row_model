@@ -13,6 +13,16 @@ module CsvRowModel
         attributes_from_method_names self.class.column_names
       end
 
+      # @return [Hash] a map of `column_name => original_attribute(column_name)`
+      def original_attributes
+        array_to_block_hash(self.class.column_names) { |column_name| original_attribute(column_name) }
+      end
+
+      # @return [Object] the column's attribute before override
+      def original_attribute(column_name)
+        attribute_objects[column_name].try(:value)
+      end
+
       def to_json
         attributes.to_json
       end

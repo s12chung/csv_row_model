@@ -21,7 +21,7 @@ module CsvRowModel
 
       # @return [Array] an array of public_send(column_name) of the CSV model
       def to_row
-        formatted_attributes.values
+        attributes.values
       end
 
       class_methods do

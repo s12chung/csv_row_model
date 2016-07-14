@@ -13,15 +13,6 @@ module CsvRowModel
         @attribute_objects ||= array_to_block_hash(self.class.column_names) { |column_name| Attribute.new(column_name, self) }
       end
 
-      # @return [Hash] a map of `column_name => formatted_attributes`
-      def formatted_attributes
-        array_to_block_hash(self.class.column_names) { |column_name| formatted_attribute(column_name) }
-      end
-
-      def formatted_attribute(column_name)
-        attribute_objects[column_name].try(:value)
-      end
-
       def source_attribute(column_name)
         attribute_objects[column_name].try(:source_value)
       end

@@ -16,19 +16,6 @@ describe CsvRowModel::Export::Attributes do
       end
     end
 
-    describe "#formatted_attributes" do
-      subject { instance.formatted_attributes }
-
-      it "returns the attributes hash" do
-        expect(row_model_class).to receive(:format_cell).exactly(2).times.and_call_original
-        expect(subject).to eql(string1: 'a', string2: 'b')
-      end
-    end
-
-    describe "#formatted_attribute" do
-      it_behaves_like "attribute_object_value", :formatted_attribute, :value, string1: "a"
-    end
-
     describe "#source_attribute" do
       it_behaves_like "attribute_object_value", :source_attribute, :source_value, string1: "a"
     end

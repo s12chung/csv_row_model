@@ -29,20 +29,6 @@ describe CsvRowModel::Export::DynamicColumns do
       end
     end
 
-    describe "#formatted_attributes" do
-      subject { instance.formatted_attributes }
-
-      it "should have dynamic columns" do
-        expect(subject).to eql(skills: skills)
-      end
-
-      with_context "standard columns defined" do
-        it "should have standard and dynamic columns" do
-          expect(subject).to eql(first_name: "Mario", last_name: "Doe", skills: skills)
-        end
-      end
-    end
-
     describe '#to_row' do
       subject { instance.to_row }
 
@@ -66,9 +52,9 @@ describe CsvRowModel::Export::DynamicColumns do
     describe "::define_dynamic_attribute_method" do
       subject { row_model_class.send(:define_dynamic_attribute_method, :skills) }
 
-      it "makes an attribute that calls :formatted_attribute" do
+      it "makes an attribute that calls :original_attribute" do
         subject
-        expect(instance).to receive(:formatted_attribute).with(:skills).and_return("tested")
+        expect(instance).to receive(:original_attribute).with(:skills).and_return("tested")
         expect(instance.skills).to eql "tested"
       end
     end

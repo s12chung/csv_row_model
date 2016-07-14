@@ -50,20 +50,6 @@ describe CsvRowModel::Import::Attributes do
       end
     end
 
-    describe "#original_attributes" do
-      subject { instance.original_attributes }
-
-      it "returns the attributes hash" do
-        # 2 attributes * (1 for csv_string_model + 1 for original_attributes)
-        expect(row_model_class).to receive(:format_cell).exactly(4).times.and_call_original
-        expect(subject).to eql(string1: '1.01', string2: 'b')
-      end
-    end
-
-    describe "#original_attribute" do
-      it_behaves_like "attribute_object_value", :original_attribute, :value, string1: "1.01"
-    end
-
     describe "#default_changes" do
       subject { instance.default_changes }
 

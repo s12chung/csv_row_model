@@ -20,11 +20,6 @@ module CsvRowModel
         super.flatten
       end
 
-      # See Model::Export#formatted_attributes
-      def formatted_attributes
-        super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| formatted_attribute(column_name) })
-      end
-
       class_methods do
         protected
 
@@ -37,7 +32,7 @@ module CsvRowModel
         # Define default attribute method for a dynamic_column
         # @param column_name [Symbol] the cell's column_name
         def define_dynamic_attribute_method(column_name)
-          define_proxy_method(column_name) { formatted_attribute(column_name) }
+          define_proxy_method(column_name) { original_attribute(column_name) }
           DynamicColumnAttribute.define_process_cell(self, column_name)
         end
       end

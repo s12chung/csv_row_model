@@ -44,6 +44,22 @@ describe CsvRowModel::Model::Attributes do
       end
     end
 
+    context "with attribute_objects stubbed" do
+      include_context "stub_attribute_objects", string1: "haha", string2: "baka"
+
+      describe "#original_attributes" do
+        subject { instance.original_attributes }
+
+        it "returns the attributes hash" do
+          expect(subject).to eql(string1: 'haha', string2: 'baka')
+        end
+      end
+
+      describe "#original_attribute" do
+        it_behaves_like "attribute_object_value", :original_attribute, :value, string1: "haha"
+      end
+    end
+
     describe "#to_json" do
       it "returns the attributes json" do
         expect(instance.to_json).to eql(instance.attributes.to_json)

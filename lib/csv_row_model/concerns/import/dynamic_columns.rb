@@ -24,11 +24,6 @@ module CsvRowModel
         super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| attribute_objects[column_name].formatted_cells })
       end
 
-      # @return [Hash] a map of `column_name => original_attribute(column_name)`
-      def original_attributes
-        super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| original_attribute(column_name) })
-      end
-
       # @return [Array] an array of format_dynamic_column_header(...)
       def formatted_dynamic_column_headers
         dynamic_column_attribute_objects.values.first.try(:formatted_headers) || []
