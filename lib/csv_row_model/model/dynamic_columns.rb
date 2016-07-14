@@ -59,7 +59,7 @@ module CsvRowModel
 
         protected
 
-        VALID_OPTIONS_KEYS = %i[header].freeze
+        VALID_OPTIONS_KEYS = %i[header header_models_context_key].freeze
 
         # define a dynamic_column, must be after all normal columns
         #
