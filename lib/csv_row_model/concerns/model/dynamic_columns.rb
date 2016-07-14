@@ -18,8 +18,24 @@ module CsvRowModel
           dynamic_columns.present?
         end
 
-        def is_dynamic_column?(column_name)
-          dynamic_columns.keys.include?(column_name)
+        # @return [Integer] index of dynamic_column of all columns
+        def dynamic_column_index(column_name)
+          offset = dynamic_column_names.index(column_name)
+          offset ? columns.size + offset : nil
+        end
+
+        # @return [Array<Symbol>] column names for the row model
+        def dynamic_column_names
+          dynamic_columns.keys
+        end
+
+        # See Model::Columns::headers
+        def headers(context={})
+          super + dynamic_column_headers(context)
+        end
+
+        def dynamic_column_headers(context={})
+          dynamic_column_names.map { |column_name| DynamicColumnHeader.new(column_name, self, context).value }.flatten
         end
 
         # Safe to override. Method applied to each dynamic_column attribute
@@ -35,26 +51,6 @@ module CsvRowModel
         # @return [String] formatted header
         def format_dynamic_column_header(header_model, column_name, dynamic_column_index, context)
           header_model
-        end
-
-        # See Model::Columns::headers
-        def headers(context={})
-          super + dynamic_column_headers(context)
-        end
-
-        def dynamic_column_headers(context={})
-          dynamic_column_names.map { |column_name| DynamicColumnHeader.new(column_name, self, context).value }.flatten
-        end
-
-        # @return [Integer] index of dynamic_column of all columns
-        def dynamic_column_index(column_name)
-          offset = dynamic_column_names.index(column_name)
-          offset ? columns.size + offset : nil
-        end
-
-        # @return [Array<Symbol>] column names for the row model
-        def dynamic_column_names
-          dynamic_columns.keys
         end
 
         protected

@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe CsvRowModel::Model::DynamicColumns do
   let(:skills) { %w[skill1 skill2] }
+  let(:row_model_class) { DynamicColumnModel }
 
   describe "instance" do
-    let(:source) { {} }
-    let(:instance) { DynamicColumnModel.new(source) }
+    let(:instance) { row_model_class.new }
 
     before do
       instance.define_singleton_method(:first_name) { "haha" }
@@ -23,55 +23,8 @@ describe CsvRowModel::Model::DynamicColumns do
   end
 
   describe "class" do
-    describe "::dynamic_columns?" do
-      it "returns true if class is a dynamic_column class" do
-        expect(DynamicColumnModel.dynamic_columns?).to eql(true)
-        expect(BasicRowModel.dynamic_columns?).to eql(false)
-      end
-    end
-
-    describe "::is_dynamic_column?" do
-      it "returns if the column is a part of the dynamic ones or not" do
-        expect(DynamicColumnModel.is_dynamic_column?(:skills)).to eql(true)
-        expect(DynamicColumnModel.is_dynamic_column?(:first_name)).to eql(false)
-      end
-    end
-
-    describe "::format_dynamic_column_header" do
-      subject { DynamicColumnModel.format_dynamic_column_header("blah", nil, nil, nil) }
-
-      it "returns the header_model" do
-        expect(subject).to eql "blah"
-      end
-    end
-
-    describe "::dynamic_column_headers" do
-      let(:context) { { skills: skills } }
-      subject { klass.dynamic_column_headers(context) }
-
-      let(:klass) do
-        Class.new do
-          include CsvRowModel::Model
-          dynamic_column :skills
-        end
-      end
-
-      it "returns the header that is the header_model" do
-        expect(subject).to eql skills
-      end
-    end
-
-    describe "::headers" do
-      let(:headers) { [:first_name, :last_name] + skills }
-      subject { DynamicColumnModel.headers(skills: skills) }
-
-      it "returns an array with header column names" do
-        expect(subject).to eql headers
-      end
-    end
-
     describe "::dynamic_column_index" do
-      subject { DynamicColumnModel.dynamic_column_index(:skills) }
+      subject { row_model_class.dynamic_column_index(:skills) }
 
       it "returns the index after the columns" do
         expect(subject).to eql 2
@@ -79,15 +32,57 @@ describe CsvRowModel::Model::DynamicColumns do
     end
 
     describe "::dynamic_column_names" do
-      subject { DynamicColumnModel.dynamic_column_names }
+      subject { row_model_class.dynamic_column_names }
 
       it "returns just the dynamic column names" do
         expect(subject).to eql [:skills]
       end
     end
 
+
+    describe "::dynamic_columns?" do
+      it "returns true if class is a dynamic_column class" do
+        expect(row_model_class.dynamic_columns?).to eql(true)
+        expect(BasicRowModel.dynamic_columns?).to eql(false)
+      end
+    end
+
+    describe "::headers" do
+      let(:headers) { [:first_name, :last_name] + skills }
+      subject { row_model_class.headers(skills: skills) }
+
+      it "returns an array with header column names" do
+        expect(subject).to eql headers
+      end
+    end
+
+    describe "::dynamic_column_headers" do
+      subject { row_model_class.dynamic_column_headers(context) }
+      let(:context) { { skills: skills } }
+
+      it "returns the header that is the header_model" do
+        expect(subject).to eql skills
+      end
+    end
+
+    describe "::format_dynamic_column_cells" do
+      subject { row_model_class.format_dynamic_column_cells(["blah"], nil, nil, nil) }
+
+      it "returns the cells" do
+        expect(subject).to eql ["blah"]
+      end
+    end
+
+    describe "::format_dynamic_column_header" do
+      subject { row_model_class.format_dynamic_column_header("blah", nil, nil, nil) }
+
+      it "returns the header_model" do
+        expect(subject).to eql "blah"
+      end
+    end
+
     describe "::dynamic_columns" do
-      subject { DynamicColumnModel.dynamic_columns }
+      subject { row_model_class.dynamic_columns }
 
       it "returns the hash representing the dynamic columns" do
         expect(subject).to eql(skills: {})
