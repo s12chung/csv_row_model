@@ -4,53 +4,15 @@ describe CsvRowModel::Model::DynamicColumns do
   let(:skills) { %w[skill1 skill2] }
   let(:row_model_class) do
     Class.new do
-      include CsvRowModel::Model
-      include CsvRowModel::Export
+      include CsvRowModel::Model::Attributes
+      include CsvRowModel::Model::DynamicColumns
       dynamic_column :skills
     end
   end
   let(:instance) { row_model_class.new }
-  include_context "stub_attribute_objects", skills: %w[skill1 skill2]
 
   shared_context "standard columns defined" do
     let(:row_model_class) { DynamicColumnModel }
-    include_context "stub_attribute_objects", first_name: "haha", last_name: "baka", skills: %w[skill1 skill2]
-  end
-
-  describe "instance" do
-    describe "#attributes" do
-      subject { instance.attributes }
-
-      before do
-        instance.define_singleton_method(:first_name) { "haha" }
-        instance.define_singleton_method(:last_name) { "baka" }
-        instance.define_singleton_method(:skills) { %w[skill1 skill2] }
-      end
-
-      it "returns the map of column_name => public_send(column_name)" do
-        expect(subject).to eql(skills: skills)
-      end
-
-      with_context "standard columns defined" do
-        it "returns the map of column_name => public_send(column_name)" do
-          expect(subject).to eql(first_name: "haha", last_name: "baka", skills: skills)
-        end
-      end
-    end
-
-    describe "#original_attributes" do
-      subject { instance.original_attributes }
-
-      it "should have dynamic columns" do
-        expect(subject).to eql(skills: skills)
-      end
-
-      with_context "standard columns defined" do
-        it "should have standard and dynamic columns" do
-          expect(subject).to eql(first_name: "haha", last_name: "baka", skills: skills)
-        end
-      end
-    end
   end
 
   describe "class" do
@@ -77,7 +39,6 @@ describe CsvRowModel::Model::DynamicColumns do
         end
       end
     end
-
 
     describe "::dynamic_columns?" do
       it "returns true if class is a dynamic_column class" do

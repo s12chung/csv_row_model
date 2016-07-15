@@ -17,12 +17,6 @@ module CsvRowModel
         end
       end
 
-      def formatted_cells
-        source_cells.map.with_index do |source_cell, index|
-          row_model_class.format_cell(source_cell, column_name, column_index + index, row_model.context)
-        end
-      end
-
       def formatted_headers
         source_headers.map do |source_headers|
           row_model_class.format_dynamic_column_header(source_headers, column_name, column_index, row_model.context)

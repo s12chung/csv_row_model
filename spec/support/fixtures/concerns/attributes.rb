@@ -27,3 +27,36 @@ module BasicAttributes
     end
   end
 end
+
+class BasicDynamicColumnAttribute < CsvRowModel::Model::DynamicColumnAttribute
+  def unformatted_value
+    formatted_cells
+  end
+
+  def source_cells
+    row_model.header_models
+  end
+  def self.define_process_cell(*args); end
+end
+
+module BasicDynamicColumns
+  extend ActiveSupport::Concern
+  include BasicAttributes
+  include CsvRowModel::DynamicColumnsBase
+
+  # included do
+  #   ensure_define_dynamic_attribute_method
+  # end
+
+  def dynamic_column_attribute_objects
+    @dynamic_column_attribute_objects ||= array_to_block_hash(self.class.dynamic_column_names) do |column_name|
+      self.class.dynamic_attribute_class.new(column_name, self)
+    end
+  end
+
+  class_methods do
+    def dynamic_attribute_class
+      BasicDynamicColumnAttribute
+    end
+  end
+end

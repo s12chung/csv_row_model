@@ -1,27 +1,20 @@
+require 'csv_row_model/concerns/dynamic_columns_base'
 require 'csv_row_model/internal/import/dynamic_column_attribute'
 
 module CsvRowModel
   module Import
     module DynamicColumns
       extend ActiveSupport::Concern
+      include DynamicColumnsBase
 
       included do
-        self.dynamic_column_names.each { |*args| define_dynamic_attribute_method(*args) }
-      end
-
-      def attribute_objects
-        @attribute_objects ||= super.merge(dynamic_column_attribute_objects)
+        ensure_define_dynamic_attribute_method
       end
 
       def dynamic_column_attribute_objects
         @dynamic_column_attribute_objects ||= array_to_block_hash(self.class.dynamic_column_names) do |column_name|
-          DynamicColumnAttribute.new(column_name, dynamic_column_source_headers, dynamic_column_source_cells, self)
+          self.class.dynamic_attribute_class.new(column_name, dynamic_column_source_headers, dynamic_column_source_cells, self)
         end
-      end
-
-      # @return [Hash] a map of `column_name => format_cell(column_name, ...)`
-      def formatted_attributes
-        super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| attribute_objects[column_name].formatted_cells })
       end
 
       # @return [Array] an array of format_dynamic_column_header(...)
@@ -48,19 +41,8 @@ module CsvRowModel
           dynamic_columns? ? source_row[columns.size..-1] : []
         end
 
-        protected
-
-        # See {Model#dynamic_column}
-        def dynamic_column(column_name, options={})
-          super
-          define_dynamic_attribute_method(column_name)
-        end
-
-        # Define default attribute method for a column
-        # @param column_name [Symbol] the cell's column_name
-        def define_dynamic_attribute_method(column_name)
-          define_proxy_method(column_name) { original_attribute(column_name) }
-          DynamicColumnAttribute.define_process_cell(self, column_name)
+        def dynamic_attribute_class
+          DynamicColumnAttribute
         end
       end
     end

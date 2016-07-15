@@ -10,6 +10,12 @@ module CsvRowModel
         @value ||= row_model_class.format_dynamic_column_cells(unformatted_value, column_name, column_index, row_model.context)
       end
 
+      def formatted_cells
+        source_cells.map.with_index.map do |cell, index|
+          row_model_class.format_cell(cell, column_name, column_index + index, row_model.context)
+        end
+      end
+
       protected
 
       def process_cell_method_name

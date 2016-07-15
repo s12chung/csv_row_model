@@ -4,18 +4,10 @@ module CsvRowModel
   module Model
     module DynamicColumns
       extend ActiveSupport::Concern
+      include InheritedClassVar
+
       included do
         inherited_class_hash :dynamic_columns
-      end
-
-      # See Model::Columns#attributes
-      def attributes
-        super.merge!(attributes_from_method_names(self.class.dynamic_column_names))
-      end
-
-      # @return [Hash] a map of `column_name => original_attribute(column_name)`
-      def original_attributes
-        super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| original_attribute(column_name) })
       end
 
       class_methods do

@@ -24,46 +24,12 @@ describe CsvRowModel::Import::DynamicColumns do
   end
 
   describe "instance" do
-    describe "#attribute_objects" do
-      it_behaves_like "attribute_objects_method",
-                      %i[skills],
-                      CsvRowModel::Import::DynamicColumnAttribute => 1
-
-      with_context "standard columns defined" do
-        it_behaves_like "attribute_objects_method",
-                        %i[first_name last_name skills],
-                        CsvRowModel::Import::Attribute => 2,
-                        CsvRowModel::Import::DynamicColumnAttribute => 1
-      end
-    end
-
     describe "#dynamic_Column_attribute_objects" do
       with_this_then_context "standard columns defined" do
         it_behaves_like "attribute_objects_method",
                         %i[skills],
                         { CsvRowModel::Import::DynamicColumnAttribute => 1 },
                         :dynamic_column_attribute_objects
-      end
-    end
-
-    describe "#formatted_attributes" do
-      subject { instance.formatted_attributes }
-      let(:row_model_class) { Class.new(super()) { def self.format_cell(*args); args.join("__") end } }
-
-      it "returns all attributes of dynamic columns" do
-        expect(subject).to eql(skills: ["Yes__skills__0__#<OpenStruct>", "Yes__skills__1__#<OpenStruct>", "No__skills__2__#<OpenStruct>", "Yes__skills__3__#<OpenStruct>", "Yes__skills__4__#<OpenStruct>", "No__skills__5__#<OpenStruct>"])
-      end
-
-      with_context "standard columns defined" do
-        let(:row_model_class) { Class.new(DynamicColumnImportModel) { def self.format_cell(*args); args.join("__") end } }
-
-        it "returns all attributes including the dynamic columns" do
-          expect(subject).to eql(
-                               first_name: "Mario__first_name__0__#<OpenStruct>",
-                               last_name: "Italian__last_name__1__#<OpenStruct>",
-                               skills: ["Yes__skills__2__#<OpenStruct>", "Yes__skills__3__#<OpenStruct>", "No__skills__4__#<OpenStruct>", "Yes__skills__5__#<OpenStruct>", "Yes__skills__6__#<OpenStruct>", "No__skills__7__#<OpenStruct>"]
-                             )
-        end
       end
     end
 
@@ -84,36 +50,6 @@ describe CsvRowModel::Import::DynamicColumns do
     describe "#dynamic_column_source_cells" do
       subject { instance.dynamic_column_source_cells }
       it("calls the class method") { expect(row_model_class).to receive(:dynamic_column_source_cells).with(source_row); subject }
-    end
-
-    describe "#original_attribute" do
-      subject { instance.original_attribute(:skills) }
-
-      it_behaves_like "attribute_object_value", :original_attribute, :value, skills: dynamic_column_source_cells
-
-      context "with all overrides" do
-        let(:row_model_class) do
-          Class.new do
-            include CsvRowModel::Model
-            dynamic_column :skills
-            include CsvRowModel::Import
-
-            def skill(value, skill_name)
-              value == "Yes_f" ? skill_name : nil
-            end
-
-            class << self
-              def format_dynamic_column_cells(cells, column_name, column_index, context); cells.compact end
-              def format_cell(cell, column_name, column_index, context); "#{cell}_f" end
-              def format_dynamic_column_header(header_model, column_name, dynamic_column_index, context); "f_#{header_model}" end
-            end
-          end
-        end
-
-        it "works" do
-          expect(subject).to eql(["f_Organized", "f_Clean", "f_Strong", "f_Crazy"])
-        end
-      end
     end
   end
 

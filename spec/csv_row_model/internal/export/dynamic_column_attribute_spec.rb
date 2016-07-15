@@ -33,8 +33,8 @@ describe CsvRowModel::Export::DynamicColumnAttribute do
       ]
     end
 
-    describe "#cells" do
-      subject { instance.cells }
+    describe "#source_cells" do
+      subject { instance.source_cells }
 
       it "returns an array of unformatted_cell" do
         expect(instance).to receive(:header_models).and_call_original
