@@ -1,3 +1,5 @@
+require 'csv_row_model/concerns/inspect'
+
 module CsvRowModel
   module Import
     module Base
@@ -27,12 +29,6 @@ module CsvRowModel
         @previous = options[:previous].try(:dup)
         previous.try(:free_previous)
         super(options)
-      end
-
-      # @return [Hash] a map of `column_name => source_row[index_of_column_name]`
-      def source_attributes
-        return {} unless source_row
-        @source_attributes ||= self.class.column_names.zip(source_row).to_h
       end
 
       # Free `previous` from memory to avoid making a linked list

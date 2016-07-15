@@ -1,44 +1,18 @@
+require 'inherited_class_var'
 require 'csv_row_model/internal/model/header'
 
 module CsvRowModel
   module Model
     module Attributes
       extend ActiveSupport::Concern
+      include InheritedClassVar
+
       included do
         inherited_class_hash :columns
       end
 
-      # @return [Hash] a map of `column_name => public_send(column_name)`
-      def attributes
-        attributes_from_method_names self.class.column_names
-      end
-
-      # @return [Hash] a map of `column_name => original_attribute(column_name)`
-      def original_attributes
-        array_to_block_hash(self.class.column_names) { |column_name| original_attribute(column_name) }
-      end
-
-      # @return [Object] the column's attribute before override
-      def original_attribute(column_name)
-        attribute_objects[column_name].try(:value)
-      end
-
-      def to_json
-        attributes.to_json
-      end
-
       def headers
         self.class.headers(context)
-      end
-
-      protected
-
-      def attributes_from_method_names(column_names)
-        array_to_block_hash(column_names) { |column_name| try(column_name) }
-      end
-
-      def array_to_block_hash(array, &block)
-        array.zip(array.map { |column_name| block.call(column_name) }).to_h
       end
 
       class_methods do

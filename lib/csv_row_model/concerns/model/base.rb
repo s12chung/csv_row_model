@@ -27,14 +27,6 @@ module CsvRowModel
       def abort?
         false
       end
-
-      def eql?(other)
-        other.try(:attributes) == attributes
-      end
-
-      def hash
-        attributes.hash
-      end
     end
   end
 end

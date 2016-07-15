@@ -1,7 +1,13 @@
+require 'inherited_class_var'
+require 'csv_row_model/concerns/hidden_module'
+
 module CsvRowModel
   module Model
     module Children
       extend ActiveSupport::Concern
+      include InheritedClassVar
+      include HiddenModule
+
       included do
         inherited_class_hash :has_many_relationships
       end

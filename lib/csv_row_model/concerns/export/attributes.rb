@@ -1,9 +1,11 @@
+require 'csv_row_model/concerns/attributes_base'
 require 'csv_row_model/internal/export/attribute'
 
 module CsvRowModel
   module Export
     module Attributes
       extend ActiveSupport::Concern
+      include AttributesBase
 
       included do
         self.column_names.each { |*args| define_attribute_method(*args) }
@@ -13,23 +15,10 @@ module CsvRowModel
         @attribute_objects ||= array_to_block_hash(self.class.column_names) { |column_name| Attribute.new(column_name, self) }
       end
 
-      def source_attribute(column_name)
-        attribute_objects[column_name].try(:source_value)
-      end
-
       class_methods do
         protected
-        # See {Model#column}
-        def column(column_name, options={})
-          super
-          define_attribute_method(column_name)
-        end
-
-        # Define default attribute method for a column
-        # @param column_name [Symbol] the cell's column_name
         def define_attribute_method(column_name)
-          return if method_defined? column_name
-          define_proxy_method(column_name) { source_model.public_send(column_name) }
+          super { source_model.public_send(column_name) }
         end
       end
     end

@@ -15,10 +15,6 @@ describe CsvRowModel::Export::Attributes do
         expect(subject.values.map(&:class)).to eql [CsvRowModel::Export::Attribute] * 2
       end
     end
-
-    describe "#source_attribute" do
-      it_behaves_like "attribute_object_value", :source_attribute, :source_value, string1: "a"
-    end
   end
 
   describe 'class' do
