@@ -87,8 +87,8 @@ describe CsvRowModel::DynamicColumnsBase do
       with_context "standard columns defined" do
         it "returns all attributes including the dynamic columns" do
           expect(subject).to eql(
-                               first_name: "Mario__first_name__0__#<OpenStruct>",
-                               last_name: "Italian__last_name__1__#<OpenStruct>",
+                               first_name: "Mario_source__first_name__0__#<OpenStruct>",
+                               last_name: "Italian_source__last_name__1__#<OpenStruct>",
                                skills: ["Organized__skills__2__#<OpenStruct>", "Clean__skills__3__#<OpenStruct>", "Punctual__skills__4__#<OpenStruct>", "Strong__skills__5__#<OpenStruct>", "Crazy__skills__6__#<OpenStruct>", "Flexible__skills__7__#<OpenStruct>"]
                              )
         end

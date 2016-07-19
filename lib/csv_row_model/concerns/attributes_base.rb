@@ -13,24 +13,20 @@ module CsvRowModel
       attributes_from_method_names self.class.column_names
     end
 
-    # @return [Hash] a map of `column_name => original_attribute(column_name)`
-    def original_attributes
-      array_to_block_hash(self.class.column_names) { |column_name| original_attribute(column_name) }
+    ATTRIBUTE_METHODS = {
+      original_attributes: :value, # a map of `column_name => original_attribute(column_name)`
+      formatted_attributes: :formatted_value, # a map of `column_name => format_cell(column_name, ...)`
+      source_attributes: :source_value # a map of `column_name => source (source_row[index_of_column_name] or row_model.public_send(column_name)) `
+    }.freeze
+    ATTRIBUTE_METHODS.each do |method_name, attribute_method|
+      define_method(method_name) do
+        array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].public_send(attribute_method) }
+      end
     end
 
     # @return [Object] the column's attribute before override
     def original_attribute(column_name)
       attribute_objects[column_name].try(:value)
-    end
-
-    # @return [Hash] a map of `column_name => format_cell(column_name, ...)`
-    def formatted_attributes
-      array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].formatted_value }
-    end
-
-    # @return [Hash] a map of `column_name => source (source_row[index_of_column_name] or row_model.public_send(column_name)) `
-    def source_attributes
-      array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].source_value }
     end
 
     def to_json

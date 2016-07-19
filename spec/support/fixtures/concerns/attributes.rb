@@ -1,10 +1,10 @@
 class BasicAttribute < CsvRowModel::Model::Attribute
   def value
-    source_value
+    source_value.gsub("_source", "")
   end
 
   def source_value
-    row_model.public_send(column_name)
+    "#{row_model.public_send(column_name)}_source"
   end
 end
 
@@ -23,6 +23,10 @@ module BasicAttributes
 
   def attribute_objects
     @attribute_objects ||= array_to_block_hash(self.class.column_names) { |column_name| BasicAttribute.new(column_name, self) }
+  end
+
+  def context
+    OpenStruct.new
   end
 
   class_methods do

@@ -54,6 +54,26 @@ describe CsvRowModel::AttributesBase do
       end
     end
 
+    describe "#formatted_attributes" do
+      before do
+        row_model_class.class_eval do
+          def self.format_cell(*args); args.join("__") end
+        end
+      end
+
+      subject { instance.formatted_attributes }
+      it "returns the attributes hash" do
+        expect(subject).to eql(string1: "haha_source__string1__0__#<OpenStruct>", string2: "baka_source__string2__1__#<OpenStruct>")
+      end
+    end
+
+    describe "#source_attributes" do
+      subject { instance.source_attributes }
+      it "returns the attributes hash" do
+        expect(subject).to eql(string1: 'haha_source', string2: 'baka_source')
+      end
+    end
+
     describe "#original_attribute" do
       it_behaves_like "attribute_object_value", :original_attribute, :value, string1: "haha"
     end

@@ -7,6 +7,8 @@ describe CsvRowModel::Export::Attribute do
     let(:source_model) { OpenStruct.new(string1: "1.01") }
     let(:row_model) { row_model_class.new(source_model) }
 
+    it_behaves_like "has_needed_value_methods"
+
     describe "#value" do
       subject { instance.value }
 

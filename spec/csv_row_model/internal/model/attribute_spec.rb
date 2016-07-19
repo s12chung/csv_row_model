@@ -11,7 +11,6 @@ describe CsvRowModel::Model::Attribute do
       allow(instance).to receive(:source_value).and_return(source_value)
     end
 
-
     describe "#formatted_value" do
       subject { instance.formatted_value }
 

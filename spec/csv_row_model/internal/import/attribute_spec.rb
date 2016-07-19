@@ -14,6 +14,8 @@ describe CsvRowModel::Import::Attribute do
     let(:options) { {} }
     let(:source_row) { [source_value, "original_string2"] }
 
+    it_behaves_like "has_needed_value_methods"
+
     describe "#value" do
       subject { instance.value }
 
