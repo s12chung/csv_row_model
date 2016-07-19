@@ -74,6 +74,8 @@ describe CsvRowModel::Import::Attributes do
       end
     end
 
+    it_behaves_like "defines_attributes_methods_safely", string1: "1.01", string2: "b"
+
     describe ":column" do
       it_behaves_like "column_method", CsvRowModel::Import, string1: "1.01", string2: "b"
     end

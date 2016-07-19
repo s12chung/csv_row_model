@@ -68,6 +68,10 @@ module CsvRowModel
         return if method_defined? column_name
         define_proxy_method(column_name, &block)
       end
+
+      def ensure_attribute_method
+        self.column_names.each { |*args| define_attribute_method(*args) }
+      end
     end
   end
 end

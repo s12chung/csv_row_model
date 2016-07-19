@@ -25,6 +25,8 @@ describe CsvRowModel::Export::Attributes do
       end
     end
 
+    it_behaves_like "defines_attributes_methods_safely", string1: "a", string2: "b"
+
     describe "::column" do
       it_behaves_like "column_method", CsvRowModel::Export, string1: "a", string2: "b"
     end

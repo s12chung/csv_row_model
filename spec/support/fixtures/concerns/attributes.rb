@@ -13,6 +13,10 @@ module BasicAttributes
   include CsvRowModel::AttributesBase
   attr_reader :source_row
 
+  included do
+    ensure_attribute_method
+  end
+
   def initialize(*source_row)
     @source_row = source_row
   end
@@ -44,9 +48,9 @@ module BasicDynamicColumns
   include BasicAttributes
   include CsvRowModel::DynamicColumnsBase
 
-  # included do
-  #   ensure_define_dynamic_attribute_method
-  # end
+  included do
+    ensure_define_dynamic_attribute_method
+  end
 
   def dynamic_column_attribute_objects
     @dynamic_column_attribute_objects ||= array_to_block_hash(self.class.dynamic_column_names) do |column_name|

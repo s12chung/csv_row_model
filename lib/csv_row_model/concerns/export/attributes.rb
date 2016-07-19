@@ -8,7 +8,7 @@ module CsvRowModel
       include AttributesBase
 
       included do
-        self.column_names.each { |*args| define_attribute_method(*args) }
+        ensure_attribute_method
       end
 
       def attribute_objects
