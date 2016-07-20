@@ -79,7 +79,7 @@ describe CsvRowModel::Import::Csv do
     end
 
     context "with bad header syntax" do
-      let(:file_path) { bad_header_1_row_path }
+      let(:file_path) { bad_headers_1_row_path }
       it "returns an exception" do
         expect(subject.to_s).to eql "Unclosed quoted field on line 1."
       end
