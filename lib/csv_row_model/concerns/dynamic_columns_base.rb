@@ -14,14 +14,14 @@ module CsvRowModel
       super.merge!(attributes_from_method_names(self.class.dynamic_column_names))
     end
 
-    # @return [Hash] a map of `column_name => original_attribute(column_name)`
-    def original_attributes
-      super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| original_attribute(column_name) })
-    end
-
-    # @return [Hash] a map of `column_name => format_cell(column_name, ...)`
-    def formatted_attributes
-      super.merge!(array_to_block_hash(self.class.dynamic_column_names) { |column_name| attribute_objects[column_name].formatted_cells })
+    ATTRIBUTE_METHODS = {
+      original_attributes: :value, # a map of `column_name => original_attribute(column_name)`
+      formatted_attributes: :formatted_cells, # a map of `column_name => format_cell(column_name, ...)`
+    }.freeze
+    ATTRIBUTE_METHODS.each do |method_name, attribute_method|
+      define_method(method_name) do
+        super().merge! array_to_block_hash(self.class.dynamic_column_names) { |column_name| attribute_objects[column_name].public_send(attribute_method) }
+      end
     end
 
     class_methods do

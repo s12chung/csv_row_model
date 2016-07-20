@@ -15,6 +15,8 @@ describe CsvRowModel::Import::DynamicColumnAttribute do
     end
     let(:row_model) { row_model_class.new }
 
+    it_behaves_like "has_needed_value_methods", CsvRowModel::DynamicColumnsBase
+
     describe "#unformatted_value" do
       subject { instance.unformatted_value }
 

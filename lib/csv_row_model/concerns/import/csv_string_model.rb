@@ -14,7 +14,6 @@ module CsvRowModel
       end
 
       # @return [Import::CsvStringModel::Model] a model with validations related to csv_string_model (values are from format_cell)
-      # @return [Import::CsvStringModel::Model] a model with validations related to csv_string_model (values are from format_cell)
       def csv_string_model
         @csv_string_model ||= begin
           attribute_objects = _attribute_objects
