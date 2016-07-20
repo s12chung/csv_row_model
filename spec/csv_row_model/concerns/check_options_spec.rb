@@ -1,14 +1,14 @@
 require 'spec_helper'
 
-describe CsvRowModel::Concerns::CheckOptions do
+class CheckOptions
+  include CsvRowModel::CheckOptions
+  VALID_OPTIONS = %i[option1 option2]
+end
+
+describe CsvRowModel::CheckOptions do
   describe "class" do
     describe "::check_options" do
-      let(:klass) do
-        Class.new do
-          include CsvRowModel::Concerns::CheckOptions
-          VALID_OPTIONS = %i[option1 option2]
-        end
-      end
+      let(:klass) { CheckOptions }
 
       subject { klass.check_options(option1: nil, option2: nil) }
       it "returns true" do

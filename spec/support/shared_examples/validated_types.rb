@@ -7,8 +7,24 @@ shared_examples "validated_types" do
     end
   end
 
-  context "empty string" do
-    before { instance.string1 = nil }
+  context "empty String" do
+    before { instance.string1 = "" }
+
+    it "is invalid" do
+      expect(subject).to eql false
+    end
+  end
+
+  context "space String" do
+    before { instance.string1 = " " }
+
+    it "is invalid" do
+      expect(subject).to eql false
+    end
+  end
+
+  context "random String" do
+    before { instance.string1 = "random" }
 
     it "is invalid" do
       expect(subject).to eql false

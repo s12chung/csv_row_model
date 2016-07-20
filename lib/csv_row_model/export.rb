@@ -1,6 +1,6 @@
-require 'csv_row_model/export/base'
-require 'csv_row_model/export/dynamic_columns'
-require 'csv_row_model/export/attributes'
+require 'csv_row_model/concerns/export/base'
+require 'csv_row_model/concerns/export/dynamic_columns'
+require 'csv_row_model/concerns/export/attributes'
 
 module CsvRowModel
   # Include this to with {Model} to have a RowModel for exporting to CSVs.

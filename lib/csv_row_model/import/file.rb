@@ -1,35 +1,34 @@
-require 'csv_row_model/import/file/callbacks'
-require 'csv_row_model/import/file/validations'
+require 'csv_row_model/internal/import/csv'
 
 module CsvRowModel
   module Import
     # Represents a csv file and handles parsing to return `Import`
     class File
-      include Callbacks
-      include Validations
+      extend ActiveModel::Callbacks
+      include ActiveWarnings
 
-      # @return [Csv]
-      attr_reader :csv
-      # @return [Input] model class returned for importing
-      attr_reader :row_model_class
-
-      # Current index of the row model (not the same as number of rows)
-      # @return [Integer] returns -1 = start of file, 0 to infinity = index of row_model, nil = end of file, no row_model
-      attr_reader :index
-      # @return [Input] the current row model set by {#next}
-      attr_reader :current_row_model
-      # @return [Input] the previous row model set by {#next}
-      attr_reader :previous_row_model
-      # @return [Hash] context passed to the {Import}
-      attr_reader :context
+      attr_reader :csv, :row_model_class
+      attr_reader :index # -1 = start of file, 0 to infinity = index of row_model, nil = end of file, no row_model
+      attr_reader :current_row_model, :previous_row_model, :context
 
       delegate :size, :end_of_file?, :line_number, to: :csv
+
+      define_model_callbacks :each_iteration
+      define_model_callbacks :next
+      define_model_callbacks :abort, :skip, only: :before
+
+      validate { errors.messages.merge!(csv.errors.messages) unless csv.valid? }
+      warnings do
+        validate { errors.add(:csv, "has header with #{csv.headers.message}") unless csv.headers.class == Array }
+      end
 
       # @param [String] file_path path of csv file
       # @param [Import] row_model_class model class returned for importing
       # @param context [Hash] context passed to the {Import}
       def initialize(file_path, row_model_class, context={})
-        @csv, @row_model_class, @context = Csv.new(file_path), row_model_class, context.to_h.symbolize_keys
+        @csv = Csv.new(file_path)
+        @row_model_class = row_model_class
+        @context = context.to_h.symbolize_keys
         reset
       end
 
@@ -74,6 +73,29 @@ module CsvRowModel
             yield current_row_model
           end
         end
+      end
+
+      # @return [Boolean] returns true, if the file should abort reading
+      def abort?
+        !valid? || !!current_row_model.try(:abort?)
+      end
+
+      # @return [Boolean] returns true, if the file should skip `current_row_model`
+      def skip?
+        !!current_row_model.try(:skip?)
+      end
+
+      protected
+      def _abort?
+        abort = abort?
+        run_callbacks(:abort) if abort
+        abort
+      end
+
+      def _skip?
+        skip = skip?
+        run_callbacks(:skip) if skip
+        skip
       end
     end
   end
