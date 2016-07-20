@@ -280,6 +280,18 @@ import_file.each { |project_import_model| puts "does not yield here" }
 import_file.next # does not skip or abort
 ```
 
+### File Validations
+You can also have file validations, while will make the entire import process abort. Currently, there is one provided validation.
+
+```ruby
+class ImportFile < CsvRowModel::Import::File
+  validate :headers_invalid_row # checks if header is valid CSV syntax
+  validate :headers_count # calls #headers_invalid_row, then check the count. will ignore tailing empty headers
+end
+```
+
+Can't be used for [Dynamic Columns](#dynamic-columns) or [File Model](#file-model)s.
+
 ### Import Callbacks
 `CsvRowModel::Import::File` can be subclassed to access
 [`ActiveModel::Callbacks`](http://api.rubyonrails.org/classes/ActiveModel/Callbacks.html).
@@ -429,7 +441,7 @@ row_model = import_file.next
 row_model.projects # => [<ProjectImportRowModel>, ...]
 ```
 
-## Dynamic columns
+## Dynamic Columns
 Dynamic columns are columns that can expand to many columns. Currently, we can only one dynamic column after all other standard columns.
 The following:
 
@@ -505,7 +517,7 @@ row_model.attributes # => { first_name: "John", last_name: "Doe", skills: ['No',
 row_model.skills # => ['No', 'Yes']
 ```
 
-## File Model (Mapping)
+## File Model
 
 If you have to deal with a mapping on a csv you can use FileModel, isn't complete a this time and many cases isn't covered but can be helpful
 

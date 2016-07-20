@@ -3,12 +3,29 @@ require 'spec_helper'
 describe CsvRowModel::Import::File do
 
   let(:file_path) { basic_1_row_path }
-  let(:model_class) { BasicImportModel }
-  let(:instance) { described_class.new file_path, model_class, 'some_context' => true }
+  let(:row_model_class) { BasicImportModel }
+  let(:file_class) { described_class }
+  let(:instance) { file_class.new file_path, row_model_class, 'some_context' => true }
 
   describe "#context" do
     it "symbolizes the context" do
       expect(instance.context[:some_context]).to eql true
+    end
+  end
+
+  describe "#headers" do
+    subject { instance.headers }
+
+    it "returns the headers" do
+      expect(subject).to eql %w[string1 string2]
+    end
+
+    context "bad header" do
+      let(:file_path) { bad_headers_1_row_path }
+
+      it "has header to be an empty array" do
+        expect(instance.headers).to eql []
+      end
     end
   end
 
@@ -48,7 +65,7 @@ describe CsvRowModel::Import::File do
       (0..4).each do |index|
         previous_row_model = row_model
         row_model = instance.next
-        expect(row_model.class).to eql model_class
+        expect(row_model.class).to eql row_model_class
 
         expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
 
@@ -67,12 +84,12 @@ describe CsvRowModel::Import::File do
 
     context "with children" do
       let(:file_path) { parent_6_rows_path }
-      let(:model_class) { ParentImportModel }
+      let(:row_model_class) { ParentImportModel }
 
       it "gets the rows until the end of file" do
         (0..1).each do |index|
           row_model = instance.next
-          expect(row_model.class).to eql model_class
+          expect(row_model.class).to eql row_model_class
           expect(row_model.source_row).to eql %W[firsts#{index} seconds#{index}]
 
           children = row_model.children
@@ -101,7 +118,7 @@ describe CsvRowModel::Import::File do
     context "with badly formatted file" do
       let(:file_path) { syntax_bad_quotes_5_rows_path }
 
-      it "gets headers and returns invalid row" do
+      it "returns invalid row" do
         row = instance.next
         expect(row).to be_valid
         expect(row.source_row).to eql ["string1", "string2"]
@@ -122,30 +139,6 @@ describe CsvRowModel::Import::File do
     end
   end
 
-  describe "#end_of_file?" do
-    subject { instance.end_of_file? }
-
-    it "returns false" do
-      expect(subject).to eql false
-    end
-
-    context "in the middle of file (last row)" do
-      before { instance.next }
-
-      it "returns false" do
-        expect(subject).to eql false
-      end
-    end
-
-    context "at the end of file" do
-      before { instance.next; instance.next }
-
-      it "returns true" do
-        expect(subject).to eql true
-      end
-    end
-  end
-
   describe "#each" do
     subject { instance.each }
 
@@ -159,7 +152,7 @@ describe CsvRowModel::Import::File do
 
     context "with abort on third row_model (abort on valid? ChildImport)" do
       let(:file_path) { basic_5_rows_path }
-      let(:model_class) do
+      let(:row_model_class) do
         Class.new(BasicImportModel) do
           def abort?; source_row.last.ends_with? "2" end
           def self.name; "BasicImportModelWithAbort" end
@@ -178,7 +171,7 @@ describe CsvRowModel::Import::File do
 
     context "with skips on even rows" do
       let(:file_path) { basic_5_rows_path }
-      let(:model_class) do
+      let(:row_model_class) do
         Class.new(BasicImportModel) do
           def skip?; source_row.last.last.to_i % 2 == 1 end
           def self.name; "BasicImportModelWithSkip" end
@@ -207,7 +200,7 @@ describe CsvRowModel::Import::File do
     context "bad file path" do
       let(:file_path) { "abc" }
 
-      it "has header to be an empty array" do
+      it "passes CSV errors to the errors" do
         expect(subject).to eql false
         expect(instance.errors.full_messages).to eql ["Csv No such file or directory @ rb_sysopen - abc"]
       end
@@ -222,17 +215,16 @@ describe CsvRowModel::Import::File do
     end
 
     context "bad header" do
-      let(:file_path) { bad_header_1_row_path }
+      let(:file_path) { bad_headers_1_row_path }
 
-      it "has header to be an empty array" do
+      it "is false and calls #headers_invalid_row" do
+        expect(instance).to receive(:headers_invalid_row).and_call_original
         expect(subject).to eql false
-        expect(instance.headers).to eql []
-        expect(instance.warnings.full_messages).to eql ["Csv has header with Unclosed quoted field on line 1."]
       end
     end
   end
 
-  describe "abort?" do
+  describe "#abort?" do
     subject { instance.abort? }
 
     context "when valid?" do
@@ -252,7 +244,7 @@ describe CsvRowModel::Import::File do
     end
   end
 
-  describe "skip?" do
+  describe "#skip?" do
     subject { instance.skip? }
 
     context "when current_row_model is nil" do
@@ -263,6 +255,98 @@ describe CsvRowModel::Import::File do
       it "returns false" do
         expect(subject).to eql false
       end
+    end
+  end
+
+  describe "#headers_invalid_row" do
+    subject { instance.valid? }
+
+    let(:file_class) { Class.new(described_class) { validate :headers_invalid_row; def self.name; "Test" end } }
+
+    it "is valid when header is valid" do
+      expect(subject).to eql true
+    end
+
+    context "bad header" do
+      let(:file_path) { bad_headers_1_row_path }
+      it "is false and calls #headers_invalid_row" do
+        expect(subject).to eql false
+        expect(instance.errors.full_messages).to eql ["Csv has header with Unclosed quoted field on line 1."]
+      end
+    end
+  end
+
+  describe "#headers_count" do
+    subject { instance.valid? }
+
+    let(:file_class) { Class.new(described_class) { validate :headers_count; def self.name; "Test" end } }
+
+    it "is valid when headers count matches the column count" do
+      expect(subject).to eql true
+    end
+
+    shared_examples "checks_unique_structure_csvs" do |expected_value|
+      context "with dynamic_columns" do
+        let(:row_model_class) { DynamicColumnImportModel }
+        it "is valid" do
+          expect(subject).to eql expected_value
+        end
+      end
+
+      context "with file_model" do
+        let(:row_model_class) { FileImportModel }
+        it "is valid" do
+          expect(subject).to eql expected_value
+        end
+      end
+    end
+
+    context "with trailing empty headers" do
+      let(:file_path) { headers_with_trailing_empty_1_row_path }
+      it "is valid" do
+        expect(subject).to eql true
+      end
+    end
+
+    context "with mixed empty headers" do
+      let(:file_path) { headers_with_mixed_empty_1_row_path }
+      it "is invalid" do
+        expect(subject).to eql false
+      end
+
+      it_behaves_like "checks_unique_structure_csvs", true
+    end
+
+    context "with empty header" do
+      let(:file_path) { empty_headers_1_row_path }
+      it "is invalid with a nice message" do
+        expect(subject).to eql false
+        expect(instance.errors.full_messages).to eql ["Headers count does not match. Given headers (0). Expected headers (2): string1, string2."]
+      end
+
+      it_behaves_like "checks_unique_structure_csvs", true
+    end
+
+    context "with invalid file" do
+      let(:file_path) { "abc" }
+      it "only shows invalid file error" do
+        expect(subject).to eql false
+        expect(instance.errors.full_messages).to eql ["Csv No such file or directory @ rb_sysopen - abc"]
+      end
+
+      it_behaves_like "checks_unique_structure_csvs", false
+    end
+
+    context "with bad header" do
+      let(:file_path) { bad_headers_1_row_path }
+
+      it "only shows #headers_invalid_row error " do
+        expect(instance).to receive(:headers_invalid_row).and_call_original
+        expect(subject).to eql false
+        expect(instance.errors.full_messages).to eql ["Csv has header with Unclosed quoted field on line 1."]
+      end
+
+      it_behaves_like "checks_unique_structure_csvs", false
     end
   end
 end

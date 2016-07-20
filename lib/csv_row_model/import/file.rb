@@ -19,7 +19,7 @@ module CsvRowModel
 
       validate { errors.messages.merge!(csv.errors.messages) unless csv.valid? }
       warnings do
-        validate { errors.add(:csv, "has header with #{csv.headers.message}") unless csv.headers.class == Array }
+        validate :headers_invalid_row
       end
 
       # @param [String] file_path path of csv file
@@ -96,6 +96,24 @@ module CsvRowModel
         skip = skip?
         run_callbacks(:skip) if skip
         skip
+      end
+
+      #
+      # Validations
+      #
+      def headers_invalid_row
+        errors.add(:csv, "has header with #{csv.headers.message}") if csv.headers.class < Exception
+      end
+
+      def headers_count
+        return if headers_invalid_row || !csv.valid?
+        return if row_model_class.dynamic_columns? || row_model_class.try(:row_names) # dynamic_column or FileModel
+
+        size_until_blank = ((headers || []).map { |h| h.try(:strip) }.rindex(&:present?) || -1) + 1
+        column_names = row_model_class.column_names
+
+        return if size_until_blank == column_names.size
+        errors.add(:headers, "count does not match. Given headers (#{size_until_blank}). Expected headers (#{column_names.size}): #{column_names.join(", ")}.")
       end
     end
   end
