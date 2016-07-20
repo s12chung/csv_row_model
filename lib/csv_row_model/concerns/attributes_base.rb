@@ -13,6 +13,15 @@ module CsvRowModel
       attributes_from_method_names self.class.column_names
     end
 
+    # Export:
+    # source_value - row_model.column1 --> source_model.column1
+    # formatted_value - format_cell(source_value)
+    # vale - formatted_value
+    #
+    # Import:
+    # source_value - form source_row
+    # formatted_value - format_cell(source_value)
+    # value - calculated_value from a bunch of stuff
     ATTRIBUTE_METHODS = {
       original_attributes: :value, # a map of `column_name => original_attribute(column_name)`
       formatted_attributes: :formatted_value, # a map of `column_name => format_cell(column_name, ...)`
@@ -24,7 +33,7 @@ module CsvRowModel
       end
     end
 
-    # @return [Object] the column's attribute before override
+    # @return [Object] the column's attribute (the csv_row_model default value to be used for import/export)
     def original_attribute(column_name)
       attribute_objects[column_name].try(:value)
     end
