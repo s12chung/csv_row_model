@@ -20,7 +20,7 @@ module CsvRowModel
     }.freeze
     ATTRIBUTE_METHODS.each do |method_name, attribute_method|
       define_method(method_name) do
-        super().merge! array_to_block_hash(self.class.dynamic_column_names) { |column_name| attribute_objects[column_name].public_send(attribute_method) }
+        super().merge! column_names_to_attribute_value(self.class.dynamic_column_names, attribute_method)
       end
     end
 

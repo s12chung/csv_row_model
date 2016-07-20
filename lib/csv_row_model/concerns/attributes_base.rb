@@ -20,7 +20,7 @@ module CsvRowModel
     }.freeze
     ATTRIBUTE_METHODS.each do |method_name, attribute_method|
       define_method(method_name) do
-        array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].public_send(attribute_method) }
+        column_names_to_attribute_value(self.class.column_names, attribute_method)
       end
     end
 
@@ -44,6 +44,10 @@ module CsvRowModel
     protected
     def attributes_from_method_names(column_names)
       array_to_block_hash(column_names) { |column_name| try(column_name) }
+    end
+
+    def column_names_to_attribute_value(column_names, attribute_method)
+      array_to_block_hash(column_names) { |column_name| attribute_objects[column_name].public_send(attribute_method)}
     end
 
     def array_to_block_hash(array, &block)
