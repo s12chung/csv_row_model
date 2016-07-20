@@ -1,8 +1,8 @@
-require 'csv_row_model/internal/model/dynamic_column_attribute'
+require 'csv_row_model/internal/dynamic_column_attribute_base'
 
 module CsvRowModel
   module Import
-    class DynamicColumnAttribute < CsvRowModel::Model::DynamicColumnAttribute
+    class DynamicColumnAttribute < CsvRowModel::DynamicColumnAttributeBase
       attr_reader :source_headers, :source_cells
 
       def initialize(column_name, source_headers, source_cells, row_model)

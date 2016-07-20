@@ -1,8 +1,8 @@
-require 'csv_row_model/internal/model/attribute'
+require 'csv_row_model/internal/attribute_base'
 
 module CsvRowModel
   module Export
-    class Attribute < CsvRowModel::Model::Attribute
+    class Attribute < CsvRowModel::AttributeBase
       def value
         formatted_value
       end

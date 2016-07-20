@@ -1,4 +1,4 @@
-class BasicAttribute < CsvRowModel::Model::Attribute
+class BasicAttribute < CsvRowModel::AttributeBase
   def value
     source_value.gsub("_source", "")
   end
@@ -36,7 +36,7 @@ module BasicAttributes
   end
 end
 
-class BasicDynamicColumnAttribute < CsvRowModel::Model::DynamicColumnAttribute
+class BasicDynamicColumnAttribute < CsvRowModel::DynamicColumnAttributeBase
   def unformatted_value
     formatted_cells
   end

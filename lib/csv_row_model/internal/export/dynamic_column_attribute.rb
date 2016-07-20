@@ -1,8 +1,8 @@
-require 'csv_row_model/internal/model/dynamic_column_attribute'
+require 'csv_row_model/internal/dynamic_column_attribute_base'
 
 module CsvRowModel
   module Export
-    class DynamicColumnAttribute < CsvRowModel::Model::DynamicColumnAttribute
+    class DynamicColumnAttribute < CsvRowModel::DynamicColumnAttributeBase
       def unformatted_value
         formatted_cells
       end

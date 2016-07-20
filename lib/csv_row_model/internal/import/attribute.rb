@@ -1,8 +1,8 @@
-require 'csv_row_model/internal/model/attribute'
+require 'csv_row_model/internal/attribute_base'
 
 module CsvRowModel
   module Import
-    class Attribute < CsvRowModel::Model::Attribute
+    class Attribute < CsvRowModel::AttributeBase
       attr_reader :source_value, :csv_string_model_errors
 
       def initialize(column_name, source_value, csv_string_model_errors, row_model)
