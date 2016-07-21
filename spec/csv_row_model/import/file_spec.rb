@@ -280,31 +280,41 @@ describe CsvRowModel::Import::File do
     subject { instance.valid? }
 
     let(:file_class) { Class.new(described_class) { validate :headers_count; def self.name; "Test" end } }
-
-    it "is valid when headers count matches the column count" do
-      expect(subject).to eql true
+    shared_context "with file_model" do
+      let(:row_model_class) { FileImportModel }
+    end
+    shared_context "with dynamic_column model" do
+      let(:row_model_class) { DynamicColumnImportModel }
     end
 
-    shared_examples "checks_unique_structure_csvs" do |expected_value|
-      context "with dynamic_columns" do
-        let(:row_model_class) { DynamicColumnImportModel }
-        it "is valid" do
-          expect(subject).to eql expected_value
-        end
-      end
-
-      context "with file_model" do
-        let(:row_model_class) { FileImportModel }
-        it "is valid" do
-          expect(subject).to eql expected_value
-        end
-      end
-    end
-
-    context "with trailing empty headers" do
-      let(:file_path) { headers_with_trailing_empty_1_row_path }
-      it "is valid" do
+    with_this_then_context "with file_model", "with dynamic_column model" do
+      it "is valid when headers count matches the column count" do
         expect(subject).to eql true
+      end
+
+      context "with trailing empty headers" do
+        let(:file_path) { headers_with_trailing_empty_1_row_path }
+        it "is valid" do
+          expect(subject).to eql true
+        end
+      end
+
+      context "with invalid file" do
+        let(:file_path) { "abc" }
+        it "only shows invalid file error" do
+          expect(subject).to eql false
+          expect(instance.errors.full_messages).to eql ["Csv No such file or directory @ rb_sysopen - abc"]
+        end
+      end
+
+      context "with bad header" do
+        let(:file_path) { bad_headers_1_row_path }
+
+        it "only shows #headers_invalid_row error " do
+          expect(instance).to receive(:headers_invalid_row).and_call_original
+          expect(subject).to eql false
+          expect(instance.errors.full_messages).to eql ["Csv has header with Unclosed quoted field on line 1."]
+        end
       end
     end
 
@@ -314,39 +324,38 @@ describe CsvRowModel::Import::File do
         expect(subject).to eql false
       end
 
-      it_behaves_like "checks_unique_structure_csvs", true
+      with_context "with file_model" do
+        it "is valid" do
+          expect(subject).to eql true
+        end
+      end
+
+      with_context "with dynamic_column model" do
+        it "is valid" do
+          expect(subject).to eql true
+        end
+      end
     end
 
     context "with empty header" do
       let(:file_path) { empty_headers_1_row_path }
       it "is invalid with a nice message" do
         expect(subject).to eql false
-        expect(instance.errors.full_messages).to eql ["Headers count does not match. Given headers (0). Expected headers (2): string1, string2."]
+        expect(instance.errors.full_messages).to eql ["Headers count does not match. Given headers (0). Expected headers (2): string1, string2"]
       end
 
-      it_behaves_like "checks_unique_structure_csvs", true
-    end
-
-    context "with invalid file" do
-      let(:file_path) { "abc" }
-      it "only shows invalid file error" do
-        expect(subject).to eql false
-        expect(instance.errors.full_messages).to eql ["Csv No such file or directory @ rb_sysopen - abc"]
+      with_context "with file_model" do
+        it "is valid" do
+          expect(subject).to eql true
+        end
       end
 
-      it_behaves_like "checks_unique_structure_csvs", false
-    end
-
-    context "with bad header" do
-      let(:file_path) { bad_headers_1_row_path }
-
-      it "only shows #headers_invalid_row error " do
-        expect(instance).to receive(:headers_invalid_row).and_call_original
-        expect(subject).to eql false
-        expect(instance.errors.full_messages).to eql ["Csv has header with Unclosed quoted field on line 1."]
+      with_context "with dynamic_column model" do
+        it "is invalid with a nice message" do
+          expect(subject).to eql false
+          expect(instance.errors.full_messages).to eql ["Headers count does not match. Given headers (0). Expected headers (>=2): first_name, last_name, and unlimited skills"]
+        end
       end
-
-      it_behaves_like "checks_unique_structure_csvs", false
     end
   end
 end
