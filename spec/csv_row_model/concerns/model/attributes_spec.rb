@@ -57,7 +57,7 @@ describe CsvRowModel::Model::Attributes do
           result = { blah: { type: Integer, default: 1 }}
 
           expect { subject }.to change { klass.columns }.from(blah: { type: Integer }).to(result)
-          expect(klass.send(:raw_columns)).to eql(result)
+          expect(klass.columns_object.raw_value).to eql(result)
         end
 
         context "with child class class" do
@@ -70,18 +70,18 @@ describe CsvRowModel::Model::Attributes do
 
           it "passes merged option to child, but not to parent" do
             expect(klass.columns).to eql(blah: { type: Integer })
-            expect(klass.raw_columns).to eql(blah: { type: Integer })
+            expect(klass.columns_object.raw_value).to eql(blah: { type: Integer })
 
             expect(child_class.columns).to eql(blah: { type: Integer })
-            expect(child_class.raw_columns).to eql({})
+            expect(child_class.columns_object.raw_value).to eql({})
 
             subject
 
             expect(klass.columns).to eql(blah: { type: Integer, default: 1 })
-            expect(klass.raw_columns).to eql(blah: { type: Integer, default: 1 })
+            expect(klass.columns_object.raw_value).to eql(blah: { type: Integer, default: 1 })
 
             expect(child_class.columns).to eql(blah: { type: Integer, default: 1, header: "Blah" })
-            expect(child_class.raw_columns).to eql(blah: { header: "Blah" })
+            expect(child_class.columns_object.raw_value).to eql(blah: { header: "Blah" })
           end
 
           context "with multiple columns" do

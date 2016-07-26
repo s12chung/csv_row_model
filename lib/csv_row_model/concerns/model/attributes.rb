@@ -72,7 +72,7 @@ module CsvRowModel
           extra_keys = options.keys - VALID_OPTIONS_KEYS
           raise ArgumentError.new("invalid options #{extra_keys}") unless extra_keys.empty?
 
-          merge_columns(column_name => options)
+          columns_object.merge(column_name => options)
         end
 
         def merge_options(column_name, options={})
