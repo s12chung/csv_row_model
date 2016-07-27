@@ -59,7 +59,7 @@ module CsvRowModel
 
           relation_name = relation_name.to_sym
 
-          merge_has_many_relationships(relation_name => row_model_class)
+          has_many_relationships_object.merge(relation_name => row_model_class)
 
           define_proxy_method(relation_name) do
             #

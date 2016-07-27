@@ -290,7 +290,7 @@ class ImportFile < CsvRowModel::Import::File
 end
 ```
 
-Can't be used for [Dynamic Columns](#dynamic-columns) or [File Model](#file-model)s.
+Can't be used for [File Model](#file-model) schemas.
 
 ### Import Callbacks
 `CsvRowModel::Import::File` can be subclassed to access

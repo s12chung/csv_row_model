@@ -107,13 +107,25 @@ module CsvRowModel
 
       def headers_count
         return if headers_invalid_row || !csv.valid?
-        return if row_model_class.dynamic_columns? || row_model_class.try(:row_names) # dynamic_column or FileModel
+        return if row_model_class.try(:row_names) # FileModel check
 
         size_until_blank = ((headers || []).map { |h| h.try(:strip) }.rindex(&:present?) || -1) + 1
         column_names = row_model_class.column_names
 
-        return if size_until_blank == column_names.size
-        errors.add(:headers, "count does not match. Given headers (#{size_until_blank}). Expected headers (#{column_names.size}): #{column_names.join(", ")}.")
+        if row_model_class.dynamic_columns?
+          return if size_until_blank >= column_names.size
+          expected_headers_size = ">=#{column_names.size}"
+        else
+          return if size_until_blank == column_names.size
+          expected_headers_size = column_names.size
+        end
+        message = [
+          "count does not match.",
+          " Given headers (#{size_until_blank}).",
+          " Expected headers (#{expected_headers_size}): #{column_names.join(", ")}"
+        ]
+        message << ", and unlimited #{row_model_class.dynamic_column_names.join(", ")}" if row_model_class.dynamic_columns?
+        errors.add(:headers, message.join)
       end
     end
   end

@@ -18,7 +18,6 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "activemodel", "~> 4.2"
   spec.add_dependency "active_warnings", "~> 0.1.2"
-  spec.add_dependency "inherited_class_var", ">= 0.2.2"
+  spec.add_dependency "inherited_class_var", "1.0.0.beta1"
 end

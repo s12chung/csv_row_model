@@ -1,10 +1,16 @@
 language: ruby
 script: bundle exec rspec
 rvm:
-  - 2.1.0
+  - 2.1
+  - 2.2.5
+  - 2.3.1
   - ruby-head
+gemfile:
+  - gemfiles/activemodel_4.gemfile
+  - gemfiles/activemodel_5.gemfile
 matrix:
   allow_failures:
     - rvm: ruby-head
-env:
-  - CODECLIMATE_REPO_TOKEN=6b3e0fb12a56a7aba4b43ca8662d8a5383c831d98b92fc818ea731f4e70e73cd bundle exec rake
+  exclude:
+    - rvm: 2.1
+      gemfile: gemfiles/activemodel_5.gemfile
