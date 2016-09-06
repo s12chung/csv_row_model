@@ -32,6 +32,7 @@ describe FloatFormatValidator do
 
     it_behaves_like "allows_prefix_zero"
     it_behaves_like "allows_suffix_zero"
+    it_behaves_like "allows_zeros_with_decimal"
   end
 
   context "Integer" do

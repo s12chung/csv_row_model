@@ -47,5 +47,7 @@ describe IntegerFormatValidator do
         expect(subject).to eql false
       end
     end
+
+    it_behaves_like "allows_zeros_with_decimal"
   end
 end
