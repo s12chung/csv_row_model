@@ -18,7 +18,7 @@ shared_examples "allows_zeros_with_decimal" do
   context "with abc000.0000abc" do
     before { instance.string1 = "abc000.0000abc" }
 
-    it "is valid" do
+    it "is invalid" do
       expect(subject).to eql false
     end
   end
@@ -26,7 +26,7 @@ shared_examples "allows_zeros_with_decimal" do
   context "with a000b.c0000d" do
     before { instance.string1 = "a000b.c0000d" }
 
-    it "is valid" do
+    it "is invalid" do
       expect(subject).to eql false
     end
   end
