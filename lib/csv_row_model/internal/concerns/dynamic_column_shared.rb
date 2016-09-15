@@ -3,6 +3,8 @@ require 'csv_row_model/internal/concerns/column_shared'
 module CsvRowModel
   module DynamicColumnShared
     include ColumnShared
+    extend ActiveSupport::Concern
+
     #
     # row_model_class
     #
@@ -23,6 +25,12 @@ module CsvRowModel
 
     def header_models_context_key
       options[:header_models_context_key] || column_name
+    end
+
+    class_methods do
+      def valid_options
+        super + %i[header_models_context_key]
+      end
     end
   end
 end

@@ -105,14 +105,6 @@ describe CsvRowModel::Import::Attribute do
           end
         end
 
-        context "of Object (invalid)" do
-          let(:options) { { type: Object } }
-
-          it "raises exception" do
-            expect { subject }.to raise_error(ArgumentError)
-          end
-        end
-
         context "with nil source_value" do
           let(:source_value) { nil }
 
@@ -141,14 +133,6 @@ describe CsvRowModel::Import::Attribute do
           it "returns the other attribute" do
             expect(subject).to eql "original_string2"
           end
-        end
-      end
-
-      context "with :type and :parse option" do
-        let(:options) { { type: Date, parse: ->(s) { "haha" } } }
-
-        it "raises exception" do
-          expect { subject }.to raise_error('Use :parse OR :type option, but not both for: string1')
         end
       end
     end
@@ -228,6 +212,28 @@ describe CsvRowModel::Import::Attribute do
         it "returns the formatted_value and default_value" do
           expect(instance).to receive(:default?).once.and_return(true)
           expect(subject).to eql ["1.01", "default"]
+        end
+      end
+    end
+  end
+
+  describe "class" do
+    describe "::custom_check_options" do
+      subject { described_class.custom_check_options(options) }
+
+      context "with invalid :type Option" do
+        let(:options) { { type: Object } }
+
+        it "raises exception" do
+          expect { subject }.to raise_error(":type must be Boolean, String, Integer, Float, DateTime, Date")
+        end
+      end
+
+      context "with :type and :parse option" do
+        let(:options) { { type: Date, parse: ->(s) { "haha" } } }
+
+        it "raises exception" do
+          expect { subject }.to raise_error('Use :parse OR :type option, but not both')
         end
       end
     end

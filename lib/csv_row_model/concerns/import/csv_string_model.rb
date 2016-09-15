@@ -48,13 +48,20 @@ module CsvRowModel
         PARSE_VALIDATION_CLASSES = [Boolean, Integer, Float, Date, DateTime].freeze
 
         class << self
+          def valid_options
+            %i[type validate_type]
+          end
+
+          def custom_check_options(options)
+            return unless options[:validate_type] && !PARSE_VALIDATION_CLASSES.include?(options[:type])
+            raise ArgumentError.new("with :validate_type, :type must be #{PARSE_VALIDATION_CLASSES.join(", ")}")
+          end
+
           # Adds the type validation based on :validate_type option
           def add_type_validation(column_name, options)
             return unless options[:validate_type]
 
             type = options[:type]
-            raise ArgumentError.new("invalid :type given for :validate_type for: #{column_name}") unless PARSE_VALIDATION_CLASSES.include? type
-
             class_eval { validates column_name, :"#{type.name.underscore}_format" => true, allow_blank: true }
           end
         end

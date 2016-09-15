@@ -164,7 +164,7 @@ describe CsvRowModel::Import::Represents do
       let(:options) { {} }
 
       it "calls the underlying methods" do
-        expect(CsvRowModel::Import::Representation).to receive(:check_options).with(options)
+        expect(klass).to receive(:check_options).with(CsvRowModel::Import::Representation, options).once.and_call_original
         expect(CsvRowModel::Import::Representation).to receive(:define_lambda_method).with(klass, :test_model).and_yield
         subject
       end
