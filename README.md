@@ -160,7 +160,6 @@ Automatic type parsing.
 
 ```ruby
 class ProjectImportRowModel
-  include CsvRowModel::Model
   include CsvRowModel::Import
 
   column :id, type: Integer
@@ -178,7 +177,6 @@ There are validators for different types: `Boolean`, `Date`, `DateTime`, `Float`
 Sets the default value of the cell:
 ```ruby
 class ProjectImportRowModel
-  include CsvRowModel::Model
   include CsvRowModel::Import
 
   column :id, default: 1
@@ -203,7 +201,6 @@ There are layers to validations.
 
 ```ruby
 class ProjectImportRowModel
-  include CsvRowModel::Model
   include CsvRowModel::Import
   
   # Errors - by default, an Error will make the row skip
@@ -227,7 +224,6 @@ Notice that there are validators given for different types: `Boolean`, `Date`, `
 
 ```ruby
 class ProjectImportRowModel
-  include CsvRowModel::Model
   include CsvRowModel::Import
 
   column :id, type: Integer, validate_type: true
@@ -248,7 +244,6 @@ A custom validator for [Default Changes](#default).
 
 ```ruby
 class ProjectImportRowModel
-  include CsvRowModel::Model
   include CsvRowModel::Input
 
   column :id, default: 1
@@ -326,7 +321,6 @@ The `CsvStringModel` represents a row BEFORE parsing to add validations.
 
 ```ruby
 class ProjectImportRowModel
-  include CsvRowModel::Model
   include CsvRowModel::Import
 
   # Note the type definition here for parsing
@@ -425,7 +419,6 @@ Child `RowModel` relationships can also be defined:
 
 ```ruby
 class UserImportRowModel
-  include CsvRowModel::Model
   include CsvRowModel::Import
 
   column :id, type: Integer
