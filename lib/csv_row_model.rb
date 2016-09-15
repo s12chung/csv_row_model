@@ -8,17 +8,17 @@ require 'active_warnings'
 
 require 'csv_row_model/concerns/check_options'
 
-require 'csv_row_model/model'
-require 'csv_row_model/model/file_model'
+require 'csv_row_model/public/model'
+require 'csv_row_model/public/model/file_model'
 
-require 'csv_row_model/import'
-require 'csv_row_model/import/file_model'
-require 'csv_row_model/import/file'
+require 'csv_row_model/public/import'
+require 'csv_row_model/public/import/file_model'
+require 'csv_row_model/public/import/file'
 
 
-require 'csv_row_model/export'
-require 'csv_row_model/export/file'
-require 'csv_row_model/export/file_model'
+require 'csv_row_model/public/export'
+require 'csv_row_model/public/export/file'
+require 'csv_row_model/public/export/file_model'
 
 require 'csv_row_model/validators/default_change_validator'
 require 'csv_row_model/validators/boolean_format_validator'
