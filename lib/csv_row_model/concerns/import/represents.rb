@@ -1,9 +1,11 @@
+require 'csv_row_model/concerns/check_options'
 require 'csv_row_model/internal/import/representation'
 
 module CsvRowModel
   module Import
     module Represents
       extend ActiveSupport::Concern
+      include CheckOptions
 
       included do
         inherited_class_hash :representations
@@ -74,7 +76,7 @@ module CsvRowModel
         end
 
         def define_representation_method(representation_name, options={}, &block)
-          Representation.check_options(options)
+          check_options Representation, options
           representations_object.merge(representation_name.to_sym => options)
           define_proxy_method(representation_name) { representation_value(representation_name) }
           Representation.define_lambda_method(self, representation_name, &block)

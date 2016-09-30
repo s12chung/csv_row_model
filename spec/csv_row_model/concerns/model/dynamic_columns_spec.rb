@@ -16,6 +16,24 @@ describe CsvRowModel::Model::DynamicColumns do
   end
 
   describe "class" do
+    describe "::dynamic_column" do
+      subject { row_model_class.send(:dynamic_column, :blah, options) }
+      let(:options) { { header_models_context_key: :context_key } }
+
+      it "works" do
+        expect(row_model_class).to receive(:check_options).with(CsvRowModel::Model::DynamicColumnHeader, options).once.and_call_original
+        expect { subject }.to_not raise_error
+      end
+
+      context "with invalid option" do
+        let(:options) { { invalid_option: true }}
+
+        it "raises exception" do
+          expect { subject }.to raise_error("Invalid option(s): [:invalid_option]")
+        end
+      end
+    end
+
     describe "::dynamic_column_index" do
       subject { row_model_class.dynamic_column_index(:skills) }
 

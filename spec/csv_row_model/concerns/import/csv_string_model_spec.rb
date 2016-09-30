@@ -147,10 +147,29 @@ describe CsvRowModel::Import::CsvStringModel do
     end
 
     describe "class" do
+      describe "::custom_check_options" do
+        subject { described_class.custom_check_options(options) }
+
+        context "with invalid :type Option" do
+          let(:options) { { type: Object } }
+
+          it "does nothing" do
+            expect { subject }.to_not raise_error
+          end
+
+          context "with validate_type: true" do
+            let(:options) { super().merge(validate_type: true) }
+
+            it "raises exception" do
+              expect { subject }.to raise_error("with :validate_type, :type must be Boolean, Integer, Float, Date, DateTime")
+            end
+          end
+        end
+      end
+
       describe "::add_type_validation" do
         let(:klass) { Class.new(described_class) }
         subject { klass.add_type_validation :string1, options }
-
 
         described_class::PARSE_VALIDATION_CLASSES.each do |type|
           context "with #{type} type" do
@@ -162,13 +181,6 @@ describe CsvRowModel::Import::CsvStringModel do
               expect(validators.size).to eql 1
               expect(validators.first.class.to_s).to eql "#{type}FormatValidator"
             end
-          end
-        end
-
-        context "with no type" do
-          subject { klass.add_type_validation :string1, validate_type: true }
-          it "raises exception" do
-            expect { subject }.to raise_error(ArgumentError)
           end
         end
 

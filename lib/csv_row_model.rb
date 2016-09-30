@@ -6,8 +6,6 @@ require 'csv'
 require 'active_model'
 require 'active_warnings'
 
-require 'csv_row_model/concerns/check_options'
-
 require 'csv_row_model/public/model'
 require 'csv_row_model/public/model/file_model'
 

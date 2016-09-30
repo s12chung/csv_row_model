@@ -1,10 +1,12 @@
 require 'csv_row_model/internal/model/dynamic_column_header'
+require 'csv_row_model/concerns/check_options'
 
 module CsvRowModel
   module Model
     module DynamicColumns
       extend ActiveSupport::Concern
       include InheritedClassVar
+      include CheckOptions
 
       included do
         inherited_class_hash :dynamic_columns
@@ -52,16 +54,12 @@ module CsvRowModel
 
         protected
 
-        VALID_OPTIONS_KEYS = %i[header header_models_context_key].freeze
-
         # define a dynamic_column, must be after all normal columns
         #
         # @param column_name [Symbol] column_name
         # @option options [String] :header human friendly string of the column name, by default format_header(column_name)
         def dynamic_column(column_name, options={})
-          extra_keys = options.keys - VALID_OPTIONS_KEYS
-          raise ArgumentError.new("invalid options #{extra_keys}") unless extra_keys.empty?
-
+          check_options DynamicColumnHeader, options
           dynamic_columns_object.merge(column_name.to_sym => options)
         end
       end

@@ -1,9 +1,6 @@
 module CsvRowModel
   module Import
     class Representation
-      include CheckOptions
-      VALID_OPTIONS = %i[memoize empty_value dependencies].freeze
-
       attr_reader :name, :options, :row_model
 
       def initialize(name, options, row_model)
@@ -53,6 +50,10 @@ module CsvRowModel
 
         def define_lambda_method(row_model_class, representation_name, &block)
           row_model_class.define_proxy_method(lambda_name(representation_name), &block)
+        end
+
+        def valid_options
+          %i[memoize empty_value dependencies]
         end
       end
     end

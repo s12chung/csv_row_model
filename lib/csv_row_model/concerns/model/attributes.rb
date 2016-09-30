@@ -1,4 +1,5 @@
 require 'inherited_class_var'
+require 'csv_row_model/concerns/check_options'
 require 'csv_row_model/internal/model/header'
 
 module CsvRowModel
@@ -6,6 +7,7 @@ module CsvRowModel
     module Attributes
       extend ActiveSupport::Concern
       include InheritedClassVar
+      include CheckOptions
 
       included do
         inherited_class_hash :columns
@@ -51,8 +53,6 @@ module CsvRowModel
 
         protected
 
-        VALID_OPTIONS_KEYS = %i[type parse validate_type default header].freeze
-
         # Adds column to the row model
         #
         # @param [Symbol] column_name name of column to add
@@ -67,12 +67,12 @@ module CsvRowModel
         # @option options [String] :header human friendly string of the column name, by default format_header(column_name)
         # @option options [Hash] :header_matchs array with string to match cell to find in the row, by default column name
         def column(column_name, options={})
-          column_name = column_name.to_sym
+          check_options Model::Header,
+                        Import::CsvStringModel::Model,
+                        Import::Attribute,
+                        options
 
-          extra_keys = options.keys - VALID_OPTIONS_KEYS
-          raise ArgumentError.new("invalid options #{extra_keys}") unless extra_keys.empty?
-
-          columns_object.merge(column_name => options)
+          columns_object.merge(column_name.to_sym => options)
         end
 
         def merge_options(column_name, options={})

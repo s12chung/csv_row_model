@@ -40,11 +40,21 @@ describe CsvRowModel::Model::Attributes do
       let(:klass) { Class.new { include CsvRowModel::Model } }
 
       describe "::column" do
+        subject { klass.send(:column, :blah) }
+
+        it "calls ::check_options with the args" do
+          expect(klass).to receive(:check_options).with(CsvRowModel::Model::Header,
+                                                        CsvRowModel::Import::CsvStringModel::Model,
+                                                        CsvRowModel::Import::Attribute,
+                                                        {}).once.and_call_original
+          subject
+        end
+
         context "with invalid option" do
           subject { klass.send(:column, :blah, invalid_option: true) }
 
           it "raises error" do
-            expect { subject }.to raise_error(ArgumentError)
+            expect { subject }.to raise_error("Invalid option(s): [:invalid_option]")
           end
         end
       end

@@ -20,6 +20,12 @@ module CsvRowModel
       def formatted_header
         row_model_class.format_header(column_name, column_index, context)
       end
+
+      class << self
+        def valid_options
+          %i[header]
+        end
+      end
     end
   end
 end
