@@ -175,6 +175,7 @@ There are validators for available types: `Boolean`, `Date`, `DateTime`, `Float`
 
 ```ruby
 class ProjectImportRowModel
+  # GOTCHA: this should be defined before `::column` is called, as `::column` uses this to check passed `:type` option (and return ArgumentError)
   def self.class_to_parse_lambda
     super.merge(Hash => ->(s) { JSON.parse(s) })
   end

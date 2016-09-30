@@ -122,8 +122,8 @@ describe CsvRowModel::Import::Attribute do
 
       context "with row_model_class::class_to_parse_lambda defined" do
         before do
-          row_model_class.instance_exec do
-            def class_to_parse_lambda
+          row_model_class.class_eval do
+            def self.class_to_parse_lambda
               super.merge(Hash => ->(s) { JSON.parse(s) })
             end
           end

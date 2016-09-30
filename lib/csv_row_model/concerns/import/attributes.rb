@@ -9,6 +9,18 @@ module CsvRowModel
       include AttributesBase
       include CsvStringModel
 
+      # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
+      # Can pass custom Proc with :parse option.
+      CLASS_TO_PARSE_LAMBDA = {
+        nil      => ->(s) { s }, # no type given
+        Boolean  => ->(s) { s =~ BooleanFormatValidator.false_boolean_regex ? false : true },
+        String   => ->(s) { s },
+        Integer  => ->(s) { s.to_i },
+        Float    => ->(s) { s.to_f },
+        DateTime => ->(s) { s.present? ? DateTime.parse(s) : s },
+        Date     => ->(s) { s.present? ? Date.parse(s) : s }
+      }.freeze
+
       included do
         ensure_attribute_method
       end
@@ -35,28 +47,6 @@ module CsvRowModel
       end
 
       class_methods do
-        # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
-        # Can pass custom Proc with :parse option.
-        CLASS_TO_PARSE_LAMBDA = {
-          nil      => ->(s) { s }, # no type given
-          Boolean  => ->(s) { s =~ BooleanFormatValidator.false_boolean_regex ? false : true },
-          String   => ->(s) { s },
-          Integer  => ->(s) { s.to_i },
-          Float    => ->(s) { s.to_f },
-          DateTime => ->(s) { s.present? ? DateTime.parse(s) : s },
-          Date     => ->(s) { s.present? ? Date.parse(s) : s }
-        }.freeze
-
-        # Safe to override
-        def class_to_parse_lambda
-          CLASS_TO_PARSE_LAMBDA
-        end
-
-        def custom_check_options(options)
-          return if options[:parse] || class_to_parse_lambda[options[:type]]
-          raise ArgumentError.new(":type must be #{class_to_parse_lambda.keys.reject(&:nil?).join(", ")}")
-        end
-
         protected
         def merge_options(column_name, options={})
           original_options = columns[column_name]
