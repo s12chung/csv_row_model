@@ -42,11 +42,9 @@ module CsvRowModel
 
       protected
 
-      # @return [Lambda, Proc] returns the Lambda/Proc given in the parse option or:
-      # ->(source_value) { parse_proc_exists? ? parsed_value : source_value  }
+      # @return [Lambda, Proc] returns the Lambda/Proc given in the parse option or the one given by `row_model_class.class_to_parse_lambda`
       def parse_lambda
-        parse_lambda = options[:parse] || row_model_class.class_to_parse_lambda[options[:type]]
-        return parse_lambda if parse_lambda
+        options[:parse] || row_model_class.class_to_parse_lambda[options[:type]]
       end
 
       class << self
