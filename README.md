@@ -175,9 +175,13 @@ There are validators for available types: `Boolean`, `Date`, `DateTime`, `Float`
 
 ```ruby
 class ProjectImportRowModel
-  # GOTCHA: this should be defined before `::column` is called, as `::column` uses this to check passed `:type` option (and return ArgumentError)
+  # GOTCHA: this should be defined before `::column` is called,
+  # as `::column` uses this to check passed `:type` option (and return ArgumentError)
   def self.class_to_parse_lambda
-    super.merge(Hash => ->(s) { JSON.parse(s) })
+    super.merge(
+      Hash => ->(s) { JSON.parse(s) },
+      'CommaList' => ->(s) { s.split(",").map(&:strip) }
+    )
   end
 end
 ```
@@ -248,7 +252,7 @@ row_model.valid? # => false
 row_model.errors.full_messages # => ["Id is not a Integer format"]
 ```
 
-The above uses `IntegerFormatValidator` internally, you may customize this class.
+The above uses `IntegerFormatValidator` internally, you may customize this class or create new validators for custom types.
 
 #### Default Changes
 A custom validator for [Default Changes](#default).

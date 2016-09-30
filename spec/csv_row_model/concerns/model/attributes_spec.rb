@@ -113,25 +113,6 @@ describe CsvRowModel::Model::Attributes do
         it "returns the CLASS_TO_PARSE_LAMBDA" do
           expect(subject).to eql CsvRowModel::Import::Attributes::CLASS_TO_PARSE_LAMBDA
         end
-
-        context "with module overriding it" do
-          before do
-            module Overrides
-              extend ActiveSupport::Concern
-              include CsvRowModel::Import
-
-              module ClassMethods
-                def class_to_parse_lambda; {} end
-              end
-            end
-
-            klass.send(:include, Overrides)
-          end
-
-          it "overrides properly" do
-            expect(subject).to eql({})
-          end
-        end
       end
 
       describe "::custom_check_options" do
@@ -146,10 +127,10 @@ describe CsvRowModel::Model::Attributes do
 
           context "with ::class_to_parse_lambda overwritten" do
             before do
-              klass.class_eval do
-                def self.class_to_parse_lambda; super.merge(Hash => ->(s) { JSON.parse(s) }) end
-              end
+              _override = override
+              klass.define_singleton_method(:class_to_parse_lambda) { super().merge(_override) }
             end
+            let(:override) { { Hash => ->(s) { JSON.parse(s) } } }
 
             it "raises a new type of exception" do
               expect { subject }.to raise_error(":type must be Boolean, String, Integer, Float, DateTime, Date, Hash")

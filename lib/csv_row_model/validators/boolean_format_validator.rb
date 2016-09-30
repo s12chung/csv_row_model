@@ -10,6 +10,7 @@ class BooleanFormatValidator < ActiveModel::EachValidator # :nodoc:
   end
 
   class << self
+    # override these two methods to change the boolean format
     def false_boolean_regex; FALSE_BOOLEAN_REGEX end
     def true_boolean_regex; TRUE_BOOLEAN_REGEX end
   end

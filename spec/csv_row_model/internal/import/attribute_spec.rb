@@ -122,17 +122,25 @@ describe CsvRowModel::Import::Attribute do
 
       context "with row_model_class::class_to_parse_lambda defined" do
         before do
-          row_model_class.class_eval do
-            def self.class_to_parse_lambda
-              super.merge(Hash => ->(s) { JSON.parse(s) })
-            end
-          end
+          _override = override
+          row_model_class.define_singleton_method(:class_to_parse_lambda) { super().merge(_override) }
         end
+        let(:override) { { Hash => ->(s) { JSON.parse(s) } } }
         let(:options) { { type: Hash } }
         let(:source_value) { '{ "key": 1 }' }
 
         it "returns does the correct parsing for the class" do
           expect(subject).to eql("key" => 1)
+        end
+
+        context 'with custom String' do
+          let(:override) { { 'CommaList' => ->(s) { s.split(",").map(&:strip) } } }
+          let(:options) { { type: 'CommaList' } }
+          let(:source_value) { '   thing1 , thing2' }
+
+          it "raises a new type of exception" do
+            expect(subject).to eql %w[thing1 thing2]
+          end
         end
       end
 

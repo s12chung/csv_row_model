@@ -161,7 +161,15 @@ describe CsvRowModel::Import::CsvStringModel do
             let(:options) { super().merge(validate_type: true) }
 
             it "raises exception" do
-              expect { subject }.to raise_error("with :validate_type, :type must be Boolean, Integer, Float, Date, DateTime")
+              expect { subject }.to raise_error("with :validate_type and given :type of Object, the class ObjectFormatValidator must be defined")
+            end
+
+            context "with validator defined" do
+              let(:options) { { type: "CommaList" } }
+              class CommaListFormatValidator; end
+              it "does nothing" do
+                expect { subject }.to_not raise_error
+              end
             end
           end
         end
@@ -171,7 +179,7 @@ describe CsvRowModel::Import::CsvStringModel do
         let(:klass) { Class.new(described_class) }
         subject { klass.add_type_validation :string1, options }
 
-        described_class::PARSE_VALIDATION_CLASSES.each do |type|
+        (CsvRowModel::Import::Attributes::CLASS_TO_PARSE_LAMBDA.keys - [nil, String]).each do |type|
           context "with #{type} type" do
             let(:options) { { type: type, validate_type: true } }
 
