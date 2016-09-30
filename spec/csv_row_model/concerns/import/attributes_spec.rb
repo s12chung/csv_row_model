@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe CsvRowModel::Import::Attributes do
-  let(:row_model_class) { BasicImportModel }
-  let(:source_row)         { %w[1.01 b] }
-  let(:instance)           { row_model_class.new(source_row) }
+  let(:row_model_class) { Class.new BasicImportModel }
+  let(:source_row) { %w[1.01 b] }
+  let(:instance) { row_model_class.new(source_row) }
 
   describe "instance" do
     describe "#attribute_objects" do
@@ -117,6 +117,38 @@ describe CsvRowModel::Import::Attributes do
       context "with another validation added" do
         before { expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka2, nil).once }
         it_behaves_like "define_attribute_method"
+      end
+    end
+
+    describe "::class_to_parse_lambda" do
+      subject { row_model_class.class_to_parse_lambda }
+
+      it "returns the CLASS_TO_PARSE_LAMBDA" do
+        expect(subject).to eql described_class::CLASS_TO_PARSE_LAMBDA
+      end
+    end
+
+    describe "::custom_check_options" do
+      subject { row_model_class.custom_check_options(options) }
+
+      context "with invalid :type Option" do
+        let(:options) { { type: Object } }
+
+        it "raises exception" do
+          expect { subject }.to raise_error(":type must be Boolean, String, Integer, Float, DateTime, Date")
+        end
+
+        context "with ::class_to_parse_lambda overwritten" do
+          before do
+            row_model_class.instance_exec do
+              def class_to_parse_lambda; super.merge(Hash => ->(s) { JSON.parse(s) }) end
+            end
+          end
+
+          it "raises a new type of exception" do
+            expect { subject }.to raise_error(":type must be Boolean, String, Integer, Float, DateTime, Date, Hash")
+          end
+        end
       end
     end
   end

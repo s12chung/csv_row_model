@@ -70,6 +70,7 @@ module CsvRowModel
           check_options Model::Header,
                         Import::CsvStringModel::Model,
                         Import::Attribute,
+                        self, # in Import::Attributes
                         options
 
           columns_object.merge(column_name.to_sym => options)

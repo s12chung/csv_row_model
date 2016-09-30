@@ -108,7 +108,7 @@ describe CsvRowModel::Import::Attribute do
         context "with nil source_value" do
           let(:source_value) { nil }
 
-          described_class::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
+          CsvRowModel::Import::Attributes::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
             context "with #{type.nil? ? "nil" : type} :type" do
               let(:options) { { type: type } }
 
@@ -117,6 +117,22 @@ describe CsvRowModel::Import::Attribute do
               end
             end
           end
+        end
+      end
+
+      context "with row_model_class::class_to_parse_lambda defined" do
+        before do
+          row_model_class.instance_exec do
+            def class_to_parse_lambda
+              super.merge(Hash => ->(s) { JSON.parse(s) })
+            end
+          end
+        end
+        let(:options) { { type: Hash } }
+        let(:source_value) { '{ "key": 1 }' }
+
+        it "returns does the correct parsing for the class" do
+          expect(subject).to eql("key" => 1)
         end
       end
 
@@ -220,14 +236,6 @@ describe CsvRowModel::Import::Attribute do
   describe "class" do
     describe "::custom_check_options" do
       subject { described_class.custom_check_options(options) }
-
-      context "with invalid :type Option" do
-        let(:options) { { type: Object } }
-
-        it "raises exception" do
-          expect { subject }.to raise_error(":type must be Boolean, String, Integer, Float, DateTime, Date")
-        end
-      end
 
       context "with :type and :parse option" do
         let(:options) { { type: Date, parse: ->(s) { "haha" } } }

@@ -42,30 +42,16 @@ module CsvRowModel
 
       protected
 
-      # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
-      # Can pass custom Proc with :parse option.
-      CLASS_TO_PARSE_LAMBDA = {
-        nil      => ->(s) { s }, # no type given
-        Boolean  => ->(s) { s =~ BooleanFormatValidator::FALSE_BOOLEAN_REGEX ? false : true },
-        String   => ->(s) { s },
-        Integer  => ->(s) { s.to_i },
-        Float    => ->(s) { s.to_f },
-        DateTime => ->(s) { s.present? ? DateTime.parse(s) : s },
-        Date     => ->(s) { s.present? ? Date.parse(s) : s }
-      }.freeze
-
       # @return [Lambda, Proc] returns the Lambda/Proc given in the parse option or:
       # ->(source_value) { parse_proc_exists? ? parsed_value : source_value  }
       def parse_lambda
-        parse_lambda = options[:parse] || CLASS_TO_PARSE_LAMBDA[options[:type]]
+        parse_lambda = options[:parse] || row_model_class.class_to_parse_lambda[options[:type]]
         return parse_lambda if parse_lambda
       end
 
       class << self
         def custom_check_options(options)
           raise ArgumentError.new("Use :parse OR :type option, but not both") if options[:parse] && options[:type]
-          return if options[:parse] || CLASS_TO_PARSE_LAMBDA[options[:type]]
-          raise ArgumentError.new(":type must be #{CLASS_TO_PARSE_LAMBDA.keys.reject(&:nil?).join(", ")}")
         end
 
         def valid_options

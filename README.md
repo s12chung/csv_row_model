@@ -171,7 +171,15 @@ class ProjectImportRowModel
 end
 ```
 
-There are validators for different types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`. See [Type Format](#type-format) for more.
+There are validators for available types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`. See [Type Format](#type-format) for more. You can also customize and create new types via a override:
+
+```ruby
+class ProjectImportRowModel
+  def self.class_to_parse_lambda
+    super.merge(Hash => ->(s) { JSON.parse(s) })
+  end
+end
+```
 
 #### Default
 Sets the default value of the cell:
@@ -238,6 +246,8 @@ ProjectRowModel.new(["not_a_number"])
 row_model.valid? # => false
 row_model.errors.full_messages # => ["Id is not a Integer format"]
 ```
+
+The above uses `IntegerFormatValidator` internally, you may customize this class.
 
 #### Default Changes
 A custom validator for [Default Changes](#default).

@@ -46,6 +46,7 @@ describe CsvRowModel::Model::Attributes do
           expect(klass).to receive(:check_options).with(CsvRowModel::Model::Header,
                                                         CsvRowModel::Import::CsvStringModel::Model,
                                                         CsvRowModel::Import::Attribute,
+                                                        klass,
                                                         {}).once.and_call_original
           subject
         end
