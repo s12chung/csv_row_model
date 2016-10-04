@@ -212,6 +212,14 @@ describe CsvRowModel::Import::Attribute do
           it "returns true" do
             expect(subject).to eql true
           end
+
+          context "with false default" do
+            let(:options) { { default: false } }
+
+            it "returns the default" do
+              expect(subject).to eql true
+            end
+          end
         end
 
         context "without original value" do

@@ -35,7 +35,7 @@ module CsvRowModel
       end
 
       def default?
-        !!options[:default] && parsed_value.blank?
+        options.has_key?(:default) && parsed_value.blank?
       end
 
       def default_change
