@@ -371,7 +371,7 @@ row_model.valid? # => false
 row_model.errors.full_messages # => ["Id must be greater than 0"]
 ```
 
-Note that `CsvStringModel` validations are calculated after [Format Attribute](#format-cell).
+Note that `CsvStringModel` validations are calculated after [Format Attribute](#format-cell) and custom validators can't be autoloaded---[non-reloadable classes can't access reloadable ones](http://stackoverflow.com/questions/29636334/a-copy-of-xxx-has-been-removed-from-the-module-tree-but-is-still-active).
 
 ### Represents
 A CSV is often a representation of database model(s), much like how JSON parameters represents models in requests.
