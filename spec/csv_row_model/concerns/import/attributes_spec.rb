@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe CsvRowModel::Import::Attributes do
-  let(:row_model_class) { BasicImportModel }
-  let(:source_row)         { %w[1.01 b] }
-  let(:instance)           { row_model_class.new(source_row) }
+  let(:row_model_class) { Class.new BasicImportModel }
+  let(:source_row) { %w[1.01 b] }
+  let(:instance) { row_model_class.new(source_row) }
 
   describe "instance" do
     describe "#attribute_objects" do

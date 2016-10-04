@@ -108,7 +108,7 @@ describe CsvRowModel::Import::Attribute do
         context "with nil source_value" do
           let(:source_value) { nil }
 
-          described_class::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
+          CsvRowModel::Import::Attributes::CLASS_TO_PARSE_LAMBDA.keys.each do |type|
             context "with #{type.nil? ? "nil" : type} :type" do
               let(:options) { { type: type } }
 
@@ -116,6 +116,30 @@ describe CsvRowModel::Import::Attribute do
                 expect { subject }.to_not raise_error
               end
             end
+          end
+        end
+      end
+
+      context "with row_model_class::class_to_parse_lambda defined" do
+        before do
+          _override = override
+          row_model_class.define_singleton_method(:class_to_parse_lambda) { super().merge(_override) }
+        end
+        let(:override) { { Hash => ->(s) { JSON.parse(s) } } }
+        let(:options) { { type: Hash } }
+        let(:source_value) { '{ "key": 1 }' }
+
+        it "returns does the correct parsing for the class" do
+          expect(subject).to eql("key" => 1)
+        end
+
+        context 'with custom String' do
+          let(:override) { { 'CommaList' => ->(s) { s.split(",").map(&:strip) } } }
+          let(:options) { { type: 'CommaList' } }
+          let(:source_value) { '   thing1 , thing2' }
+
+          it "raises a new type of exception" do
+            expect(subject).to eql %w[thing1 thing2]
           end
         end
       end
@@ -188,6 +212,14 @@ describe CsvRowModel::Import::Attribute do
           it "returns true" do
             expect(subject).to eql true
           end
+
+          context "with false default" do
+            let(:options) { { default: false } }
+
+            it "returns the default" do
+              expect(subject).to eql true
+            end
+          end
         end
 
         context "without original value" do
@@ -220,14 +252,6 @@ describe CsvRowModel::Import::Attribute do
   describe "class" do
     describe "::custom_check_options" do
       subject { described_class.custom_check_options(options) }
-
-      context "with invalid :type Option" do
-        let(:options) { { type: Object } }
-
-        it "raises exception" do
-          expect { subject }.to raise_error(":type must be Boolean, String, Integer, Float, DateTime, Date")
-        end
-      end
 
       context "with :type and :parse option" do
         let(:options) { { type: Date, parse: ->(s) { "haha" } } }

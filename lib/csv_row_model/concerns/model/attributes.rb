@@ -51,6 +51,20 @@ module CsvRowModel
           cell
         end
 
+        #
+        # Safe to override
+        #
+        # Really related to Import::Attributes, but placed here to help with the class heiarchy
+        def class_to_parse_lambda
+          CsvRowModel::Import::Attributes::CLASS_TO_PARSE_LAMBDA
+        end
+
+        # Really related to Import::Attributes, but placed here to help with the class heiarchy (`::column` can be called without `include CsvRowModel::Import`)
+        def custom_check_options(options)
+          return if options[:parse] || class_to_parse_lambda[options[:type]]
+          raise ArgumentError.new(":type must be #{class_to_parse_lambda.keys.reject(&:nil?).join(", ")}")
+        end
+
         protected
 
         # Adds column to the row model
@@ -70,6 +84,7 @@ module CsvRowModel
           check_options Model::Header,
                         Import::CsvStringModel::Model,
                         Import::Attribute,
+                        self, # defined above
                         options
 
           columns_object.merge(column_name.to_sym => options)

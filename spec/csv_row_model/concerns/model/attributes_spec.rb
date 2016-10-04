@@ -46,6 +46,7 @@ describe CsvRowModel::Model::Attributes do
           expect(klass).to receive(:check_options).with(CsvRowModel::Model::Header,
                                                         CsvRowModel::Import::CsvStringModel::Model,
                                                         CsvRowModel::Import::Attribute,
+                                                        klass,
                                                         {}).once.and_call_original
           subject
         end
@@ -101,6 +102,38 @@ describe CsvRowModel::Model::Attributes do
             it "keeps the column_names in the same order " do
               subject
               expect(child_class.column_names).to eql %i[blah blah1 blah2]
+            end
+          end
+        end
+      end
+
+      describe "::class_to_parse_lambda" do
+        subject { klass.class_to_parse_lambda }
+
+        it "returns the CLASS_TO_PARSE_LAMBDA" do
+          expect(subject).to eql CsvRowModel::Import::Attributes::CLASS_TO_PARSE_LAMBDA
+        end
+      end
+
+      describe "::custom_check_options" do
+        subject { klass.custom_check_options(options) }
+
+        context "with invalid :type Option" do
+          let(:options) { { type: Object } }
+
+          it "raises exception" do
+            expect { subject }.to raise_error(":type must be Boolean, String, Integer, Float, DateTime, Date")
+          end
+
+          context "with ::class_to_parse_lambda overwritten" do
+            before do
+              _override = override
+              klass.define_singleton_method(:class_to_parse_lambda) { super().merge(_override) }
+            end
+            let(:override) { { Hash => ->(s) { JSON.parse(s) } } }
+
+            it "raises a new type of exception" do
+              expect { subject }.to raise_error(":type must be Boolean, String, Integer, Float, DateTime, Date, Hash")
             end
           end
         end

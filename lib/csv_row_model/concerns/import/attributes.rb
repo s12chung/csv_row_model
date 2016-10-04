@@ -9,6 +9,18 @@ module CsvRowModel
       include AttributesBase
       include CsvStringModel
 
+      # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
+      # Can pass custom Proc with :parse option.
+      CLASS_TO_PARSE_LAMBDA = {
+        nil      => ->(s) { s }, # no type given
+        Boolean  => ->(s) { s =~ BooleanFormatValidator.false_boolean_regex ? false : true },
+        String   => ->(s) { s },
+        Integer  => ->(s) { s.to_i },
+        Float    => ->(s) { s.to_f },
+        DateTime => ->(s) { s.present? ? DateTime.parse(s) : s },
+        Date     => ->(s) { s.present? ? Date.parse(s) : s }
+      }.freeze
+
       included do
         ensure_attribute_method
       end

@@ -171,7 +171,20 @@ class ProjectImportRowModel
 end
 ```
 
-There are validators for different types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`. See [Type Format](#type-format) for more.
+There are validators for available types: `Boolean`, `Date`, `DateTime`, `Float`, `Integer`. See [Type Format](#type-format) for more. You can also customize and create new types via a override:
+
+```ruby
+class ProjectImportRowModel
+  # GOTCHA: this should be defined before `::column` is called,
+  # as `::column` uses this to check passed `:type` option (and return ArgumentError)
+  def self.class_to_parse_lambda
+    super.merge(
+      Hash => ->(s) { JSON.parse(s) },
+      'CommaList' => ->(s) { s.split(",").map(&:strip) }
+    )
+  end
+end
+```
 
 #### Default
 Sets the default value of the cell:
@@ -238,6 +251,8 @@ ProjectRowModel.new(["not_a_number"])
 row_model.valid? # => false
 row_model.errors.full_messages # => ["Id is not a Integer format"]
 ```
+
+The above uses `IntegerFormatValidator` internally, you may customize this class or create new validators for custom types.
 
 #### Default Changes
 A custom validator for [Default Changes](#default).
@@ -356,7 +371,7 @@ row_model.valid? # => false
 row_model.errors.full_messages # => ["Id must be greater than 0"]
 ```
 
-Note that `CsvStringModel` validations are calculated after [Format Attribute](#format-cell).
+Note that `CsvStringModel` validations are calculated after [Format Attribute](#format-cell) and custom validators can't be autoloaded---[non-reloadable classes can't access reloadable ones](http://stackoverflow.com/questions/29636334/a-copy-of-xxx-has-been-removed-from-the-module-tree-but-is-still-active).
 
 ### Represents
 A CSV is often a representation of database model(s), much like how JSON parameters represents models in requests.
