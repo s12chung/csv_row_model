@@ -23,6 +23,8 @@ module CsvRowModel
           value = formatted_value
           value.present? ? row_model.instance_exec(formatted_value, &parse_lambda) : value
         end
+      rescue
+        nil
       end
 
       def default_value
@@ -33,7 +35,7 @@ module CsvRowModel
       end
 
       def default?
-        !!options[:default] && formatted_value.blank?
+        !!options[:default] && parsed_value.blank?
       end
 
       def default_change
