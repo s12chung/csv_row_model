@@ -18,7 +18,7 @@ module CsvRowModel
       end
 
       def formatted_header
-        row_model_class.format_header(column_name, column_index, context)
+        row_model_class.format_header(column_name, context)
       end
 
       class << self

@@ -89,7 +89,7 @@ def header(column_name)
   header = options_for(column_name)[:header]
 
   # 2. format_header
-  header || format_header(column_name, column_index, context)
+  header || format_header(column_name, context)
 end
 ```
 
@@ -108,7 +108,7 @@ Override the `format_header` method to format column header names:
 class ProjectExportRowModel < ProjectRowModel
   include CsvRowModel::Export
   class << self
-    def format_header(column_name, column_index, context)
+    def format_header(column_name, context)
       column_name.to_s.titleize
     end
   end
@@ -126,7 +126,7 @@ def original_attribute(column_name)
   value = source_attributes[column_name]
 
   # 2. Clean or format each cell
-  value = self.class.format_cell(cell, column_name, column_index, context)
+  value = self.class.format_cell(cell, column_name, context)
 
   if value.present?
     # 3a. Parse the cell value (which does nothing if no parsing is specified)
@@ -147,7 +147,7 @@ Override the `format_cell` method to clean/format every cell:
 class ProjectImportRowModel < ProjectRowModel
   include CsvRowModel::Import
   class << self
-    def format_cell(cell, column_name, column_index, context)
+    def format_cell(cell, column_name, context)
       cell = cell.strip
       cell.blank? ? nil : cell
     end
@@ -473,7 +473,7 @@ represents this table:
 | Mike       | Jackson    |   Yes  |   Yes  |
 
 
-The `format_dynamic_column_header(header_model, column_name, dynamic_column_index, context)` can
+The `format_dynamic_column_header(header_model, column_name, context)` can
 be used to defined like `format_header`. Defined in both import and export due to headers being used for both.
 
 ### Export
@@ -515,7 +515,7 @@ class DynamicColumnImportModel < DynamicColumnModel
     # Clean/format every dynamic_column attribute array
     #
     # this is an override with the default implementation
-    def format_dynamic_column_cells(cells, column_name, column_index, context)
+    def format_dynamic_column_cells(cells, column_name, context)
       cells
     end
   end
@@ -527,35 +527,28 @@ row_model.skills # => ['No', 'Yes']
 
 ## File Model
 
-If you have to deal with a mapping on a csv you can use FileModel, isn't complete a this time and many cases isn't covered but can be helpful
+A File Model is a RowModel where the row represents the entire file. It looks like this:
 
-Here an example of FileRowModel
+| id   |  1   |
+|------|------|
+| name | abc  |
 
 ```ruby
 class FileRowModel
   include CsvRowModel::Model
   include CsvRowModel::Model::FileModel
 
-  row :string1
-  row :string2, header: 'String 2'
-
-  def self.format_header(column_name, column_index, context)
-    ":: - #{column_name} - ::"
-  end
+  row :id
+  row :name
 end
 ```
 
-You can add `format_header` really helpful in case of I18n
-
-you can pass `header:` option but we doesn't use it a the moment.
+The `:header` option is not available. It is a unfinished/unpolished API, so things may change.
 
 ### Import
 
-In import mode we looking for the entries who match with the header, and we get the value in the same row in the right column.
-
-i.e [Project Name, My Project]
-
-If here `Project Name` is the header so value will be `My Project`
+For File Model Import, the headers are matched via regex and the value is the cell to right of the header.
+When defining the schema, the order of the `row` calls do not matter.
 
 ```ruby
 class FileImportModel < FileRowModel
@@ -566,7 +559,7 @@ end
 
 ### Export
 
-In export mode you have to define template, this is more flexible than import. if you put and header, I mean in Symbol into the template, format_header will be call on it, so for I18n replacement is ok, for other cells you can ask the `source_model` or methods in the exporter
+For File Model Export, you have to define a template, where you fill in the values of each cell. Symbol values will match the row's header.
 
 ```ruby
 class FileExportModel < FileRowModel
@@ -576,15 +569,14 @@ class FileExportModel < FileRowModel
   def rows_template
     @rows_template ||= begin
       [
-        [ :string1, ''  , string_value(1)                  ],
-        [ 'String 2', '', ''             , ''              ],
-        [ ''        , '', ''             , string_value(2) ],
+        [:id, id],
+        ['', :name, name]
       ]
     end
   end
-
-  def string_value(number)
-    source_model.string_value(number)
+  
+  def name
+    source_model.name.upcase
   end
 end
 ```

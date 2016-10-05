@@ -91,7 +91,7 @@ describe CsvRowModel::Model::DynamicColumns do
     end
 
     describe "::format_dynamic_column_cells" do
-      subject { row_model_class.format_dynamic_column_cells(["blah"], nil, nil, nil) }
+      subject { row_model_class.format_dynamic_column_cells(["blah"], nil, nil) }
 
       it "returns the cells" do
         expect(subject).to eql ["blah"]
@@ -99,7 +99,7 @@ describe CsvRowModel::Model::DynamicColumns do
     end
 
     describe "::format_dynamic_column_header" do
-      subject { row_model_class.format_dynamic_column_header("blah", nil, nil, nil) }
+      subject { row_model_class.format_dynamic_column_header("blah", nil, nil) }
 
       it "returns the header_model" do
         expect(subject).to eql "blah"

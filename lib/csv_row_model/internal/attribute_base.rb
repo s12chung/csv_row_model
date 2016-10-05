@@ -12,7 +12,7 @@ module CsvRowModel
     end
 
     def formatted_value
-      @formatted_value ||= row_model_class.format_cell(source_value, column_name, column_index, row_model.context)
+      @formatted_value ||= row_model_class.format_cell(source_value, column_name, row_model.context)
     end
 
     def row_model_class

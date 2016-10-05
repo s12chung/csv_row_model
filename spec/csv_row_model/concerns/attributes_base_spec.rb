@@ -63,7 +63,7 @@ describe CsvRowModel::AttributesBase do
 
       subject { instance.formatted_attributes }
       it "returns the attributes hash" do
-        expect(subject).to eql(string1: "haha_source__string1__0__#<OpenStruct>", string2: "baka_source__string2__1__#<OpenStruct>")
+        expect(subject).to eql(string1: "haha_source__string1__#<OpenStruct>", string2: "baka_source__string2__#<OpenStruct>")
       end
     end
 

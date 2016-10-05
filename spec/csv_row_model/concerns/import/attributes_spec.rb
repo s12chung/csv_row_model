@@ -46,7 +46,7 @@ describe CsvRowModel::Import::Attributes do
       let(:row_model_class) { Class.new(super()) { def self.format_cell(*args); args.join("__") end } }
 
       it "returns the formatted_headers" do
-        expect(subject).to eql(string1: "1.01__string1__0__#<OpenStruct>", string2: "b__string2__1__#<OpenStruct>")
+        expect(subject).to eql(string1: "1.01__string1__#<OpenStruct>", string2: "b__string2__#<OpenStruct>")
       end
     end
 

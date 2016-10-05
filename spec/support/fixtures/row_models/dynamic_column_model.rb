@@ -23,7 +23,7 @@ end
 class DynamicColumnExportWithFormattingModel < DynamicColumnModel
   include CsvRowModel::Export
   class << self
-    def format_cell(cell, _column_name, _column_index, context)
+    def format_cell(cell, column_name, context)
       cell.upcase
     end
   end

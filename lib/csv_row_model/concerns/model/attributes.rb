@@ -38,7 +38,7 @@ module CsvRowModel
         # Safe to override
         #
         # @return [String] formatted header
-        def format_header(column_name, column_index, context)
+        def format_header(column_name, context)
           column_name
         end
 
@@ -46,8 +46,7 @@ module CsvRowModel
         #
         # @param cell [String] the cell's string
         # @param column_name [Symbol] the cell's column_name
-        # @param column_index [Integer] the column_name's index
-        def format_cell(cell, column_name, column_index, context)
+        def format_cell(cell, column_name, context)
           cell
         end
 

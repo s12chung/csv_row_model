@@ -21,7 +21,7 @@ describe CsvRowModel::AttributeBase do
       end
 
       it "returns the formatted_cell value and memoizes it" do
-        expect(subject).to eql("1.01__string1__0__#<OpenStruct>")
+        expect(subject).to eql("1.01__string1__#<OpenStruct>")
         expect(subject.object_id).to eql instance.formatted_value.object_id
       end
     end

@@ -16,8 +16,8 @@ describe CsvRowModel::Import::ParsedModel do
 
       context "with format_cell" do
         it "should format_cell first" do
-          expect(klass).to receive(:format_cell).with("1.01", :string1, 0, kind_of(OpenStruct)).and_return(nil)
-          expect(klass).to receive(:format_cell).with("b", :string2, 1, kind_of(OpenStruct)).and_return(nil)
+          expect(klass).to receive(:format_cell).with("1.01", :string1, kind_of(OpenStruct)).and_return(nil)
+          expect(klass).to receive(:format_cell).with("b", :string2, kind_of(OpenStruct)).and_return(nil)
           expect(subject.string1).to eql nil
           expect(subject.string2).to eql nil
         end
