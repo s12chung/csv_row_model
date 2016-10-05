@@ -1,5 +1,5 @@
 require 'csv_row_model/concerns/attributes_base'
-require 'csv_row_model/concerns/import/csv_string_model'
+require 'csv_row_model/concerns/import/parsed_model'
 require 'csv_row_model/internal/import/attribute'
 
 module CsvRowModel
@@ -7,7 +7,7 @@ module CsvRowModel
     module Attributes
       extend ActiveSupport::Concern
       include AttributesBase
-      include CsvStringModel
+      include ParsedModel
 
       # Mapping of column type classes to a parsing lambda. These are applied after {Import.format_cell}.
       # Can pass custom Proc with :parse option.
@@ -27,8 +27,8 @@ module CsvRowModel
 
       def attribute_objects
         @attribute_objects ||= begin
-          csv_string_model.valid?
-          _attribute_objects(csv_string_model.errors)
+          parsed_model.valid?
+          _attribute_objects(parsed_model.errors)
         end
       end
 
@@ -38,11 +38,11 @@ module CsvRowModel
       end
 
       protected
-      # to prevent circular dependency with csv_string_model
-      def _attribute_objects(csv_string_model_errors={})
+      # to prevent circular dependency with parsed_model
+      def _attribute_objects(parsed_model_errors={})
         index = -1
         array_to_block_hash(self.class.column_names) do |column_name|
-          Attribute.new(column_name, source_row[index += 1], csv_string_model_errors[column_name], self)
+          Attribute.new(column_name, source_row[index += 1], parsed_model_errors[column_name], self)
         end
       end
 
@@ -50,13 +50,13 @@ module CsvRowModel
         protected
         def merge_options(column_name, options={})
           original_options = columns[column_name]
-          csv_string_model_class.add_type_validation(column_name, columns[column_name]) unless original_options[:validate_type]
+          parsed_model_class.add_type_validation(column_name, columns[column_name]) unless original_options[:validate_type]
           super
         end
 
         def define_attribute_method(column_name)
           return if super { original_attribute(column_name) }.nil?
-          csv_string_model_class.add_type_validation(column_name, columns[column_name])
+          parsed_model_class.add_type_validation(column_name, columns[column_name])
         end
       end
     end

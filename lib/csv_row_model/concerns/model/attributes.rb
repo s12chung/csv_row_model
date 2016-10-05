@@ -74,7 +74,7 @@ module CsvRowModel
         #
         # @option options [class] :type class you want to automatically parse to (by default does nothing, equivalent to String)
         # @option options [Lambda, Proc] :parse for parsing the cell
-        # @option options [Boolean] :validate_type adds a validations within a {::csv_string_model} call.
+        # @option options [Boolean] :validate_type adds a validations within a {::parsed_model} call.
         # if true, it will add the default validation for the given :type (if applicable)
         #
         # @option options [Object] :default default value of the column if it is blank?, can pass Proc
@@ -82,7 +82,7 @@ module CsvRowModel
         # @option options [Hash] :header_matchs array with string to match cell to find in the row, by default column name
         def column(column_name, options={})
           check_options Model::Header,
-                        Import::CsvStringModel::Model,
+                        Import::ParsedModel::Model,
                         Import::Attribute,
                         self, # defined above
                         options

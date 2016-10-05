@@ -44,7 +44,7 @@ describe CsvRowModel::Model::Attributes do
 
         it "calls ::check_options with the args" do
           expect(klass).to receive(:check_options).with(CsvRowModel::Model::Header,
-                                                        CsvRowModel::Import::CsvStringModel::Model,
+                                                        CsvRowModel::Import::ParsedModel::Model,
                                                         CsvRowModel::Import::Attribute,
                                                         klass,
                                                         {}).once.and_call_original

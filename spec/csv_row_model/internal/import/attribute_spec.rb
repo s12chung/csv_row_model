@@ -2,9 +2,9 @@ require 'spec_helper'
 
 describe CsvRowModel::Import::Attribute do
   describe "instance" do
-    let(:instance) { described_class.new(:string1, source_value, csv_string_model_errors, row_model) }
+    let(:instance) { described_class.new(:string1, source_value, parsed_model_errors, row_model) }
     let(:source_value) { '1.01' }
-    let(:csv_string_model_errors) { nil }
+    let(:parsed_model_errors) { nil }
 
     let(:row_model_class) { Class.new BasicImportModel }
     let(:row_model) do
@@ -29,8 +29,8 @@ describe CsvRowModel::Import::Attribute do
         expect(subject).to eql("waka")
       end
 
-      context "with empty csv_string_model_errors" do
-        let(:csv_string_model_errors) { [] }
+      context "with empty parsed_model_errors" do
+        let(:parsed_model_errors) { [] }
         it "returns the result" do
           expect(subject).to eql("1.01")
         end
@@ -51,8 +51,8 @@ describe CsvRowModel::Import::Attribute do
         end
       end
 
-      context "with invalid csv_string_model" do
-        let(:csv_string_model_errors) { ["must be Integer"] }
+      context "with invalid parsed_model" do
+        let(:parsed_model_errors) { ["must be Integer"] }
         let(:options) { { type: Integer} }
 
         it "returns nil" do

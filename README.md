@@ -224,8 +224,8 @@ class ProjectImportRowModel
     validates :some_custom_string, presence: true
   end
   
-  # This is for validation of the strings before parsing. See: https://github.com/FinalCAD/csv_row_model#csvstringmodel
-  csv_string_model do
+  # This is for validation of the strings before parsing. See: https://github.com/FinalCAD/csv_row_model#parsedmodel
+  parsed_model do
     validates :id, presence: true
     # can do warnings too
   end
@@ -242,7 +242,7 @@ class ProjectImportRowModel
   column :id, type: Integer, validate_type: true
 
   # the :validate_type option is the same as:
-  # csv_string_model do
+  # parsed_model do
   #   validates :id, integer_format: true, allow_blank: true
   # end
 end
@@ -331,8 +331,8 @@ end
 
 ## Advanced Import
 
-### CsvStringModel
-The `CsvStringModel` represents a row BEFORE parsing to add validations.
+### ParsedModel
+The `ParsedModel` represents a row BEFORE parsing to add validations.
 
 ```ruby
 class ProjectImportRowModel
@@ -344,10 +344,10 @@ class ProjectImportRowModel
   # this is applied to the parsed CSV on the model
   validates :id, numericality: { greater_than: 0 }
 
-  csv_string_model do
-    # define your csv_string_model here
+  parsed_model do
+    # define your parsed_model here
 
-    # this is applied BEFORE the parsed CSV on csv_string_model
+    # this is applied BEFORE the parsed CSV on parsed_model
     validates :id, presence: true
 
     def random_method; "Hihi" end
@@ -356,10 +356,10 @@ end
 
 # Applied to the String
 ProjectImportRowModel.new([""])
-csv_string_model = row_model.csv_string_model
-csv_string_model.random_method => "Hihi"
-csv_string_model.valid? => false
-csv_string_model.errors.full_messages # => ["Id can't be blank'"]
+parsed_model = row_model.parsed_model
+parsed_model.random_method => "Hihi"
+parsed_model.valid? => false
+parsed_model.errors.full_messages # => ["Id can't be blank'"]
 
 # Errors are propagated for simplicity
 row_model.valid? # => false
@@ -371,7 +371,7 @@ row_model.valid? # => false
 row_model.errors.full_messages # => ["Id must be greater than 0"]
 ```
 
-Note that `CsvStringModel` validations are calculated after [Format Attribute](#format-cell) and custom validators can't be autoloaded---[non-reloadable classes can't access reloadable ones](http://stackoverflow.com/questions/29636334/a-copy-of-xxx-has-been-removed-from-the-module-tree-but-is-still-active).
+Note that `ParsedModel` validations are calculated after [Format Attribute](#format-cell) and custom validators can't be autoloaded---[non-reloadable classes can't access reloadable ones](http://stackoverflow.com/questions/29636334/a-copy-of-xxx-has-been-removed-from-the-module-tree-but-is-still-active).
 
 ### Represents
 A CSV is often a representation of database model(s), much like how JSON parameters represents models in requests.
