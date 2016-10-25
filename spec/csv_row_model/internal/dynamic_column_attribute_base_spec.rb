@@ -22,7 +22,7 @@ describe CsvRowModel::DynamicColumnAttributeBase do
 
       it "formats the column cells and memoizes" do
         expect(instance).to receive(:unformatted_value).and_return(unformatted_value)
-        expect(subject).to eql [unformatted_value, :skills, 0, OpenStruct.new]
+        expect(subject).to eql [unformatted_value, :skills, OpenStruct.new]
         expect(subject.object_id).to eql instance.value.object_id
       end
     end

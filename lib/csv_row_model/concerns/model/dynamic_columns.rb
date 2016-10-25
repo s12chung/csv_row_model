@@ -41,14 +41,14 @@ module CsvRowModel
         #
         # @param cells [Array] Array of values
         # @param column_name [Symbol] Dynamic column name
-        def format_dynamic_column_cells(cells, column_name, column_index, context)
+        def format_dynamic_column_cells(cells, column_name, context)
           cells
         end
 
         # Safe to override
         #
         # @return [String] formatted header
-        def format_dynamic_column_header(header_model, column_name, dynamic_column_index, context)
+        def format_dynamic_column_header(header_model, column_name, context)
           header_model
         end
 

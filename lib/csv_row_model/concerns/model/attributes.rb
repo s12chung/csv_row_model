@@ -38,7 +38,7 @@ module CsvRowModel
         # Safe to override
         #
         # @return [String] formatted header
-        def format_header(column_name, column_index, context)
+        def format_header(column_name, context)
           column_name
         end
 
@@ -46,8 +46,7 @@ module CsvRowModel
         #
         # @param cell [String] the cell's string
         # @param column_name [Symbol] the cell's column_name
-        # @param column_index [Integer] the column_name's index
-        def format_cell(cell, column_name, column_index, context)
+        def format_cell(cell, column_name, context)
           cell
         end
 
@@ -74,7 +73,7 @@ module CsvRowModel
         #
         # @option options [class] :type class you want to automatically parse to (by default does nothing, equivalent to String)
         # @option options [Lambda, Proc] :parse for parsing the cell
-        # @option options [Boolean] :validate_type adds a validations within a {::csv_string_model} call.
+        # @option options [Boolean] :validate_type adds a validations within a {::parsed_model} call.
         # if true, it will add the default validation for the given :type (if applicable)
         #
         # @option options [Object] :default default value of the column if it is blank?, can pass Proc
@@ -82,7 +81,7 @@ module CsvRowModel
         # @option options [Hash] :header_matchs array with string to match cell to find in the row, by default column name
         def column(column_name, options={})
           check_options Model::Header,
-                        Import::CsvStringModel::Model,
+                        Import::ParsedModel::Model,
                         Import::Attribute,
                         self, # defined above
                         options

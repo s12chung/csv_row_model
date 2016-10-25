@@ -21,8 +21,8 @@ module CsvRowModel
 
         def header_matchers(context)
           @header_matchers ||= begin
-            row_names.map.with_index do |row_name, index|
-              if formatted_header = self.format_header(row_name, index, context)
+            row_names.map do |row_name|
+              if formatted_header = self.format_header(row_name, context)
                 Regexp.new("^#{formatted_header}$", Regexp::IGNORECASE)
               end
             end.compact
@@ -38,7 +38,7 @@ module CsvRowModel
           while csv.next_row
             current_row = csv.read_row
 
-            current_row.each_with_index do |cell, position|
+            current_row.each.with_index do |cell, position|
               next if position == 0 # This is a hack to ignore the first column because of infos.csv have 'Compte' twice... 
               next if cell.blank?
               index = index_header_match(cell, context)

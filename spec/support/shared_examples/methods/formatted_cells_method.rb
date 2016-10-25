@@ -22,8 +22,8 @@ shared_examples "formatted_cells_method" do |mod, results|
       klass
     end
 
-    it "it bumps the index up on the formatted cell" do
-      expect(subject.first).to eql results.first.gsub("__0__", "__1__")
+    it "the formatted_cell doesn't change" do
+      expect(subject.first).to eql results.first
     end
   end
 end

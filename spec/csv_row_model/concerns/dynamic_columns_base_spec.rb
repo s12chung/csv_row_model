@@ -81,15 +81,15 @@ describe CsvRowModel::DynamicColumnsBase do
       end
 
       it "returns all attributes of dynamic columns" do
-        expect(subject).to eql(skills: ["Organized__skills__0__#<OpenStruct>", "Clean__skills__1__#<OpenStruct>", "Punctual__skills__2__#<OpenStruct>", "Strong__skills__3__#<OpenStruct>", "Crazy__skills__4__#<OpenStruct>", "Flexible__skills__5__#<OpenStruct>"])
+        expect(subject).to eql(skills: ["Organized__skills__#<OpenStruct>", "Clean__skills__#<OpenStruct>", "Punctual__skills__#<OpenStruct>", "Strong__skills__#<OpenStruct>", "Crazy__skills__#<OpenStruct>", "Flexible__skills__#<OpenStruct>"])
       end
 
       with_context "standard columns defined" do
         it "returns all attributes including the dynamic columns" do
           expect(subject).to eql(
-                               first_name: "Mario_source__first_name__0__#<OpenStruct>",
-                               last_name: "Italian_source__last_name__1__#<OpenStruct>",
-                               skills: ["Organized__skills__2__#<OpenStruct>", "Clean__skills__3__#<OpenStruct>", "Punctual__skills__4__#<OpenStruct>", "Strong__skills__5__#<OpenStruct>", "Crazy__skills__6__#<OpenStruct>", "Flexible__skills__7__#<OpenStruct>"]
+                               first_name: "Mario_source__first_name__#<OpenStruct>",
+                               last_name: "Italian_source__last_name__#<OpenStruct>",
+                               skills: ["Organized__skills__#<OpenStruct>", "Clean__skills__#<OpenStruct>", "Punctual__skills__#<OpenStruct>", "Strong__skills__#<OpenStruct>", "Crazy__skills__#<OpenStruct>", "Flexible__skills__#<OpenStruct>"]
                              )
         end
       end

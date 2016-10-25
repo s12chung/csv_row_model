@@ -1,43 +1,43 @@
 module CsvRowModel
   module Import
-    module CsvStringModel
+    module ParsedModel
       extend ActiveSupport::Concern
 
       def valid?(*args)
         super
-        call_wrapper = using_warnings? ? csv_string_model.method(:using_warnings) : ->(&block) { block.call }
+        call_wrapper = using_warnings? ? parsed_model.method(:using_warnings) : ->(&block) { block.call }
         call_wrapper.call do
-          csv_string_model.valid?(*args)
-          errors.messages.merge!(csv_string_model.errors.messages.reject {|k, v| v.empty? })
+          parsed_model.valid?(*args)
+          errors.messages.merge!(parsed_model.errors.messages.reject {|k, v| v.empty? })
           errors.empty?
         end
       end
 
-      # @return [Import::CsvStringModel::Model] a model with validations related to csv_string_model (values are from format_cell)
-      def csv_string_model
-        @csv_string_model ||= begin
+      # @return [Import::ParsedModel::Model] a model with validations related to parsed_model (values are from format_cell)
+      def parsed_model
+        @parsed_model ||= begin
           attribute_objects = _attribute_objects
           formatted_hash = array_to_block_hash(self.class.column_names) { |column_name| attribute_objects[column_name].formatted_value }
-          self.class.csv_string_model_class.new(formatted_hash)
+          self.class.parsed_model_class.new(formatted_hash)
         end
       end
 
       protected
       def _original_attribute(column_name)
-        csv_string_model.valid?
-        return nil unless csv_string_model.errors[column_name].blank?
+        parsed_model.valid?
+        return nil unless parsed_model.errors[column_name].blank?
       end
 
       class_methods do
-        # @return [Class] the Class with validations of the csv_string_model
-        def csv_string_model_class
-          @csv_string_model_class ||= inherited_custom_class(:csv_string_model_class, Model)
+        # @return [Class] the Class with validations of the parsed_model
+        def parsed_model_class
+          @parsed_model_class ||= inherited_custom_class(:parsed_model_class, Model)
         end
 
         protected
-        # Called to add validations to the csv_string_model_class
-        def csv_string_model(&block)
-          csv_string_model_class.class_eval(&block)
+        # Called to add validations to the parsed_model_class
+        def parsed_model(&block)
+          parsed_model_class.class_eval(&block)
         end
       end
 

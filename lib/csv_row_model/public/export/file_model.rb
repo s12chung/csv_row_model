@@ -6,9 +6,9 @@ module CsvRowModel
       # @return [Array] an array of rows, where if cell is row_name, it's parsed into the header_match
       #                 and everything else is return as is.
       def to_rows
-        rows_template.map.with_index do |row, index|
+        rows_template.map do |row|
           row.map do |cell|
-            self.class.row_names.include?(cell) ? self.class.format_header(cell, index, context) : cell.to_s
+            self.class.row_names.include?(cell) ? self.class.format_header(cell, context) : cell.to_s
           end
         end
       end

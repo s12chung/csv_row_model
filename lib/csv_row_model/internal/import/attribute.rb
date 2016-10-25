@@ -3,17 +3,17 @@ require 'csv_row_model/internal/attribute_base'
 module CsvRowModel
   module Import
     class Attribute < CsvRowModel::AttributeBase
-      attr_reader :source_value, :csv_string_model_errors
+      attr_reader :source_value, :parsed_model_errors
 
-      def initialize(column_name, source_value, csv_string_model_errors, row_model)
+      def initialize(column_name, source_value, parsed_model_errors, row_model)
         @source_value = source_value
-        @csv_string_model_errors = csv_string_model_errors
+        @parsed_model_errors = parsed_model_errors
         super(column_name, row_model)
       end
 
       def value
         @value ||= begin
-          return unless csv_string_model_errors.blank?
+          return unless parsed_model_errors.blank?
           default? ? default_value : parsed_value
         end
       end

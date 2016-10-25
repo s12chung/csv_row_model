@@ -14,17 +14,17 @@ describe CsvRowModel::Import::Attributes do
         expect(subject.values.map(&:class)).to eql [CsvRowModel::Import::Attribute] * 2
       end
 
-      context "invalid and invalid csv_string_model" do
+      context "invalid and invalid parsed_model" do
         let(:row_model_class) do
           Class.new(BasicImportModel) do
             validates :string1, presence: true
-            csv_string_model { validates :string2, presence: true }
+            parsed_model { validates :string2, presence: true }
           end
         end
         let(:source_row) { [] }
 
-        it "passes the csv_string_model.errors to _cells_objects" do
-          expect(instance).to receive(:_attribute_objects).with(no_args).once.and_call_original # for csv_string_model
+        it "passes the parsed_model.errors to _cells_objects" do
+          expect(instance).to receive(:_attribute_objects).with(no_args).once.and_call_original # for parsed_model
           expect(instance).to receive(:_attribute_objects).once do |errors|
             expect(errors.messages).to eql(string2: ["can't be blank"])
             {} # return empty hash to keep calling API
@@ -36,7 +36,7 @@ describe CsvRowModel::Import::Attributes do
           values = subject.values
           expect(values.map(&:column_name)).to eql %i[string1 string2]
           expect(values.map(&:source_value)).to eql [nil, nil]
-          expect(values.map(&:csv_string_model_errors)).to eql [[], ["can't be blank"]]
+          expect(values.map(&:parsed_model_errors)).to eql [[], ["can't be blank"]]
         end
       end
     end
@@ -46,7 +46,7 @@ describe CsvRowModel::Import::Attributes do
       let(:row_model_class) { Class.new(super()) { def self.format_cell(*args); args.join("__") end } }
 
       it "returns the formatted_headers" do
-        expect(subject).to eql(string1: "1.01__string1__0__#<OpenStruct>", string2: "b__string2__1__#<OpenStruct>")
+        expect(subject).to eql(string1: "1.01__string1__#<OpenStruct>", string2: "b__string2__#<OpenStruct>")
       end
     end
 
@@ -88,7 +88,7 @@ describe CsvRowModel::Import::Attributes do
 
       it "adds validations" do
         expect(row_model_class).to_not receive(:define_proxy_method)
-        expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).once.and_call_original
+        expect(row_model_class.parsed_model_class).to receive(:add_type_validation).once.and_call_original
         subject
       end
 
@@ -97,7 +97,7 @@ describe CsvRowModel::Import::Attributes do
 
         it "doesn't add validations" do
           expect(row_model_class).to_not receive(:define_proxy_method)
-          expect(row_model_class.csv_string_model_class).to_not receive(:add_type_validation)
+          expect(row_model_class.parsed_model_class).to_not receive(:add_type_validation)
 
           subject
         end
@@ -106,7 +106,7 @@ describe CsvRowModel::Import::Attributes do
 
     describe "::define_attribute_method" do
       subject { row_model_class.send(:define_attribute_method, :waka) }
-      before { expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka, nil).once }
+      before { expect(row_model_class.parsed_model_class).to receive(:add_type_validation).with(:waka, nil).once }
 
       it "makes an attribute that calls original_attribute" do
         subject
@@ -115,7 +115,7 @@ describe CsvRowModel::Import::Attributes do
       end
 
       context "with another validation added" do
-        before { expect(row_model_class.csv_string_model_class).to receive(:add_type_validation).with(:waka2, nil).once }
+        before { expect(row_model_class.parsed_model_class).to receive(:add_type_validation).with(:waka2, nil).once }
         it_behaves_like "define_attribute_method"
       end
     end

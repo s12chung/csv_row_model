@@ -26,12 +26,12 @@ describe CsvRowModel::Export::DynamicColumnAttribute do
     describe "#formatted_cells" do
       open_struct = OpenStruct.new(skills: Skill.all)
       it_behaves_like "formatted_cells_method", CsvRowModel::Export, [
-        "Organized__skills__0__#{open_struct}",
-        "Clean__skills__1__#{open_struct}",
-        "Punctual__skills__2__#{open_struct}",
-        "Strong__skills__3__#{open_struct}",
-        "Crazy__skills__4__#{open_struct}",
-        "Flexible__skills__5__#{open_struct}"
+        "Organized__skills__#{open_struct}",
+        "Clean__skills__#{open_struct}",
+        "Punctual__skills__#{open_struct}",
+        "Strong__skills__#{open_struct}",
+        "Crazy__skills__#{open_struct}",
+        "Flexible__skills__#{open_struct}"
       ]
     end
 

@@ -38,7 +38,7 @@ describe CsvRowModel::Import::DynamicColumns do
       let(:row_model_class) { Class.new(super()) { def self.format_dynamic_column_header(*args); args.join("__") end } }
 
       it "returns the formatted_headers" do
-        expect(subject).to eql ["Organized__skills__0__#<OpenStruct>", "Clean__skills__0__#<OpenStruct>", "Punctual__skills__0__#<OpenStruct>", "Strong__skills__0__#<OpenStruct>", "Crazy__skills__0__#<OpenStruct>", "Flexible__skills__0__#<OpenStruct>"]
+        expect(subject).to eql ["Organized__skills__#<OpenStruct>", "Clean__skills__#<OpenStruct>", "Punctual__skills__#<OpenStruct>", "Strong__skills__#<OpenStruct>", "Crazy__skills__#<OpenStruct>", "Flexible__skills__#<OpenStruct>"]
       end
     end
 

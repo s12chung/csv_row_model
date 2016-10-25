@@ -42,12 +42,12 @@ describe CsvRowModel::Import::DynamicColumnAttribute do
 
     describe "#formatted_cells" do
       it_behaves_like "formatted_cells_method", CsvRowModel::Import, [
-        "Yes__skills__0__#<OpenStruct>",
-        "Yes__skills__1__#<OpenStruct>",
-        "No__skills__2__#<OpenStruct>",
-        "Yes__skills__3__#<OpenStruct>",
-        "Yes__skills__4__#<OpenStruct>",
-        "No__skills__5__#<OpenStruct>"
+        "Yes__skills__#<OpenStruct>",
+        "Yes__skills__#<OpenStruct>",
+        "No__skills__#<OpenStruct>",
+        "Yes__skills__#<OpenStruct>",
+        "Yes__skills__#<OpenStruct>",
+        "No__skills__#<OpenStruct>"
       ]
     end
 
@@ -62,12 +62,12 @@ describe CsvRowModel::Import::DynamicColumnAttribute do
 
       it "returns an array of the formatted_cells" do
         expect(subject).to eql [
-                                 "Organized__skills__0__#<OpenStruct>",
-                                 "Clean__skills__0__#<OpenStruct>",
-                                 "Punctual__skills__0__#<OpenStruct>",
-                                 "Strong__skills__0__#<OpenStruct>",
-                                 "Crazy__skills__0__#<OpenStruct>",
-                                 "Flexible__skills__0__#<OpenStruct>"
+                                 "Organized__skills__#<OpenStruct>",
+                                 "Clean__skills__#<OpenStruct>",
+                                 "Punctual__skills__#<OpenStruct>",
+                                 "Strong__skills__#<OpenStruct>",
+                                 "Crazy__skills__#<OpenStruct>",
+                                 "Flexible__skills__#<OpenStruct>"
                                ]
       end
 
@@ -82,7 +82,7 @@ describe CsvRowModel::Import::DynamicColumnAttribute do
         end
 
         it "it bumps the index up for the dynamic_column_index" do
-          expect(subject.first).to eql "Organized__skills__1__#<OpenStruct>"
+          expect(subject.first).to eql "Organized__skills__#<OpenStruct>"
         end
       end
     end

@@ -12,7 +12,7 @@ describe CsvRowModel::Model::Header do
     subject { instance.value }
 
     it "returns the formatted_header" do
-      expect(subject).to eql "string1__0__#<OpenStruct string1=\"context\">"
+      expect(subject).to eql "string1__#<OpenStruct string1=\"context\">"
     end
 
     context "with :header option" do

@@ -11,7 +11,7 @@ describe CsvRowModel::Model::Attributes do
 
     describe "::format_header" do
       let(:header) { 'user_name' }
-      subject { BasicRowModel.format_header(header, nil, nil) }
+      subject { BasicRowModel.format_header(header, nil) }
 
       it "returns the header" do
         expect(subject).to eql header
@@ -29,7 +29,7 @@ describe CsvRowModel::Model::Attributes do
 
     describe "::format_cell" do
       let(:cell) { "the_cell" }
-      subject { BasicRowModel.format_cell(cell, nil, nil, nil) }
+      subject { BasicRowModel.format_cell(cell, nil, nil) }
 
       it "returns the cell" do
         expect(subject).to eql cell
@@ -44,7 +44,7 @@ describe CsvRowModel::Model::Attributes do
 
         it "calls ::check_options with the args" do
           expect(klass).to receive(:check_options).with(CsvRowModel::Model::Header,
-                                                        CsvRowModel::Import::CsvStringModel::Model,
+                                                        CsvRowModel::Import::ParsedModel::Model,
                                                         CsvRowModel::Import::Attribute,
                                                         klass,
                                                         {}).once.and_call_original
