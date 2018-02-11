@@ -1,9 +1,8 @@
 language: ruby
 script: bundle exec rspec
 rvm:
-  - 2.1
-  - 2.2.5
   - 2.3.1
+  - 2.5.0
   - ruby-head
 gemfile:
   - gemfiles/activemodel_4.gemfile
@@ -14,3 +13,8 @@ matrix:
   exclude:
     - rvm: 2.1
       gemfile: gemfiles/activemodel_5.gemfile
+  deploy:
+  provider: script
+  script: sh bin/package_push.sh
+  on:
+    branch: RD-1545/use_gemfury
