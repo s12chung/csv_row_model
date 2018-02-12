@@ -2,7 +2,6 @@ language: ruby
 script: bundle exec rspec
 rvm:
   - 2.3.1
-  - 2.5.0
   - ruby-head
 gemfile:
   - gemfiles/activemodel_4.gemfile
