@@ -1,8 +1,6 @@
 language: ruby
 script: bundle exec rspec
 rvm:
-  - 2.1
-  - 2.2.5
   - 2.3.1
   - ruby-head
 gemfile:
@@ -14,3 +12,8 @@ matrix:
   exclude:
     - rvm: 2.1
       gemfile: gemfiles/activemodel_5.gemfile
+deploy:
+  provider: script
+  script: sh bin/package_push.sh
+  on:
+    branch: master
