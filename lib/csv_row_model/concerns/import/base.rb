@@ -74,8 +74,11 @@ module CsvRowModel
                               previous: file.previous_row_model)
 
             return row_model if csv.end_of_file?
-
-            next_row_is_parent = !row_model.append_child(csv.next_row)
+            
+            child_row_model = row_model.append_child(csv.next_row)
+            # Is a next parent when there is no children left 
+            # or if the next row match a invalid child but a valid parent 
+            next_row_is_parent = child_row_model.nil? || (!child_row_model.child? && child_row_model.valid?)
             return row_model if next_row_is_parent
           end
         end

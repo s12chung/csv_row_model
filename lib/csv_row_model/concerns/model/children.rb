@@ -27,6 +27,8 @@ module CsvRowModel
           if child_row_model.valid?
             public_send(relation_name) << child_row_model
             return child_row_model
+          else
+            return self.class.new(source, options)
           end
         end
         nil
