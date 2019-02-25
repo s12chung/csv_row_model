@@ -50,11 +50,14 @@ describe CsvRowModel::Model::Children do
         end
 
         context "when child is invalid" do
-          before { allow(another_instance).to receive(:valid?).and_return(false) }
+          before do
+            allow(BasicRowModel).to receive(:new).with(source_row, {}).and_return instance
+            allow(another_instance).to receive(:valid?).and_return(false)
+          end 
 
           it "doesn't append the child and returns nil" do
-            expect(subject).to eql nil
-            expect(parent_instance.children).to eql [instance]
+            expect(subject).to_not be_child
+            expect(parent_instance.children).to eql [parent_instance]
           end
         end
       end
