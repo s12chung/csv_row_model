@@ -76,7 +76,7 @@ module CsvRowModel
             return row_model if csv.end_of_file?
             
             child_row_model = row_model.append_child(csv.next_row)
-            # Is a next parent when there is no children left 
+            # Is a Next Parent when there are no children left 
             # or if the next row match a invalid child but a valid parent 
             next_row_is_parent = child_row_model.nil? || (!child_row_model.child? && child_row_model.valid?)
             return row_model if next_row_is_parent
